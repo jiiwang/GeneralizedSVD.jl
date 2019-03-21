@@ -85,7 +85,7 @@ function qsvd(A, B)
     @views R[1:k, n-l+1:n] = A13
     @views R[k+1:k+l, n-l+1:n]= T_ * Q3'
 
-    return U, V, Q, C, S, R
+    return U, V, Q, C, S, R, k, l
 end
 
 
@@ -142,23 +142,6 @@ end
 #     end
 # end
 
-# function preproc(A, B)
-#     r = rank(B)
-#     println(r)
-#     F1 = qr(B, Val(true))
-#     # F1.Q * F1.R * (F1.P)' - B
-#     R = view(F1.R, 1:r,1:size(B,2))
-#     # R = F1.R
-#     m, n = size(R)
-#     tau = zeros(Float64, min(m,n))
-#     R, tau = LAPACK.gerqf!(R, tau)
-#     # R, tau = LAPACK.gerqf!(R)
-#     # R_ = copy(R)
-#     # Q = LAPACK.orgrq!(R, tau, length(tau))
-#     # F1.Q * B * F1.P * Q'
-#     R
-# end
-
 function splitqr(R1, R2)
     m, n = size(R1)
 
@@ -181,7 +164,10 @@ function splitqr(R1, R2)
                 R1[j, j] = r
                 R2[i, j] = 0.0
                 if j+1 <= n
+                    # @views Ra = R1[j, j+1:n]
+                    # @views Rb = R2[i, j+1:n]
                     R1[j, j+1:n], R2[i, j+1:n] = appGiv(R1[j, j+1:n], R2[i, j+1:n], c, s)
+                    # Ra, Rb = appGiv(Ra, Rb, c, s)
                 end
             else
                 # eliminate element in R2 with elements in R2
@@ -189,22 +175,30 @@ function splitqr(R1, R2)
                 R2[j-m, j] = r
                 R2[i, j] = 0.0
                 if j+1 <= n
+                    # @views Ra = R2[j-m, j+1:n]
+                    # @views Rb = R2[i, j+1:n]
                     R2[j-m, j+1:n], R2[i, j+1:n] = appGiv(R2[j-m, j+1:n], R2[i, j+1:n], c, s)
+                    # Ra, Rb = appGiv(Ra, Rb, c, s)
                 end
             end
             # update col in Q1 and Q2
+            # @views Ra = R1[j, j+1:n]
+            # @views Rb = R2[i, j+1:n]
             Q1[1:m, j], T[1:m] = appGiv(Q1[1:m, j], T[1:m], c, s)
             Q2[1:n, j], T[m+1:m+n] = appGiv(Q2[1:n, j], T[m+1:m+n], c, s)
+            # appGiv(Q1[1:m, j], T[1:m], c, s)
+            # appGiv(Q2[1:n, j], T[m+1:m+n], c, s)
         end
         if m+i <= n
-           Q1[1:m,m+i] = T[1:m]
-           Q2[1:n,m+i] = T[m+1:m+n]
+           @views Q1[1:m,m+i] = T[1:m]
+           @views Q2[1:n,m+i] = T[m+1:m+n]
         end
     end
-    R = [R1; R2[1:n-m,:]]
+    @views R = [R1; R2[1:n-m,:]]
     return Q1, Q2, R
 end
 
+# This function generates a 2 by 2 Givens rotation matrix
 function genGiv(a, b)
     c = 0.0
     s = 1.0
@@ -227,8 +221,16 @@ function genGiv(a, b)
     return c, s, r
 end
 
+# function appGiv(v1, v2, c, s)
+#     u1 = c*v1 + s*v2
+#     u2 = c*v2 - s*v1
+#     return u1, u2
+# end
+
+# This function applies a 2 by 2 Givens rotation matrix
 function appGiv(v1, v2, c, s)
-    u1 = c*v1 + s*v2
-    u2 = c*v2 - s*v1
-    return u1, u2
+    tmp = v1
+    v1 = c*v1 + s*v2
+    v2 = c*v2 - s*tmp
+    return v1, v2
 end
