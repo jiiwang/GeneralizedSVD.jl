@@ -20,12 +20,12 @@ function qsvd(A, B)
     # QR in a split fashion
     # A23 is upper triangular
     if m-k-l >= 0
-        A23 = A[k+1:k+l, n-l+1:n]
+        @views A23 = A[k+1:k+l, n-l+1:n]
     # A23 is upper trapezoidal
     else
-        A23 = A[k+1:m, n-l+1:n]
+        @views A23 = A[k+1:m, n-l+1:n]
     end
-    B13 = B[1:l, n-l+1:n]
+    @views B13 = B[1:l, n-l+1:n]
 
     # R1 = copy(A23)
     # R2 = copy(B13)
@@ -42,23 +42,23 @@ function qsvd(A, B)
         # for i in 1:l
         #     C[i+k,i+k] = C1[i,i]
         # end
-        C[k+1:k+l,k+1:k+l] = C1
+        @views C[k+1:k+l,k+1:k+l] = C1
     else
         # for i in 1:m-k
         #     C[i+k,i+k] = C1[i,i]
-        C[k+1:m,k+1:k+l] = C1
+        @views C[k+1:m,k+1:k+l] = C1
     end
     S = zeros(Float64, p, k+l)
-    S[1:l, k+1:k+l] = S1
+    @views S[1:l, k+1:k+l] = S1
 
     # Step 5:
     # update U
     t = min(m, k+l)
-    U[1:m,k+1:t] = U[1:m,k+1:t] * U1
+    @views U[1:m,k+1:t] = U[1:m,k+1:t] * U1
 
     # Step 6:
     # update V
-    V[1:p,1:l] = V[1:p,1:l] * V1
+    @views V[1:p,1:l] = V[1:p,1:l] * V1
 
     # Step 7:
     # set T
@@ -70,23 +70,20 @@ function qsvd(A, B)
     T_ = copy(T)
     T, tau = LAPACK.gerqf!(T)
     Q3 = LAPACK.orgrq!(T, tau, length(tau))
-    # R =  T_ * Q3'
-    # R = UpperTriangular(T[1:row,col-row+1:col])
-    # R * Q3 - T_
 
     # Step 9:
     # update R13(a)
-    A13 = A[1:k, n-l+1:n]*Q3'
+    @views A13 = A[1:k, n-l+1:n]*Q3'
 
     # Step 10:
     # update Q
-    Q[1:n,n-l+1:n] = Q[1:n,n-l+1:n] * Q3'
+    @views Q[1:n,n-l+1:n] = Q[1:n,n-l+1:n] * Q3'
 
     # form R
     R = zeros(Float64, k+l, n)
-    R[1:k, n-k-l+1:n-l+1] = A[1:k,n-k-l+1:n-l+1]
-    R[1:k, n-l+1:n] = A13
-    R[k+1:k+l, n-l+1:n]= T_ * Q3'
+    @views R[1:k, n-k-l+1:n-l+1] = A[1:k,n-k-l+1:n-l+1]
+    @views R[1:k, n-l+1:n] = A13
+    @views R[k+1:k+l, n-l+1:n]= T_ * Q3'
 
     return U, V, Q, C, S, R
 end
