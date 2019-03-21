@@ -22,9 +22,11 @@ function qsvd(A, B)
     end
     B13 = B[1:l, n-l+1:n]
 
+    R1 = copy(A23)
+    R2 = copy(B13)
     Q1, Q2, R, A23, B13 = splitqr(A23, B13)
-    # Q = splitqr(A23, B13)
     # Q1, Q2, [Q1; Q2]
+    # [R1; R2] == [Q1; Q2]*R
     [Q1; Q2]
     # U1, V1, Z1, C1, S1 = csd(Q1, Q2)
     # # set C, S
@@ -133,11 +135,10 @@ function splitqr(R1, R2)
         T[m+i] = 1.0
         k = min(n, m-1+i)
         for j = 1:k
-            c, s, r = 0.0, 0.0, 0.0
             if j <= m
                 # eliminate element in R2 with elements in R1
                 c, s, r = genGiv(R1[j, j], R2[i, j])
-                R2[j, j] = r
+                R1[j, j] = r
                 R2[i, j] = 0.0
                 if j+1 <= n
                     R1[j, j+1:n], R2[i, j+1:n] = appGiv(R1[j, j+1:n], R2[i, j+1:n], c, s)
@@ -154,6 +155,12 @@ function splitqr(R1, R2)
             # update col in Q1 and Q2
             Q1[1:m, j], T[1:m] = appGiv(Q1[1:m, j], T[1:m], c, s)
             Q2[1:n, j], T[m+1:m+n] = appGiv(Q2[1:n, j], T[m+1:m+n], c, s)
+        end
+        if m+i <= n
+           Q1[1:m,m+i] = T[1:m]
+           Q2[1:n,m+i] = T[m+1:m+n]
+           # CALL SCOPY( M, WORK       , 1, U(1, M+I), 1 )
+           # CALL SCOPY( N, WORK( M+1 ), 1, V(1, M+I), 1 )
         end
     end
     R = [R1; R2[1:n-m,:]]
