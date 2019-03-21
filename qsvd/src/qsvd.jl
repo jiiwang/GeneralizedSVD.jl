@@ -11,41 +11,84 @@ function qsvd(A, B)
     m, n = size(A)
     p = size(B)[1]
 
+    # Step 1:
     # preprocess A, B
     U, V, Q, k, l, A, B = dggsvp3!(A, B)
     # rank([A' B']') == k+l
+
+    # Step 2:
     # QR in a split fashion
+    # A23 is upper triangular
     if m-k-l >= 0
         A23 = A[k+1:k+l, n-l+1:n]
+    # A23 is upper trapezoidal
     else
         A23 = A[k+1:m, n-l+1:n]
     end
     B13 = B[1:l, n-l+1:n]
 
-    R1 = copy(A23)
-    R2 = copy(B13)
-    Q1, Q2, R, A23, B13 = splitqr(A23, B13)
-    # Q1, Q2, [Q1; Q2]
-    # [R1; R2] == [Q1; Q2]*R
-    [Q1; Q2]
-    # U1, V1, Z1, C1, S1 = csd(Q1, Q2)
-    # # set C, S
-    # # update U
-    # t = min(m, k+l)
-    # U[1:m,k+1:t] = U[1:m,k+1:t] * U1
-    # # update V
-    # V[1:p,1:l] = V[1:p,1:l] * V1
-    # # set T
-    # T = Z1' * R
-    # # compute RQ decomposition of T
-    # row, col = size(T)
-    # tau = zeros(Float64, min(row,col))
-    # T, tau = LAPACK.gerqf!(T, tau)
-    # Q3 = LAPACK.orgrq!(T, tau, length(tau))
-    # # update R13(a)
-    # # update Q
-    # Q[1:n,n-l+1:n] = Q[1:n,n-l+1:n] * Q3'
-    # return U, V, Q
+    # R1 = copy(A23)
+    # R2 = copy(B13)
+    Q1, Q2, R23 = splitqr(A23, B13)
+
+    # Step 3:
+    # CSD of Q1, Q2
+    U1, V1, Z1, C1, S1 = csd(Q1, Q2)
+
+    # Step 4:
+    # set C, S
+    C = Matrix{Float64}(I, m, k+l)
+    if m-k-l >= 0
+        # for i in 1:l
+        #     C[i+k,i+k] = C1[i,i]
+        # end
+        C[k+1:k+l,k+1:k+l] = C1
+    else
+        # for i in 1:m-k
+        #     C[i+k,i+k] = C1[i,i]
+        C[k+1:m,k+1:k+l] = C1
+    end
+    S = zeros(Float64, p, k+l)
+    S[1:l, k+1:k+l] = S1
+
+    # Step 5:
+    # update U
+    t = min(m, k+l)
+    U[1:m,k+1:t] = U[1:m,k+1:t] * U1
+
+    # Step 6:
+    # update V
+    V[1:p,1:l] = V[1:p,1:l] * V1
+
+    # Step 7:
+    # set T
+    T = Z1' * R23
+
+    # Step 8:
+    # compute RQ decomposition of T
+    row, col = size(T)
+    T_ = copy(T)
+    T, tau = LAPACK.gerqf!(T)
+    Q3 = LAPACK.orgrq!(T, tau, length(tau))
+    # R =  T_ * Q3'
+    # R = UpperTriangular(T[1:row,col-row+1:col])
+    # R * Q3 - T_
+
+    # Step 9:
+    # update R13(a)
+    A13 = A[1:k, n-l+1:n]*Q3'
+
+    # Step 10:
+    # update Q
+    Q[1:n,n-l+1:n] = Q[1:n,n-l+1:n] * Q3'
+
+    # form R
+    R = zeros(Float64, k+l, n)
+    R[1:k, n-k-l+1:n-l+1] = A[1:k,n-k-l+1:n-l+1]
+    R[1:k, n-l+1:n] = A13
+    R[k+1:k+l, n-l+1:n]= T_ * Q3'
+
+    return U, V, Q, C, S, R
 end
 
 
@@ -159,13 +202,10 @@ function splitqr(R1, R2)
         if m+i <= n
            Q1[1:m,m+i] = T[1:m]
            Q2[1:n,m+i] = T[m+1:m+n]
-           # CALL SCOPY( M, WORK       , 1, U(1, M+I), 1 )
-           # CALL SCOPY( N, WORK( M+1 ), 1, V(1, M+I), 1 )
         end
     end
     R = [R1; R2[1:n-m,:]]
-    return Q1, Q2, R, R1, R2
-    # return [Q1; Q2]
+    return Q1, Q2, R
 end
 
 function genGiv(a, b)
