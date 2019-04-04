@@ -8,10 +8,10 @@
 #
 #       Q1' * Q1 + Q2' * Q2 = I
 #
-# Call csd function, return U, V, Z, C, S
+# Call csd function, return U, V, Z, C, S.
 # Calculate and print time elapsed for computing CSD.
 #
-# Assume ||Q1' * Q1 + Q2' * Q2 - I|| ≈ eps
+# Assume ||Q1' * Q1 + Q2' * Q2 - I|| ≈ eps,
 # compute:
 #
 #       res_q1 = ||U * C * Z' - Q1||/(max(m,l)* ||Q1|| * eps)
@@ -27,7 +27,7 @@
 # argument
 # m: num of rows in Q1
 # p: num of rows in Q2
-# l: num of cols in Q1/Q2
+# l: num of cols in Q1, Q2
 #
 # no return
 function test(m, p, l)
@@ -103,4 +103,15 @@ function testProduct(m, p, l)
         Q2 = view(Q_, m+1:m+p, 1:l)
         return U, V, Z, C, S = csd(Q1, Q2)
     end
+end
+
+function test1()
+    Q1 = [1/sqrt(7) 0 0 1/sqrt(3);
+          1/sqrt(7) -2/sqrt(10) -1/2 -1/(2*sqrt(3));
+          1/sqrt(7) -1/sqrt(10) 1/4  -3/(4*sqrt(3));
+          1/sqrt(7) 0 3/4 -3/(4*sqrt(3));
+          1/sqrt(7) 0 0 0]
+    Q2 = [1/sqrt(7) 1/sqrt(10) -1/4 -3/(4*sqrt(3));
+          1/sqrt(7) 2/sqrt(10) -1/4 1/(4*sqrt(3))]
+    U, V, Z, alpha, beta = csdLAPACK(Q1, Q2)
 end

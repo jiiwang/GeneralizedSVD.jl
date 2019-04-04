@@ -54,8 +54,31 @@ using LinearAlgebra
 # Q1: m by l matrix
 # Q2: p by l matrix
 #
+# returns U, V, Z, alpha, beta
+function csdLAPACK(Q1, Q2)
+    return csdcomplete(Q1, Q2, 0)
+end
+
+# This function computes the cosine-sine decomposition (CSD) of an
+# (m+p) by l orthogonal matrix Q = (Q1’ Q2’)’, such that:
+#
+# Q1 = U * C * Z’,  Q2 = V * S * Z’
+#
+# where U, V and Z are orthogonal matrices of size m-by-m, p-by-p,
+# and l-by-l, respectively.
+# C and S are  m-by-l and p-by-l "diagonal" matrices and
+# C’ * C + S’ * S = I.
+#
+# argument
+# Q1: m by l matrix
+# Q2: p by l matrix
+#
 # returns U, V, Z, C, S
 function csd(Q1, Q2)
+    return csdcomplete(Q1, Q2, 1)
+end
+
+function csdcomplete(Q1, Q2, option)
 # function csd(Q1::Array{Float64,2}, Q2::Array{Float64,2})
     m = size(Q1)[1] # num of rows in Q1
     p = size(Q2)[1] # num of rows in Q2
@@ -221,7 +244,11 @@ function csd(Q1, Q2)
             end
         end
 
-        return U, D1.U, D1.V, C, S
+        if option == 1
+            return U, D1.U, D1.V, C, S
+        else
+            return U, D1.U, D1.V, alpha, beta
+        end
 
     # case 2: m > p
     else
@@ -402,45 +429,10 @@ function csd(Q1, Q2)
                 j += 1
             end
         end
-        return D1.U, V, Z, C, S
-    end
-end
-
-
-# This function computes the Q of QL decomposition
-# which is represented as a product of elementary reflectors
-#
-# 		Q = H(k) . . . H(2) H(1)
-#
-# where k = min(m,n)
-# and m is # of rows in A while n is # of cols in A
-#
-# Each H(i) has the form
-#
-#    	H(i) = I - tau * v * v**T
-#
-# where tau is a real scalar, and v is a real vector with
-# v(m-k+i+1:m) = 0 and v(m-k+i) = 1; v(1:m-k+i-1) is stored in
-# A(1:m-k+i-1,n-k+i), and tau in TAU(i).
-#
-# argument:
-# A: output of geqlf!
-# TAU: a list of real scalars
-#
-# returns Q
-function QL_generateQ(A, TAU)
-    m = size(A)[1]
-    n = size(A)[2]
-    k = length(TAU)
-    temp = Matrix{Float64}(I, m, m)
-    for i = 1:k
-        v = fill(0.0, m)
-        v[m-k+i] = 1.0
-        for j = 1:m-k+i-1
-            v[j] = A[j,n-k+i]
+        if option == 1
+            return D1.U, V, Z, C, S
+        else
+            return D1.U, V, Z, alpha, beta
         end
-        temp = (Matrix{Float64}(I, m, m) - TAU[i] * v * v') * temp
     end
-    # Q = temp
-    return temp
 end
