@@ -7,15 +7,59 @@ import LinearAlgebra.BLAS.@blasfunc
 import LinearAlgebra: BlasFloat, BlasInt, LAPACKException,
     DimensionMismatch, chkstride1, Givens
 
-function qsvdlapack(A, B)
-    return qsvdcomplete(A, B, 0)
-end
-
-function qsvd(A, B)
-    return qsvdcomplete(A, B, 1)
-end
-
-function qsvdcomplete(A, B, option)
+# This function computes the quotient (or generalized) singular value
+# decomposition (QSVD/GSVD) of an m-by-n matrix A and p-by-n
+# matrix B:
+#
+#      A = U * D1 * R * Q',    B = V * D2 * R * Q'
+#
+#  where U, V and Q are orthogonal matrices. Let k+l be the effective numerical rank of the matrix (A',B')',
+#  then R is a (K+L)-by-n nonsingular upper triangular matrix,
+#  D1 and D2 are M-by-(K+L) and P-by-(K+L) "diagonal" matrices and
+#  have one of the following structures:
+#
+#  If M >= K+L,
+#
+#         D1 =      K   L
+#             K  (  I   0  )
+#             L  (  0   C  )
+#         M-K-L  (  0   0  )
+#
+#         D2 =      K   L
+#             L  (  0   S  )
+#           P-L  (  0   0  )
+#
+#
+#  where
+#
+#       C = diag( ALPHA( K+1 ), ... , ALPHA( K+L ) ),
+#       S = diag( BETA( K+1 ), ..., BETA( K+L ) ),
+#       C**2 + S**2 = I
+#
+#
+#  (2) If M < K+L,
+#
+#        D1 =         K   M-K  K+L-M
+#                 K ( I    0     0  )
+#               M-K ( 0    C     0  )
+#
+#         D2 = 	      K  M-K   K+L-M
+#               M-K ( 0   S     0  )
+#             K+L-M ( 0   0     I  )
+#             P-K-L ( 0   0     0  )
+#
+#  where
+#
+#       C = diag( ALPHA(K+1), ... , ALPHA(M) ),
+# 	    S = diag( BETA(K+1), ..., BETA(M) ),
+#       C**2 + S**2 = I
+#
+# argument
+# A: m by n matrix
+# B: p by n matrix
+#
+# returns U, V, Z, alpha, beta, R, k, l
+function gsvd(A, B, option)
     m, n = size(A)
     p = size(B)[1]
 
@@ -47,7 +91,7 @@ function qsvdcomplete(A, B, option)
             alpha[i] = 1.0
         end
         beta = fill(0.0, n)
-        U1, V1, Z1, alpha1, beta1 = csdlapack(Q1, Q2)
+        U1, V1, Z1, alpha1, beta1 = csd(Q1, Q2, 0)
         if m-k-l >=0
             for i = 1:l
                 alpha[k+i] = alpha1[i]
@@ -63,7 +107,7 @@ function qsvdcomplete(A, B, option)
             end
         end
     else
-        U1, V1, Z1, C1, S1 = csd(Q1, Q2)
+        U1, V1, Z1, C1, S1 = csd(Q1, Q2, 1)
     end
 
     # Step 4:
@@ -117,7 +161,7 @@ function qsvdcomplete(A, B, option)
         end
         S = zeros(Float64, p, k+l)
         @views S[1:l, k+1:k+l] = S1
-        return U, V, Q, C, S, R
+        return U, V, Q, C, S, R, k, l
     end
 end
 

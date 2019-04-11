@@ -42,7 +42,7 @@ function test(m, p, l)
         # Q1 = Q[1:m, 1:l]
         # Q2 = Q[m+1:m+p, 1:l]
         # U, V, Z, C, S = csd(view(Q_, 1:m, 1:l), view(Q_, m+1:m+p, 1:l))
-        @time U, V, Z, C, S = csd(Q1, Q2)
+        @time U, V, Z, C, S = csd(Q1, Q2, 1)
         e = eps(Float64)
         res_q1 = norm(U * C * Z' - Q1, 1)/(max(m,l)*norm(Q1, 1)*e)
         res_q2 = norm(V * S * Z' - Q2, 1)/(max(p,l)*norm(Q2, 1)*e)
@@ -77,7 +77,7 @@ function testCS(m, p, l)
         Q_ = Q*Matrix(I,m+p,m+p)
         Q1 = view(Q_, 1:m, 1:l)
         Q2 = view(Q_, m+1:m+p, 1:l)
-        U, V, Z, C, S = csd(Q1, Q2)
+        U, V, Z, C, S = csd(Q1, Q2, 1)
         return C, S
     end
 end
@@ -101,7 +101,7 @@ function testProduct(m, p, l)
         Q_ = Q*Matrix(I,m+p,m+p)
         Q1 = view(Q_, 1:m, 1:l)
         Q2 = view(Q_, m+1:m+p, 1:l)
-        return U, V, Z, C, S = csd(Q1, Q2)
+        return U, V, Z, C, S = csd(Q1, Q2, 1)
     end
 end
 
@@ -113,7 +113,7 @@ function test1()
           1/sqrt(7) 0 0 0]
     Q2 = [1/sqrt(7) 1/sqrt(10) -1/4 -3/(4*sqrt(3));
           1/sqrt(7) 2/sqrt(10) -1/4 1/(4*sqrt(3))]
-    U, V, Z, alpha, beta = csdlapck(Q1, Q2)
+    U, V, Z, alpha, beta = csd(Q1, Q2, 0)
 end
 
 function test2()
@@ -124,5 +124,5 @@ function test2()
           1/sqrt(7) 0 0 0]
     Q2 = [1/sqrt(7) 1/sqrt(10) -1/4 -3/(4*sqrt(3));
           1/sqrt(7) 2/sqrt(10) -1/4 1/(4*sqrt(3))]
-    U, V, Z, C, S = csd(Q1, Q2)
+    U, V, Z, C, S = csd(Q1, Q2, 1)
 end

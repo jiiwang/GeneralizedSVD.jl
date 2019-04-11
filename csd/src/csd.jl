@@ -55,9 +55,7 @@ using LinearAlgebra
 # Q2: p by l matrix
 #
 # returns U, V, Z, alpha, beta
-function csdlapack(Q1, Q2)
-    return csdcomplete(Q1, Q2, 0)
-end
+
 
 # This function computes the cosine-sine decomposition (CSD) of an
 # (m+p) by l orthogonal matrix Q = (Q1’ Q2’)’, such that:
@@ -74,11 +72,8 @@ end
 # Q2: p by l matrix
 #
 # returns U, V, Z, C, S
-function csd(Q1, Q2)
-    return csdcomplete(Q1, Q2, 1)
-end
 
-function csdcomplete(Q1, Q2, option)
+function csd(Q1, Q2, option)
 # function csd(Q1::Array{Float64,2}, Q2::Array{Float64,2})
     m = size(Q1)[1] # num of rows in Q1
     p = size(Q2)[1] # num of rows in Q2
