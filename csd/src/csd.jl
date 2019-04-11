@@ -53,25 +53,10 @@ using LinearAlgebra
 # argument
 # Q1: m by l matrix
 # Q2: p by l matrix
+# option: 0 or 1
 #
-# returns U, V, Z, alpha, beta
-
-
-# This function computes the cosine-sine decomposition (CSD) of an
-# (m+p) by l orthogonal matrix Q = (Q1’ Q2’)’, such that:
-#
-# Q1 = U * C * Z’,  Q2 = V * S * Z’
-#
-# where U, V and Z are orthogonal matrices of size m-by-m, p-by-p,
-# and l-by-l, respectively.
-# C and S are  m-by-l and p-by-l "diagonal" matrices and
-# C’ * C + S’ * S = I.
-#
-# argument
-# Q1: m by l matrix
-# Q2: p by l matrix
-#
-# returns U, V, Z, C, S
+# returns U, V, Z, alpha, beta if option = 0
+# U, V, Z, C, S if option = 1
 
 function csd(Q1, Q2, option)
 # function csd(Q1::Array{Float64,2}, Q2::Array{Float64,2})

@@ -7,58 +7,62 @@ import LinearAlgebra.BLAS.@blasfunc
 import LinearAlgebra: BlasFloat, BlasInt, LAPACKException,
     DimensionMismatch, chkstride1, Givens
 
-# This function computes the quotient (or generalized) singular value
-# decomposition (QSVD/GSVD) of an m-by-n matrix A and p-by-n
+# This function computes the generalized singular value
+# decomposition (GSVD) of an m-by-n matrix A and p-by-n
 # matrix B:
 #
 #      A = U * D1 * R * Q',    B = V * D2 * R * Q'
 #
 #  where U, V and Q are orthogonal matrices. Let k+l be the effective numerical rank of the matrix (A',B')',
-#  then R is a (K+L)-by-n nonsingular upper triangular matrix,
-#  D1 and D2 are M-by-(K+L) and P-by-(K+L) "diagonal" matrices and
+#  then R is a (k+l)-by-n matrix of structure [0 R0] where R0 is (k+l)-by-(k+l) and is nonsingular upper triangular matrix,
+#  D1 and D2 are m-by-(k+l) and p-by-(k+l) "diagonal" matrices and
 #  have one of the following structures:
 #
-#  If M >= K+L,
+#  If m >= k+l,
 #
-#         D1 =      K   L
-#             K  (  I   0  )
-#             L  (  0   C  )
-#         M-K-L  (  0   0  )
+#         D1 =      k   l
+#             k  (  I   0  )
+#             l  (  0   C  )
+#         m-k-l  (  0   0  )
 #
-#         D2 =      K   L
-#             L  (  0   S  )
-#           P-L  (  0   0  )
+#         D2 =      k   l
+#             l  (  0   S  )
+#           p-l  (  0   0  )
 #
 #
 #  where
 #
-#       C = diag( ALPHA( K+1 ), ... , ALPHA( K+L ) ),
-#       S = diag( BETA( K+1 ), ..., BETA( K+L ) ),
+#       C = diag( alpha( k+1 ), ... , alpha( k+l ) ),
+#       S = diag( beta( k+1 ), ..., beta( k+l ) ),
 #       C**2 + S**2 = I
 #
 #
-#  (2) If M < K+L,
+#  (2) If m < k+l,
 #
-#        D1 =         K   M-K  K+L-M
-#                 K ( I    0     0  )
-#               M-K ( 0    C     0  )
+#        D1 =         k   m-k  k+l-m
+#                 k ( I    0     0  )
+#               m-k ( 0    C     0  )
 #
-#         D2 = 	      K  M-K   K+L-M
-#               M-K ( 0   S     0  )
-#             K+L-M ( 0   0     I  )
-#             P-K-L ( 0   0     0  )
+#         D2 = 	      k  m-k   k+l-m
+#               m-k ( 0   S     0  )
+#             k+l-m ( 0   0     I  )
+#             p-k-l ( 0   0     0  )
 #
 #  where
 #
-#       C = diag( ALPHA(K+1), ... , ALPHA(M) ),
-# 	    S = diag( BETA(K+1), ..., BETA(M) ),
+#       C = diag( alpha(k+1), ... , alpha(m) ),
+# 	    S = diag( beta(k+1), ..., beta(m) ),
 #       C**2 + S**2 = I
 #
-# argument
+#
+# arguments:
 # A: m by n matrix
 # B: p by n matrix
+# option: 0 or 1
 #
-# returns U, V, Z, alpha, beta, R, k, l
+# returns U, V, Z, alpha, beta, R, k, l if option = 0
+# U, V, Z, D1, D2, R, k, l if option = 1
+
 function gsvd(A, B, option)
     m, n = size(A)
     p = size(B)[1]
