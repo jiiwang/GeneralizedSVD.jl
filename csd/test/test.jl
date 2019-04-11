@@ -113,5 +113,16 @@ function test1()
           1/sqrt(7) 0 0 0]
     Q2 = [1/sqrt(7) 1/sqrt(10) -1/4 -3/(4*sqrt(3));
           1/sqrt(7) 2/sqrt(10) -1/4 1/(4*sqrt(3))]
-    U, V, Z, alpha, beta = csdLAPACK(Q1, Q2)
+    U, V, Z, alpha, beta = csdlapck(Q1, Q2)
+end
+
+function test2()
+    Q1 = [1/sqrt(7) 0 0 1/sqrt(3);
+          1/sqrt(7) -2/sqrt(10) -1/2 -1/(2*sqrt(3));
+          1/sqrt(7) -1/sqrt(10) 1/4  -3/(4*sqrt(3));
+          1/sqrt(7) 0 3/4 -3/(4*sqrt(3));
+          1/sqrt(7) 0 0 0]
+    Q2 = [1/sqrt(7) 1/sqrt(10) -1/4 -3/(4*sqrt(3));
+          1/sqrt(7) 2/sqrt(10) -1/4 1/(4*sqrt(3))]
+    U, V, Z, C, S = csd(Q1, Q2)
 end

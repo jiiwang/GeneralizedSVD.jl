@@ -12,50 +12,50 @@ using LinearAlgebra
 # C and S are  m-by-l and p-by-l "diagonal" matrices and
 # C’ * C + S’ * S = I.
 #
-# C and S have the following structures:
+# C and S have the following structures(both alpha and beta are of length l):
 #
 # (1) If m >= l and p >= l:
-#         C =                l
-#                   l ( diag(alpha) )
-#                 m-l (      0      )
+#         C =                           l
+#                   l ( diag(alpha(1), ... , alpha(l)) )
+#                 m-l (      0                         )
 #
-#         S =                l
-#                   l ( diag(beta) )
-#                 p-l (     0      )
+#         S =                           l
+#                   l ( diag(beta(1), ... , beta(l))   )
+#                 p-l (     0                          )
 #
 # (2) If m >= l and p < l:
-#         C =         l-p               p
-#                l-p ( I                0      )
-#                  p ( 0           diag(alpha) )
-#                m-l ( 0                0      )
+#         C =         l-p                        p
+#                l-p ( I                         0              )
+#                  p ( 0     diag(alpha(l-p+1), ... , alpha(l)) )
+#                m-l ( 0                         0              )
 #
-#         S =         l-p               p
-#                  p ( 0            diag(beta) )
+#         S =         l-p                        p
+#                  p ( 0       diag(beta(l-p+1), ... , beta(l)) )
 #
 # (3) If m <= l and p >= l,
-#         C =                 m         l-m
-#                    m ( diag(alpha)     0 )
+#         C =                            m                 l-m
+#                    m ( diag(alpha(1), ... , alpha(m))     0 )
 #
-#         S =                m          l-m
-#                   m ( diag(beta)       0 )
-#                 l-m (     0            I )
-#                 p-l (     0            0 )
+#         S =                            m                 l-m
+#                   m ( diag(beta(1), ... , beta(m)))       0 )
+#                 l-m (                 0                   I )
+#                 p-l (                 0                   0 )
 #
 # (4) If m <= l and p < l,
-#          C =            l-p      m+p-l        l-m
-#                   l-p ( I          0           0 )
-#                 m+p-l ( 0      diag(alpha)     0 )
+#          C =            l-p                       m+p-l               l-m
+#                   l-p ( I                          0                   0 )
+#                 m+p-l ( 0      diag(alpha(l-p+1), ... , alpha(m) )     0 )
 #
-#          S =            l-p      m+p-l        l-m
-#                 m+p-l ( 0      diag(beta)      0 )
-#                   l-p ( 0          0           I )
+#          S =            l-p                       m+p-l               l-m
+#                 m+p-l ( 0      diag(beta(l-p+1), ... , beta(m) )      0 )
+#                   l-p ( 0                         0                   I )
 #
 # argument
 # Q1: m by l matrix
 # Q2: p by l matrix
 #
 # returns U, V, Z, alpha, beta
-function csdLAPACK(Q1, Q2)
+function csdlapack(Q1, Q2)
     return csdcomplete(Q1, Q2, 0)
 end
 

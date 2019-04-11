@@ -5,9 +5,17 @@ using LinearAlgebra
 const liblapack = Base.liblapack_name
 import LinearAlgebra.BLAS.@blasfunc
 import LinearAlgebra: BlasFloat, BlasInt, LAPACKException,
-    DimensionMismatch, chkstride1
+    DimensionMismatch, chkstride1, Givens
+
+function qsvdlapack(A, B)
+    return qsvdcomplete(A, B, 0)
+end
 
 function qsvd(A, B)
+    return qsvdcomplete(A, B, 1)
+end
+
+function qsvdcomplete(A, B, option)
     m, n = size(A)
     p = size(B)[1]
 
@@ -33,49 +41,56 @@ function qsvd(A, B)
 
     # Step 3:
     # CSD of Q1, Q2
-    U1, V1, Z1, C1, S1 = csd(Q1, Q2)
+    if option == 0
+        alpha = fill(0.0, n)
+        for i = 1:k
+            alpha[i] = 1.0
+        end
+        beta = fill(0.0, n)
+        U1, V1, Z1, alpha1, beta1 = csdlapack(Q1, Q2)
+        if m-k-l >=0
+            for i = 1:l
+                alpha[k+i] = alpha1[i]
+                beta[k+i] = beta1[i]
+            end
+        else
+            for i = 1:m-k
+                alpha[k+i] = alpha1[i]
+                beta[k+i] = beta1[i]
+            end
+            for i = m+1:k+l
+                beta[i] = 1.0
+            end
+        end
+    else
+        U1, V1, Z1, C1, S1 = csd(Q1, Q2)
+    end
 
     # Step 4:
-    # set C, S
-    C = Matrix{Float64}(I, m, k+l)
-    if m-k-l >= 0
-        # for i in 1:l
-        #     C[i+k,i+k] = C1[i,i]
-        # end
-        @views C[k+1:k+l,k+1:k+l] = C1
-    else
-        # for i in 1:m-k
-        #     C[i+k,i+k] = C1[i,i]
-        @views C[k+1:m,k+1:k+l] = C1
-    end
-    S = zeros(Float64, p, k+l)
-    @views S[1:l, k+1:k+l] = S1
-
-    # Step 5:
     # update U
     t = min(m, k+l)
     @views U[1:m,k+1:t] = U[1:m,k+1:t] * U1
 
-    # Step 6:
+    # Step 5:
     # update V
     @views V[1:p,1:l] = V[1:p,1:l] * V1
 
-    # Step 7:
+    # Step 6:
     # set T
     T = Z1' * R23
 
-    # Step 8:
+    # Step 7:
     # compute RQ decomposition of T
     row, col = size(T)
     T_ = copy(T)
     T, tau = LAPACK.gerqf!(T)
     Q3 = LAPACK.orgrq!(T, tau, length(tau))
 
-    # Step 9:
+    # Step 8:
     # update R13(a)
     @views A13 = A[1:k, n-l+1:n]*Q3'
 
-    # Step 10:
+    # Step 9:
     # update Q
     @views Q[1:n,n-l+1:n] = Q[1:n,n-l+1:n] * Q3'
 
@@ -85,7 +100,25 @@ function qsvd(A, B)
     @views R[1:k, n-l+1:n] = A13
     @views R[k+1:k+l, n-l+1:n]= T_ * Q3'
 
-    return U, V, Q, C, S, R, k, l
+    if option == 0
+        return U, V, Q, alpha, beta, R, k, l
+    else
+        # set C, S
+        C = Matrix{Float64}(I, m, k+l)
+        if m-k-l >= 0
+            # for i in 1:l
+            #     C[i+k,i+k] = C1[i,i]
+            # end
+            @views C[k+1:k+l,k+1:k+l] = C1
+        else
+            # for i in 1:m-k
+            #     C[i+k,i+k] = C1[i,i]
+            @views C[k+1:m,k+1:k+l] = C1
+        end
+        S = zeros(Float64, p, k+l)
+        @views S[1:l, k+1:k+l] = S1
+        return U, V, Q, C, S, R
+    end
 end
 
 
@@ -158,36 +191,54 @@ function splitqr(R1, R2)
         T[m+i] = 1.0
         k = min(n, m-1+i)
         for j = 1:k
+            flag = 0
             if j <= m
                 # eliminate element in R2 with elements in R1
                 c, s, r = genGiv(R1[j, j], R2[i, j])
-                R1[j, j] = r
-                R2[i, j] = 0.0
-                if j+1 <= n
-                    # @views Ra = R1[j, j+1:n]
-                    # @views Rb = R2[i, j+1:n]
-                    R1[j, j+1:n], R2[i, j+1:n] = appGiv(R1[j, j+1:n], R2[i, j+1:n], c, s)
-                    # Ra, Rb = appGiv(Ra, Rb, c, s)
-                end
+                # if j != i
+                #     flag = 1
+                    # c, s, r = givensAlgorithm(R1[j, j], R2[i, j])
+                    R1[j, j] = r
+                    R2[i, j] = 0.0
+                    if j+1 <= n
+                        # @views Ra = R1[j, j+1:n]
+                        # @views Rb = R2[i, j+1:n]
+                        R1[j, j+1:n], R2[i, j+1:n] = appGiv(R1[j, j+1:n], R2[i, j+1:n], c, s)
+                        # R1[j, j+1:n] = G * R1[j, j+1:n]
+                        # R2[i, j+1:n] = G * R2[i, j+1:n]
+                    end
+                # end
             else
                 # eliminate element in R2 with elements in R2
                 c, s, r = genGiv(R2[j-m, j], R2[i, j])
-                R2[j-m, j] = r
-                R2[i, j] = 0.0
-                if j+1 <= n
-                    # @views Ra = R2[j-m, j+1:n]
-                    # @views Rb = R2[i, j+1:n]
-                    R2[j-m, j+1:n], R2[i, j+1:n] = appGiv(R2[j-m, j+1:n], R2[i, j+1:n], c, s)
-                    # Ra, Rb = appGiv(Ra, Rb, c, s)
-                end
+                # if j-m != i
+                    # flag = 1
+                    # c, s, r = givensAlgorithm(R2[j-m, j], R2[i, j])
+                    R2[j-m, j] = r
+                    R2[i, j] = 0.0
+                    if j+1 <= n
+                        # @views Ra = R2[j-m, j+1:n]
+                        # @views Rb = R2[i, j+1:n]
+                        R2[j-m, j+1:n], R2[i, j+1:n] = appGiv(R2[j-m, j+1:n], R2[i, j+1:n], c, s)
+                        # @views R2[j-m, j+1:n] = [c s;-s c]*[R2[j-m, j+1:n], R2[i, j+1:n]][1]
+                        # @views R2[i, j+1:n] = [c s;-s c]*[R2[j-m, j+1:n], R2[i, j+1:n]][2]
+                        # R2[j-m, j+1:n] = G * R2[j-m, j+1:n]
+                        # R2[i, j+1:n] = G * R2[i, j+1:n]
+                    end
+                # end
             end
             # update col in Q1 and Q2
             # @views Ra = R1[j, j+1:n]
             # @views Rb = R2[i, j+1:n]
             Q1[1:m, j], T[1:m] = appGiv(Q1[1:m, j], T[1:m], c, s)
             Q2[1:n, j], T[m+1:m+n] = appGiv(Q2[1:n, j], T[m+1:m+n], c, s)
-            # appGiv(Q1[1:m, j], T[1:m], c, s)
-            # appGiv(Q2[1:n, j], T[m+1:m+n], c, s)
+            # if flag == 1
+                # Q1[1:m, j] = G * Q1[1:m, j]
+                # T[1:m] = G * T[1:m]
+                # Q2[1:n, j] = G * Q2[1:n, j]
+                # T[m+1:m+n] = G * T[m+1:m+n]
+                # flag = 0
+            # end
         end
         if m+i <= n
            @views Q1[1:m,m+i] = T[1:m]
@@ -229,8 +280,5 @@ end
 
 # This function applies a 2 by 2 Givens rotation matrix
 function appGiv(v1, v2, c, s)
-    tmp = v1
-    v1 = c*v1 + s*v2
-    v2 = c*v2 - s*tmp
-    return v1, v2
+    return c*v1 + s*v2, c*v2 - s*v1
 end
