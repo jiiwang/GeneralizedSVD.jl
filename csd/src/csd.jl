@@ -64,6 +64,10 @@ function csd(Q1, Q2, option)
     p = size(Q2)[1] # num of rows in Q2
     l = size(Q1)[2] # num of cols in Q1/Q2
 
+    println("# of rows in Q1: ", m)
+    println("# of rows in Q2: ", p)
+    println("# of cols in Q1/Q2: ", l)
+
     q1 = min(m, l)
     q2 = min(p, l)
 
@@ -119,9 +123,13 @@ function csd(Q1, Q2, option)
 
         # compute T = Q1Z
         T = Q1 * D1.V
+        row, col = size(T)
+        println(row)
+        println(col)
 
         # compute QR decomposition of T
         D2 = qr(T)
+
         Q_ = D2.Q * Matrix(I, m, m)
 
         # sanitize R so that it only has non-negative diagonal entries
