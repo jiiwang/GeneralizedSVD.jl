@@ -88,6 +88,7 @@ function test1()
     println("orthog_u: ", orthog_u)
     println("orthog_v: ", orthog_v)
     println("orthog_q: ", orthog_q)
+    return U, V, Q, C, S, R, k, l
 end
 
 # Example 2 from Ch.4 of Jenny's Thesis
@@ -111,6 +112,7 @@ function test2()
     println("orthog_u: ", orthog_u)
     println("orthog_v: ", orthog_v)
     println("orthog_q: ", orthog_q)
+    return U, V, Q, C, S, R, k, l
 end
 
 # Example 1 from MATLAB 2019b documentation
@@ -205,4 +207,15 @@ function test5()
     println("orthog_v: ", orthog_v)
     println("orthog_q: ", orthog_q)
     U, V, Q, C, S, R, k, l
+end
+
+function test6()
+    A = randn(3, 8)
+    B = randn(4, 8)
+    println("rank(B): ",rank(B))
+    println("rank([A;B]): ", rank([A;B]))
+    A_ = copy(A)
+    B_ = copy(B)
+    U, V, Q, C, S, R, k, l = gsvd(A, B, 1)
+    return A_, B_, U, V, Q, C, S, R, k, l
 end
