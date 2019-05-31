@@ -82,33 +82,44 @@ function gsvd(A, B, option)
     end
     @views B13 = B[1:l, n-l+1:n]
 
+    # Quick exit when A23 doesn't exist, namely, m <= k
     if size(A23)[1] <= 0
-        CS = [Matrix{Float64}(I, k+l, k+l);zeros(Float64, m+p-k-l, k+l)]
-        C = CS[1:m, :]
-        S = CS[m+1:m+p, :]
         R = [A[1:k,:];B[1:l,:]]
-        return U, V, Q, C, S, R, k, l
+        if option == 0
+            alpha = fill(0.0, k+l)
+            for i = 1:m
+                alpha[i] = 1.0
+            end
+            beta = fill(0.0, k+l)
+            for i = m+1:k+l
+                beta[i] = 1.0
+            end
+            return U, V, Q, alpha, beta, R, k, l
+        else
+            CS = [Matrix{Float64}(I, k+l, k+l);zeros(Float64, m+p-k-l, k+l)]
+            C = CS[1:m, :]
+            S = CS[m+1:m+p, :]
+            return U, V, Q, C, S, R, k, l
+        end
     end
 
     R1 = copy(A23)
     R2 = copy(B13)
     Q1, Q2, R23 = splitqr(A23, B13)
 
-
-
     # Step 3:
     # CSD of Q1, Q2
     if option == 0
-        alpha = fill(0.0, n)
+        alpha = fill(0.0, k+l)
         for i = 1:k
             alpha[i] = 1.0
         end
-        beta = fill(0.0, n)
+        beta = fill(0.0, k+l)
         U1, V1, Z1, alpha1, beta1 = csd(Q1, Q2, 0)
         if m-k-l >=0
-            for i = 1:l
-                alpha[k+i] = alpha1[i]
-                beta[k+i] = beta1[i]
+            for i = k+1:l
+                alpha[i] = alpha1[i]
+                beta[i] = beta1[i]
             end
         else
             for i = 1:m-k
