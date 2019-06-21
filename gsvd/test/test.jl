@@ -76,7 +76,7 @@ function test1()
     B_ = copy(B)
     m,n = size(A)
     p = size(B)[1]
-    U, V, Q, C, S, R, k, l = gsvd(A, B, 1)
+    @time U, V, Q, C, S, R, k, l = gsvd(A, B, 1)
     e = eps(Float64)
     res_a = norm(U'*A_*Q - C*R, 1)/(max(m,n)*norm(A_, 1)*e)
     res_b = norm(V'*B_*Q - S*R, 1)/(max(m,n)*norm(B_, 1)*e)

@@ -1,5 +1,5 @@
-using Pkg
-Pkg.add("LinearAlgebra")
+# using Pkg
+# Pkg.add("LinearAlgebra")
 using LinearAlgebra
 
 # This function computes the cosine-sine decomposition (CSD) of an
@@ -64,9 +64,9 @@ function csd(Q1, Q2, option)
     p = size(Q2)[1] # num of rows in Q2
     l = size(Q1)[2] # num of cols in Q1/Q2
 
-    println("# of rows in Q1: ", m)
-    println("# of rows in Q2: ", p)
-    println("# of cols in Q1/Q2: ", l)
+    # println("# of rows in Q1: ", m)
+    # println("# of rows in Q2: ", p)
+    # println("# of cols in Q1/Q2: ", l)
 
     q1 = min(m, l)
     q2 = min(p, l)
@@ -124,8 +124,6 @@ function csd(Q1, Q2, option)
         # compute T = Q1Z
         T = Q1 * D1.V
         row, col = size(T)
-        println(row)
-        println(col)
 
         # compute QR decomposition of T
         D2 = qr(T)

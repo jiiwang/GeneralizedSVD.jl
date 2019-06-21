@@ -1,5 +1,5 @@
-using Pkg
-Pkg.add("LinearAlgebra")
+# using Pkg
+# Pkg.add("LinearAlgebra")
 using LinearAlgebra
 
 const liblapack = Base.liblapack_name
@@ -82,7 +82,7 @@ function gsvd(A, B, option)
     end
     @views B13 = B[1:l, n-l+1:n]
 
-    # Quick exit when A23 doesn't exist, namely, m <= k
+    # Quick exit when A23 doesn't exist
     if size(A23)[1] <= 0
         R = [A[1:k,:];B[1:l,:]]
         if option == 0
@@ -106,6 +106,16 @@ function gsvd(A, B, option)
     R1 = copy(A23)
     R2 = copy(B13)
     Q1, Q2, R23 = splitqr(A23, B13)
+
+    # Alternatively, use Householder's method to do the qr of R1 and R2
+    # r_a, c_a = size(A23) # r_a <= c_a = l
+    # r_b = size(B13)[1] # r_b = c_a = l
+    # F = qr([A23;B13])
+    # # Covert the square Q to the "thin" Q, i.e., if A is m×n with m>=n,
+    # # then Matrix(F.Q) yields an m×n matrix with orthonormal columns.
+    # Q1 = Matrix(F.Q)[1:r_a,:]
+    # Q2 = Matrix(F.Q)[r_a + 1:r_a + r_b,:]
+    # R23 = F.R
 
     # Step 3:
     # CSD of Q1, Q2
