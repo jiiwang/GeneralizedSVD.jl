@@ -71,132 +71,133 @@ function gsvd(A, B, option)
     # preprocess A, B
     U, V, Q, k, l, A, B = dggsvp3!(A, B)
 
+    return V
     # Step 2:
     # QR in a split fashion
     # A23 is upper triangular
-    if m-k-l >= 0
-        @views A23 = A[k+1:k+l, n-l+1:n]
-    # A23 is upper trapezoidal
-    else
-        @views A23 = A[k+1:m, n-l+1:n]
-    end
-    @views B13 = B[1:l, n-l+1:n]
-
-    # Quick exit when A23 doesn't exist
-    if size(A23)[1] <= 0
-        R = [A[1:k,:];B[1:l,:]]
-        if option == 0
-            alpha = fill(0.0, k+l)
-            for i = 1:m
-                alpha[i] = 1.0
-            end
-            beta = fill(0.0, k+l)
-            for i = m+1:k+l
-                beta[i] = 1.0
-            end
-            return U, V, Q, alpha, beta, R, k, l
-        else
-            CS = [Matrix{Float64}(I, k+l, k+l);zeros(Float64, m+p-k-l, k+l)]
-            C = CS[1:m, :]
-            S = CS[m+1:m+p, :]
-            return U, V, Q, C, S, R, k, l
-        end
-    end
-
-    R1 = copy(A23)
-    R2 = copy(B13)
-    Q1, Q2, R23 = splitqr(A23, B13)
-
-    # Alternatively, use Householder's method to do the qr of R1 and R2
-    # r_a, c_a = size(A23) # r_a <= c_a = l
-    # r_b = size(B13)[1] # r_b = c_a = l
-    # F = qr([A23;B13])
-    # # Covert the square Q to the "thin" Q, i.e., if A is m×n with m>=n,
-    # # then Matrix(F.Q) yields an m×n matrix with orthonormal columns.
-    # Q1 = Matrix(F.Q)[1:r_a,:]
-    # Q2 = Matrix(F.Q)[r_a + 1:r_a + r_b,:]
-    # R23 = F.R
-
-    # Step 3:
-    # CSD of Q1, Q2
-    if option == 0
-        alpha = fill(0.0, k+l)
-        for i = 1:k
-            alpha[i] = 1.0
-        end
-        beta = fill(0.0, k+l)
-        U1, V1, Z1, alpha1, beta1 = csd(Q1, Q2, 0)
-        if m-k-l >=0
-            for i = k+1:l
-                alpha[i] = alpha1[i]
-                beta[i] = beta1[i]
-            end
-        else
-            for i = 1:m-k
-                alpha[k+i] = alpha1[i]
-                beta[k+i] = beta1[i]
-            end
-            for i = m+1:k+l
-                beta[i] = 1.0
-            end
-        end
-    else
-        U1, V1, Z1, C1, S1 = csd(Q1, Q2, 1)
-    end
-
-    # Step 4:
-    # update U
-    t = min(m, k+l)
-    @views U[1:m,k+1:t] = U[1:m,k+1:t] * U1
-
-    # Step 5:
-    # update V
-    @views V[1:p,1:l] = V[1:p,1:l] * V1
-
-    # Step 6:
-    # set T
-    T = Z1' * R23
-
-    # Step 7:
-    # compute RQ decomposition of T
-    row, col = size(T)
-    T_ = copy(T)
-    T, tau = LAPACK.gerqf!(T)
-    Q3 = LAPACK.orgrq!(T, tau, length(tau))
-
-    # Step 8:
-    # update R13(a)
-    @views A13 = A[1:k, n-l+1:n]*Q3'
-
-    # Step 9:
-    # update Q
-    @views Q[1:n,n-l+1:n] = Q[1:n,n-l+1:n] * Q3'
-
-    # form R
-    R = zeros(Float64, k+l, n)
-    @views R[1:k, n-k-l+1:n-l+1] = A[1:k,n-k-l+1:n-l+1]
-    @views R[1:k, n-l+1:n] = A13
-    @views R[k+1:k+l, n-l+1:n]= T_ * Q3'
-
-    if option == 0
-        return U, V, Q, alpha, beta, R, k, l
-    else
-        # set C, S
-        C = Matrix{Float64}(I, m, k+l)
-        if m-k-l >= 0
-            # for i in 1:l
-            #     C[i+k,i+k] = C1[i,i]
-            # end
-            @views C[k+1:k+l,k+1:k+l] = C1
-        else
-            # for i in 1:m-k
-            #     C[i+k,i+k] = C1[i,i]
-            @views C[k+1:m,k+1:k+l] = C1
-        end
-        S = zeros(Float64, p, k+l)
-        @views S[1:l, k+1:k+l] = S1
-        return U, V, Q, C, S, R, k, l
-    end
+    # if m-k-l >= 0
+    #     @views A23 = A[k+1:k+l, n-l+1:n]
+    # # A23 is upper trapezoidal
+    # else
+    #     @views A23 = A[k+1:m, n-l+1:n]
+    # end
+    # @views B13 = B[1:l, n-l+1:n]
+    #
+    # # Quick exit when A23 doesn't exist
+    # if size(A23)[1] <= 0
+    #     R = [A[1:k,:];B[1:l,:]]
+    #     if option == 0
+    #         alpha = fill(0.0, k+l)
+    #         for i = 1:m
+    #             alpha[i] = 1.0
+    #         end
+    #         beta = fill(0.0, k+l)
+    #         for i = m+1:k+l
+    #             beta[i] = 1.0
+    #         end
+    #         return U, V, Q, alpha, beta, R, k, l
+    #     else
+    #         CS = [Matrix{Float64}(I, k+l, k+l);zeros(Float64, m+p-k-l, k+l)]
+    #         C = CS[1:m, :]
+    #         S = CS[m+1:m+p, :]
+    #         return U, V, Q, C, S, R, k, l
+    #     end
+    # end
+    #
+    # R1 = copy(A23)
+    # R2 = copy(B13)
+    # Q1, Q2, R23 = splitqr(A23, B13)
+    #
+    # # Alternatively, use Householder's method to do the qr of R1 and R2
+    # # r_a, c_a = size(A23) # r_a <= c_a = l
+    # # r_b = size(B13)[1] # r_b = c_a = l
+    # # F = qr([A23;B13])
+    # # # Covert the square Q to the "thin" Q, i.e., if A is m×n with m>=n,
+    # # # then Matrix(F.Q) yields an m×n matrix with orthonormal columns.
+    # # Q1 = Matrix(F.Q)[1:r_a,:]
+    # # Q2 = Matrix(F.Q)[r_a + 1:r_a + r_b,:]
+    # # R23 = F.R
+    #
+    # # Step 3:
+    # # CSD of Q1, Q2
+    # if option == 0
+    #     alpha = fill(0.0, k+l)
+    #     for i = 1:k
+    #         alpha[i] = 1.0
+    #     end
+    #     beta = fill(0.0, k+l)
+    #     U1, V1, Z1, alpha1, beta1 = csd(Q1, Q2, 0)
+    #     if m-k-l >=0
+    #         for i = k+1:l
+    #             alpha[i] = alpha1[i]
+    #             beta[i] = beta1[i]
+    #         end
+    #     else
+    #         for i = 1:m-k
+    #             alpha[k+i] = alpha1[i]
+    #             beta[k+i] = beta1[i]
+    #         end
+    #         for i = m+1:k+l
+    #             beta[i] = 1.0
+    #         end
+    #     end
+    # else
+    #     U1, V1, Z1, C1, S1 = csd(Q1, Q2, 1)
+    # end
+    #
+    # # Step 4:
+    # # update U
+    # t = min(m, k+l)
+    # @views U[1:m,k+1:t] = U[1:m,k+1:t] * U1
+    #
+    # # Step 5:
+    # # update V
+    # @views V[1:p,1:l] = V[1:p,1:l] * V1
+    #
+    # # Step 6:
+    # # set T
+    # T = Z1' * R23
+    #
+    # # Step 7:
+    # # compute RQ decomposition of T
+    # row, col = size(T)
+    # T_ = copy(T)
+    # T, tau = LAPACK.gerqf!(T)
+    # Q3 = LAPACK.orgrq!(T, tau, length(tau))
+    #
+    # # Step 8:
+    # # update R13(a)
+    # @views A13 = A[1:k, n-l+1:n]*Q3'
+    #
+    # # Step 9:
+    # # update Q
+    # @views Q[1:n,n-l+1:n] = Q[1:n,n-l+1:n] * Q3'
+    #
+    # # form R
+    # R = zeros(Float64, k+l, n)
+    # @views R[1:k, n-k-l+1:n-l+1] = A[1:k,n-k-l+1:n-l+1]
+    # @views R[1:k, n-l+1:n] = A13
+    # @views R[k+1:k+l, n-l+1:n]= T_ * Q3'
+    #
+    # if option == 0
+    #     return U, V, Q, alpha, beta, R, k, l
+    # else
+    #     # set C, S
+    #     C = Matrix{Float64}(I, m, k+l)
+    #     if m-k-l >= 0
+    #         # for i in 1:l
+    #         #     C[i+k,i+k] = C1[i,i]
+    #         # end
+    #         @views C[k+1:k+l,k+1:k+l] = C1
+    #     else
+    #         # for i in 1:m-k
+    #         #     C[i+k,i+k] = C1[i,i]
+    #         @views C[k+1:m,k+1:k+l] = C1
+    #     end
+    #     S = zeros(Float64, p, k+l)
+    #     @views S[1:l, k+1:k+l] = S1
+    #     return U, V, Q, C, S, R, k, l
+    # end
 end
 
 
