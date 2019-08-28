@@ -230,3 +230,17 @@ function test7()
     U, V, Q, alpha, beta, R, k, l = gsvd(A, B, 0)
     return A_, B_, U, V, Q, alpha, beta, R, k, l
 end
+
+function test_full()
+    m,p,n,r,rA,rB =5,4,3,3,1,2
+    E = randn(r,n)
+    A = randn(m1,rA)*randn(rA,r)*E
+    B = randn(m2,rB)*randn(rB,r)*E
+    show(A)
+    show(B)
+    println("rank of A: ", rank(A))
+    println("rank of B: ", rank(B))
+    println("rank of [A' B']': ", rank([A' B']'))
+    U, V, Q, C, S, R, k, l = gsvd(A, B, 1)
+    show(R)
+end
