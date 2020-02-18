@@ -1,6 +1,7 @@
 using DelimitedFiles
 
-A = readdlm("examples/non-full-rank/A1.csv", ',', Float64)
-B = readdlm("examples/non-full-rank/B1.csv", ',', Float64)
-
-# U, V, Q, C, S, R, k, l = gsvd(A, B, 1);
+A = readdlm("examples/full-rank/A2.csv", ',', Float64)
+B = readdlm("examples/full-rank/B2.csv", ',', Float64)
+A_ = copy(A);
+B_ = copy(B);
+U, V, Q, C, S, R, k, l = gsvd(A, B, 1);

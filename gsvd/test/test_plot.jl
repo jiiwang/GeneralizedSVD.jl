@@ -27,13 +27,13 @@ function genetest(m, n, p)
         res_a1 = norm(ans1[1][1]'*A_*ans1[1][3] - ans1[1][4]*ans1[1][6], 1)/(max(10*m*i,10*n*i)*norm(A_, 1)*e)
         res_a2 = norm(ans2[1].U'*A_*ans2[1].Q - ans2[1].D1*ans2[1].R0, 1)/(max(10*m*i,10*n*i)*norm(A_, 1)*e)
         println("m: ", X[i])
-        println("residual err of A by gsvd: ", res_a1)
-        println("residual err of A by native gsvd: ", res_a2)
+        println("residual err of A by new gsvd: ", res_a1)
+        println("residual err of A by current gsvd in Julia: ", res_a2)
         println("--------------------------------------------------------")
     end
 
-    plot(X, tgsvd, color="red", linewidth=2.0, linestyle="-", label="gsvd");
-    plot(X, tsvd, color="blue", linewidth=2.0, linestyle="--", label="native gsvd");
+    plot(X, tgsvd, color="red", linewidth=2.0, linestyle="-", label="new gsvd");
+    plot(X, tsvd, color="blue", linewidth=2.0, linestyle="--", label="current gsvd");
     xlabel("# row of A");
     ylabel("elapsed time in seconds");
     title("cpu timing of gsvd, m:n:p = $m:$n:$p");

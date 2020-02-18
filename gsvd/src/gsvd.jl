@@ -9,7 +9,6 @@ import LinearAlgebra: BlasFloat, BlasInt, LAPACKException,
 
 # This function computes the generalized singular value
 # decomposition (GSVD) of an m-by-n matrix A and p-by-n
-# matrix B:
 #
 #      A = U * D1 * R * Q',    B = V * D2 * R * Q'
 #

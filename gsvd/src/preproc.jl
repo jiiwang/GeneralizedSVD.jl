@@ -15,12 +15,12 @@ function preproc(A, B)
     F1 = qr!(B, Val(true))
     V = F1.Q*Matrix(1.0I, p, p)
     # R1 = F1.R
-    P1 = F1.P
-    # P1 = F1.P*Matrix(1.0I, n, n)
 
-    A = A*P1
-    # return A
-    Q = Matrix(1.0I, n, n)*P1
+    # Update A
+    A = A*F1.P
+
+    # Q = Matrix(1.0I, n, n)*F1.P
+    Q = F1.P
     # Initialize U
     U = Matrix(1.0I, m, m)
 
@@ -33,6 +33,7 @@ function preproc(A, B)
         end
     end
 
+    # Clean up B to make it upper triangular
     for j = 1:l - 1
         for i = j + 1:l
             B[i, j] = 0.0
