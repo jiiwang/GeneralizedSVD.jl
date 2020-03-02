@@ -102,19 +102,22 @@ function gsvd(A, B, option)
         end
     end
 
-    R1 = copy(A23)
-    R2 = copy(B13)
-    Q1, Q2, R23 = splitqr(A23, B13)
+    # R1 = deepcopy(A23)
+    # R2 = deepcopy(B13)
+    # Q1, Q2, R23 = splitqr(A23, B13)
+    Q1, Q2, R23 = householderqr(A23, B13)
 
     # Alternatively, use Householder's method to do the qr of R1 and R2
-    # r_a, c_a = size(A23) # r_a <= c_a = l
-    # r_b = size(B13)[1] # r_b = c_a = l
-    # F = qr([A23;B13])
+    # r_a, c_a = size(R1) # r_a <= c_a = l
+    # r_b = size(R2)[1] # r_b = c_a = l
+    # F = @time qr([R1;R2])
     # # Covert the square Q to the "thin" Q, i.e., if A is m×n with m>=n,
     # # then Matrix(F.Q) yields an m×n matrix with orthonormal columns.
-    # Q1 = Matrix(F.Q)[1:r_a,:]
-    # Q2 = Matrix(F.Q)[r_a + 1:r_a + r_b,:]
-    # R23 = F.R
+    # Q1_ = Matrix(F.Q)[1:r_a,:]
+    # Q2_ = Matrix(F.Q)[r_a + 1:r_a + r_b,:]
+    # R23_ = F.R
+    #
+    # return Q1, Q1_, Q2, Q2_, R23, R23_
 
     # Step 3:
     # CSD of Q1, Q2
@@ -358,4 +361,12 @@ end
 # This function applies a 2 by 2 Givens rotation matrix
 function appGiv(v1, v2, c, s)
     return c*v1 + s*v2, c*v2 - s*v1
+end
+
+function householderqr(R1, R2)
+    r, c = size(R1)
+    F = qr([R1;R2])
+    Q1 = Matrix(F.Q)[1:r,:]
+    Q2 = Matrix(F.Q)[r+1:end,:]
+    return Q1, Q2, F.R
 end
