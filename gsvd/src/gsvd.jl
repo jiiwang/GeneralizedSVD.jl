@@ -69,6 +69,7 @@ function gsvd(A, B, option)
     # Step 1:
     # preprocess A, B
     U, V, Q, k, l, A, B = dggsvp3!(A, B)
+    orthog_preproc(U,V,Q)
 
     # Step 2:
     # QR in a split fashion
@@ -96,8 +97,9 @@ function gsvd(A, B, option)
             return U, V, Q, alpha, beta, R, k, l
         else
             CS = [Matrix{Float64}(I, k+l, k+l);zeros(Float64, m+p-k-l, k+l)]
-            C = CS[1:m, :]
-            S = CS[m+1:m+p, :]
+            C = @view CS[1:m, :]
+            S = @view CS[m+1:m+p, :]
+            orthog_overall(U, V, Q)
             return U, V, Q, C, S, R, k, l
         end
     end
@@ -106,6 +108,7 @@ function gsvd(A, B, option)
     # R2 = deepcopy(B13)
     # Q1, Q2, R23 = splitqr(A23, B13)
     Q1, Q2, R23 = householderqr(A23, B13)
+    orthog_qr(Q1, Q2)
 
     # Alternatively, use Householder's method to do the qr of R1 and R2
     # r_a, c_a = size(R1) # r_a <= c_a = l
@@ -144,6 +147,7 @@ function gsvd(A, B, option)
         end
     else
         U1, V1, Z1, C1, S1 = csd(Q1, Q2, 1)
+        orthog_csd(U1, V1, Z1)
     end
 
     # Step 4:
@@ -197,6 +201,7 @@ function gsvd(A, B, option)
         end
         S = zeros(Float64, p, k+l)
         @views S[1:l, k+1:k+l] = S1
+        orthog_overall(U, V, Q)
         return U, V, Q, C, S, R, k, l
     end
 end
@@ -255,102 +260,102 @@ end
 #     end
 # end
 
-function splitqr(R1, R2)
-    m, n = size(R1)
-
-    # Initialize Q1, Q2 so that [Q1' Q2']' = I'
-    Q1 = Matrix{Float64}(I, m, n)
-    Q2 = zeros(Float64, n, n)
-    for i = 1:n-m
-        Q2[i, i+m] = 1.0
-    end
-
-    for i = 1:n
-        # Initialize T: m+n vector
-        T = fill(0.0, m+n)
-        T[m+i] = 1.0
-        k = min(n, m-1+i)
-        for j = 1:k
-            flag = 0
-            if j <= m
-                # eliminate element in R2 with elements in R1
-                c, s, r = genGiv(R1[j, j], R2[i, j])
-                # if j != i
-                #     flag = 1
-                    # c, s, r = givensAlgorithm(R1[j, j], R2[i, j])
-                    R1[j, j] = r
-                    R2[i, j] = 0.0
-                    if j+1 <= n
-                        # @views Ra = R1[j, j+1:n]
-                        # @views Rb = R2[i, j+1:n]
-                        R1[j, j+1:n], R2[i, j+1:n] = appGiv(R1[j, j+1:n], R2[i, j+1:n], c, s)
-                        # R1[j, j+1:n] = G * R1[j, j+1:n]
-                        # R2[i, j+1:n] = G * R2[i, j+1:n]
-                    end
-                # end
-            else
-                # eliminate element in R2 with elements in R2
-                c, s, r = genGiv(R2[j-m, j], R2[i, j])
-                # if j-m != i
-                    # flag = 1
-                    # c, s, r = givensAlgorithm(R2[j-m, j], R2[i, j])
-                    R2[j-m, j] = r
-                    R2[i, j] = 0.0
-                    if j+1 <= n
-                        # @views Ra = R2[j-m, j+1:n]
-                        # @views Rb = R2[i, j+1:n]
-                        R2[j-m, j+1:n], R2[i, j+1:n] = appGiv(R2[j-m, j+1:n], R2[i, j+1:n], c, s)
-                        # @views R2[j-m, j+1:n] = [c s;-s c]*[R2[j-m, j+1:n], R2[i, j+1:n]][1]
-                        # @views R2[i, j+1:n] = [c s;-s c]*[R2[j-m, j+1:n], R2[i, j+1:n]][2]
-                        # R2[j-m, j+1:n] = G * R2[j-m, j+1:n]
-                        # R2[i, j+1:n] = G * R2[i, j+1:n]
-                    end
-                # end
-            end
-            # update col in Q1 and Q2
-            # @views Ra = R1[j, j+1:n]
-            # @views Rb = R2[i, j+1:n]
-            Q1[1:m, j], T[1:m] = appGiv(Q1[1:m, j], T[1:m], c, s)
-            Q2[1:n, j], T[m+1:m+n] = appGiv(Q2[1:n, j], T[m+1:m+n], c, s)
-            # if flag == 1
-                # Q1[1:m, j] = G * Q1[1:m, j]
-                # T[1:m] = G * T[1:m]
-                # Q2[1:n, j] = G * Q2[1:n, j]
-                # T[m+1:m+n] = G * T[m+1:m+n]
-                # flag = 0
-            # end
-        end
-        if m+i <= n
-           @views Q1[1:m,m+i] = T[1:m]
-           @views Q2[1:n,m+i] = T[m+1:m+n]
-        end
-    end
-    @views R = [R1; R2[1:n-m,:]]
-    return Q1, Q2, R
-end
-
-# This function generates a 2 by 2 Givens rotation matrix
-function genGiv(a, b)
-    c = 0.0
-    s = 1.0
-    r = b
-    if a != 0
-        if abs(a) > abs(b)
-            t = b/a
-            u = sqrt(1 + t^2)
-            c = 1/u
-            s = c*t
-            r = a*u
-        else
-            t = a/b
-            u = sqrt(1 + t^2)
-            s = 1/u
-            c = s*t
-            r = b*u
-        end
-    end
-    return c, s, r
-end
+# function splitqr(R1, R2)
+#     m, n = size(R1)
+#
+#     # Initialize Q1, Q2 so that [Q1' Q2']' = I'
+#     Q1 = Matrix{Float64}(I, m, n)
+#     Q2 = zeros(Float64, n, n)
+#     for i = 1:n-m
+#         Q2[i, i+m] = 1.0
+#     end
+#
+#     for i = 1:n
+#         # Initialize T: m+n vector
+#         T = fill(0.0, m+n)
+#         T[m+i] = 1.0
+#         k = min(n, m-1+i)
+#         for j = 1:k
+#             flag = 0
+#             if j <= m
+#                 # eliminate element in R2 with elements in R1
+#                 c, s, r = genGiv(R1[j, j], R2[i, j])
+#                 # if j != i
+#                 #     flag = 1
+#                     # c, s, r = givensAlgorithm(R1[j, j], R2[i, j])
+#                     R1[j, j] = r
+#                     R2[i, j] = 0.0
+#                     if j+1 <= n
+#                         # @views Ra = R1[j, j+1:n]
+#                         # @views Rb = R2[i, j+1:n]
+#                         R1[j, j+1:n], R2[i, j+1:n] = appGiv(R1[j, j+1:n], R2[i, j+1:n], c, s)
+#                         # R1[j, j+1:n] = G * R1[j, j+1:n]
+#                         # R2[i, j+1:n] = G * R2[i, j+1:n]
+#                     end
+#                 # end
+#             else
+#                 # eliminate element in R2 with elements in R2
+#                 c, s, r = genGiv(R2[j-m, j], R2[i, j])
+#                 # if j-m != i
+#                     # flag = 1
+#                     # c, s, r = givensAlgorithm(R2[j-m, j], R2[i, j])
+#                     R2[j-m, j] = r
+#                     R2[i, j] = 0.0
+#                     if j+1 <= n
+#                         # @views Ra = R2[j-m, j+1:n]
+#                         # @views Rb = R2[i, j+1:n]
+#                         R2[j-m, j+1:n], R2[i, j+1:n] = appGiv(R2[j-m, j+1:n], R2[i, j+1:n], c, s)
+#                         # @views R2[j-m, j+1:n] = [c s;-s c]*[R2[j-m, j+1:n], R2[i, j+1:n]][1]
+#                         # @views R2[i, j+1:n] = [c s;-s c]*[R2[j-m, j+1:n], R2[i, j+1:n]][2]
+#                         # R2[j-m, j+1:n] = G * R2[j-m, j+1:n]
+#                         # R2[i, j+1:n] = G * R2[i, j+1:n]
+#                     end
+#                 # end
+#             end
+#             # update col in Q1 and Q2
+#             # @views Ra = R1[j, j+1:n]
+#             # @views Rb = R2[i, j+1:n]
+#             Q1[1:m, j], T[1:m] = appGiv(Q1[1:m, j], T[1:m], c, s)
+#             Q2[1:n, j], T[m+1:m+n] = appGiv(Q2[1:n, j], T[m+1:m+n], c, s)
+#             # if flag == 1
+#                 # Q1[1:m, j] = G * Q1[1:m, j]
+#                 # T[1:m] = G * T[1:m]
+#                 # Q2[1:n, j] = G * Q2[1:n, j]
+#                 # T[m+1:m+n] = G * T[m+1:m+n]
+#                 # flag = 0
+#             # end
+#         end
+#         if m+i <= n
+#            @views Q1[1:m,m+i] = T[1:m]
+#            @views Q2[1:n,m+i] = T[m+1:m+n]
+#         end
+#     end
+#     @views R = [R1; R2[1:n-m,:]]
+#     return Q1, Q2, R
+# end
+#
+# # This function generates a 2 by 2 Givens rotation matrix
+# function genGiv(a, b)
+#     c = 0.0
+#     s = 1.0
+#     r = b
+#     if a != 0
+#         if abs(a) > abs(b)
+#             t = b/a
+#             u = sqrt(1 + t^2)
+#             c = 1/u
+#             s = c*t
+#             r = a*u
+#         else
+#             t = a/b
+#             u = sqrt(1 + t^2)
+#             s = 1/u
+#             c = s*t
+#             r = b*u
+#         end
+#     end
+#     return c, s, r
+# end
 
 # function appGiv(v1, v2, c, s)
 #     u1 = c*v1 + s*v2
@@ -359,9 +364,9 @@ end
 # end
 
 # This function applies a 2 by 2 Givens rotation matrix
-function appGiv(v1, v2, c, s)
-    return c*v1 + s*v2, c*v2 - s*v1
-end
+# function appGiv(v1, v2, c, s)
+#     return c*v1 + s*v2, c*v2 - s*v1
+# end
 
 function householderqr(R1, R2)
     r, c = size(R1)

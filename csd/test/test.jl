@@ -35,20 +35,25 @@ function test(m, p, l)
         println("input error, m + p >= l is required.")
         return
     else
-        Q, R = qr(randn(m+p, m+p))
-        Q_ = Q*Matrix(I,m+p,m+p)
-        Q1 = view(Q_, 1:m, 1:l)
-        Q2 = view(Q_, m+1:m+p, 1:l)
-        # Q1 = Q[1:m, 1:l]
-        # Q2 = Q[m+1:m+p, 1:l]
-        # U, V, Z, C, S = csd(view(Q_, 1:m, 1:l), view(Q_, m+1:m+p, 1:l))
-        @time U, V, Z, C, S = csd(Q1, Q2, 1)
+        F = qr(randn(m+p, l))
+        # Q1 = view(Q_, 1:m, 1:l)
+        # Q2 = view(Q_, m+1:m+p, 1:l)
+
+        Q1 = Matrix(F.Q)[1:m, :]
+        Q2 = Matrix(F.Q)[m+1:m+p, :]
+
         e = eps(Float64)
-        res_q1 = norm(U * C * Z' - Q1, 1)/(max(m,l)*norm(Q1, 1)*e)
-        res_q2 = norm(V * S * Z' - Q2, 1)/(max(p,l)*norm(Q2, 1)*e)
-        orthog_u = norm(U' * U - I, 1)/(m*e)
-        orthog_v = norm(V' * V - I, 1)/(p*e)
-        orthog_z = norm(Z' * Z - I, 1)/(l*e)
+        println(opnorm(Matrix(F.Q)'* Matrix(F.Q) - I,1)/(l*e))
+        println(opnorm(Q1'*Q1 + Q2'*Q2 - I,1)/(l*e))
+        # U, V, Z, C, S = csd(view(Q_, 1:m, 1:l), view(Q_, m+1:m+p, 1:l))
+
+        @time U, V, Z, C, S = csd(Q1, Q2, 1)
+
+        res_q1 = opnorm(U * C * Z' - Q1, 1)/(max(m,l)*opnorm(Q1, 1)*e)
+        res_q2 = opnorm(V * S * Z' - Q2, 1)/(max(p,l)*opnorm(Q2, 1)*e)
+        orthog_u = opnorm(U' * U - I, 1)/(m*e)
+        orthog_v = opnorm(V' * V - I, 1)/(p*e)
+        orthog_z = opnorm(Z' * Z - I, 1)/(l*e)
         println("res_q1: ", res_q1)
         println("res_q2: ", res_q2)
         println("orthog_u: ", orthog_u)

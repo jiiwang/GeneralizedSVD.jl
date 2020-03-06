@@ -24,8 +24,8 @@ function genetest(m, n, p)
         tsvd[i] = ans2[2]
 
         e = eps(Float64)
-        res_a1 = norm(ans1[1][1]'*A_*ans1[1][3] - ans1[1][4]*ans1[1][6], 1)/(max(10*m*i,10*n*i)*norm(A_, 1)*e)
-        res_a2 = norm(ans2[1].U'*A_*ans2[1].Q - ans2[1].D1*ans2[1].R0, 1)/(max(10*m*i,10*n*i)*norm(A_, 1)*e)
+        res_a1 = opnorm(ans1[1][1]'*A_*ans1[1][3] - ans1[1][4]*ans1[1][6], 1)/(max(10*m*i,10*n*i)*opnorm(A_, 1)*e)
+        res_a2 = opnorm(ans2[1].U'*A_*ans2[1].Q - ans2[1].D1*ans2[1].R0, 1)/(max(10*m*i,10*n*i)*opnorm(A_, 1)*e)
         println("m: ", X[i])
         println("residual err of A by new gsvd: ", res_a1)
         println("residual err of A by current gsvd in Julia: ", res_a2)
