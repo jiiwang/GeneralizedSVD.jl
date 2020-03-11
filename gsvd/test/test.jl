@@ -27,7 +27,7 @@ using Profile
 # n: num of cols in A, B
 #
 # no return
-function test(m, n, p)
+function test(m, p, n)
     A = randn(m, n)
     B = randn(p, n)
     A_ = copy(A)
@@ -45,7 +45,7 @@ function test(m, n, p)
     println("orthog_u: ", orthog_u)
     println("orthog_v: ", orthog_v)
     println("orthog_q: ", orthog_q)
-    return U,V,C,S,Q
+    return k, l
 end
 
 # Example from Julia v1.1.0 documentation
@@ -190,7 +190,7 @@ end
 # Example from Ch. 93 LAPACK of Handbook of Linear Algebra, 2nd Edition
 # Same example from "A new preprocessing algorithm for the computation of
 # the generalized singular value decomposition"
-function test5()
+function test6()
     A = [1.0 2 3 1 5;0 3 2 0 2;1 0 2 1 0;0 2 3 0 -1;1 0 2 1 1;0 2 1 0 1]
     A_ = copy(A)
     B = [1.0 -2 2 1 1;0 3 0 0 0;1 -2 2 1 1;0 2 0 0 0;2 -4 4 2 2;1 3 2 1 1]
@@ -212,7 +212,7 @@ function test5()
     U, V, Q, C, S, R, k, l
 end
 
-function test6()
+function test7()
     A = randn(3, 8)
     B = randn(4, 8)
     println("rank(B): ",rank(B))
@@ -223,7 +223,7 @@ function test6()
     return A_, B_, U, V, Q, C, S, R, k, l
 end
 
-function test7()
+function test8()
     A = randn(3, 8)
     B = randn(4, 8)
     println("rank(B): ",rank(B))
@@ -275,5 +275,27 @@ function test(dim)
     end
 end
 
-function test_orthog()
+function test_profiling(m, p, n)
+    maxI = 10
+    t_pre = 0.0
+    t_qr = 0.0
+    t_csd = 0.0
+    t_all = 0.0
+    for i = 1:maxI
+        A = randn(m, n)
+        B = randn(p, n)
+        ans = @timed gsvd(A, B, 1)
+        t_pre = t_pre + ans[1][1]
+        t_qr = t_qr + ans[1][2]
+        t_csd = t_csd + ans[1][3]
+        t_all = t_all + ans[2]
+    end
+    t_pre = t_pre/maxI
+    t_qr = t_qr/maxI
+    t_csd = t_csd/maxI
+    t_all = t_all/maxI
+    p_pre = 100*t_pre/t_all
+    p_qr = 100*t_qr/t_all
+    p_csd = 100*t_csd/t_all
+    return t_pre, p_pre, t_qr, p_qr, t_csd, p_csd, t_all
 end

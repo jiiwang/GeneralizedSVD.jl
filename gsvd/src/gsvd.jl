@@ -66,10 +66,22 @@ function gsvd(A, B, option)
     m, n = size(A)
     p = size(B)[1]
 
+    t_pre = 0.0
+    t_qr = 0.0
+    t_csd = 0.0
     # Step 1:
     # preprocess A, B
-    U, V, Q, k, l, A, B = dggsvp3!(A, B)
-    orthog_preproc(U,V,Q)
+    # U, V, Q, k, l, A, B = dggsvp3!(A, B)
+    ans1 = @timed dggsvp3!(A, B)
+    t_pre = ans1[2]
+    U = ans1[1][1]
+    V = ans1[1][2]
+    Q = ans1[1][3]
+    k = ans1[1][4]
+    l = ans1[1][5]
+    A = ans1[1][6]
+    B = ans1[1][7]
+    # orthog_preproc(U,V,Q)
 
     # Step 2:
     # QR in a split fashion
@@ -99,16 +111,23 @@ function gsvd(A, B, option)
             CS = [Matrix{Float64}(I, k+l, k+l);zeros(Float64, m+p-k-l, k+l)]
             C = @view CS[1:m, :]
             S = @view CS[m+1:m+p, :]
-            orthog_overall(U, V, Q)
-            return U, V, Q, C, S, R, k, l
+            # orthog_overall(U, V, Q)
+            # return U, V, Q, C, S, R, k, l
+            return t_pre, t_qr, t_csd
         end
     end
 
     # R1 = deepcopy(A23)
     # R2 = deepcopy(B13)
     # Q1, Q2, R23 = splitqr(A23, B13)
-    Q1, Q2, R23 = householderqr(A23, B13)
-    orthog_qr(Q1, Q2)
+
+    # Q1, Q2, R23 = householderqr(A23, B13)
+    ans2 = @timed householderqr(A23, B13)
+    t_qr = ans2[2]
+    Q1 = ans2[1][1]
+    Q2 = ans2[1][2]
+    R23 = ans2[1][3]
+    # orthog_qr(Q1, Q2)
 
     # Alternatively, use Householder's method to do the qr of R1 and R2
     # r_a, c_a = size(R1) # r_a <= c_a = l
@@ -146,8 +165,15 @@ function gsvd(A, B, option)
             end
         end
     else
-        U1, V1, Z1, C1, S1 = csd(Q1, Q2, 1)
-        orthog_csd(U1, V1, Z1)
+        # U1, V1, Z1, C1, S1 = csd(Q1, Q2, 1)
+        ans3 = @timed csd(Q1, Q2, 1)
+        t_csd = ans3[2]
+        U1 = ans3[1][1]
+        V1 = ans3[1][2]
+        Z1 = ans3[1][3]
+        C1 = ans3[1][4]
+        S1 = ans3[1][5]
+        # orthog_csd(U1, V1, Z1)
     end
 
     # Step 4:
@@ -201,8 +227,9 @@ function gsvd(A, B, option)
         end
         S = zeros(Float64, p, k+l)
         @views S[1:l, k+1:k+l] = S1
-        orthog_overall(U, V, Q)
-        return U, V, Q, C, S, R, k, l
+        # orthog_overall(U, V, Q)
+        # return U, V, Q, C, S, R, k, l
+        return t_pre, t_qr, t_csd
     end
 end
 
