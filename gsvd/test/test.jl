@@ -283,7 +283,9 @@ function test_profiling(m, p, n)
     t_all = 0.0
     for i = 1:maxI
         A = randn(m, n)
+        # A = randn(500,500);
         B = randn(p, n)
+        # B = generator(600, 500, 350);
         ans = @timed gsvd(A, B, 1)
         t_pre = t_pre + ans[1][1]
         t_qr = t_qr + ans[1][2]

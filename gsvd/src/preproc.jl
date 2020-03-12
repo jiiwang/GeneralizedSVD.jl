@@ -3,7 +3,8 @@ using LinearAlgebra
 function preproc(A, B)
     m, n = size(A)
     p = size(B)[1]
-    tola = max(m,n)*norm(A, 1)*eps(Float64)
+    println("computing tolerence....")
+    tola = @time max(m,n)*norm(A, 1)*eps(Float64)
     tolb = max(p,n)*norm(B, 1)*eps(Float64)
 
     # Step 1: QR decomposition with
@@ -12,59 +13,74 @@ function preproc(A, B)
     # B*P = Q1*(B11 B12) l
     #          ( 0   0 ) p-l
     #
-    F1 = qr!(B, Val(true))
-    V = F1.Q*Matrix(1.0I, p, p)
+    println("qr with column pivoting....")
+    F1 = @time qr!(B, Val(true))
+    V = @time F1.Q*Matrix(1.0I, p, p)
     # R1 = F1.R
 
     # Update A
-    A = A*F1.P
+    A = @time A*F1.P
 
     # Q = Matrix(1.0I, n, n)*F1.P
-    Q = F1.P
+    Q = @time F1.P
     # Initialize U
-    U = Matrix(1.0I, m, m)
+    U = @time Matrix(1.0I, m, m)
 
     # Determine the numerical rank of B
     l = 0
     k = 0
-    for i = 1:min(p,n)
+    println("numerical rank...")
+    @time for i = 1:min(p,n)
         if abs(B[i,i]) > tolb
             l += 1
         end
     end
 
     # Clean up B to make it upper triangular
-    for j = 1:l - 1
+    println("cleaning up B...")
+    @time for j = 1:l - 1
         for i = j + 1:l
             B[i, j] = 0.0
         end
     end
 
     if p > l
-        for i = l+1:p
+        @time for i = l+1:p
             for j = 1:n
                 B[i, j] = 0.0
             end
         end
     end
 
-
     # Step 2: RQ decomposition of (B11  B12)
     # (B11 B12) = (0 B22) * Z
     #
     # B1 = similar(B, size(B[1:l,:]))
     # copyto!(B1 , B[1:l,:])
-    B1 = deepcopy(B[1:l,:])
+    # B1 = deepcopy(B[1:l,:])
     if p >= l && n != l
-        @views B[1:l,:], tau1 = LAPACK.gerqf!(B[1:l,:])
-    #     # R_r = Matrix(UpperTriangular(B[1:l,n-l+1:n]))
-    #
+        println("rq...")
+        B[1:l,:], tau1 = @time LAPACK.gerqf!(B[1:l,:])
+        # R_r = Matrix(UpperTriangular(B[1:l, n-l+1:n]))
+        # A = A * Z'
+        println("multiplying q....")
+        @time LAPACK.ormrq!('R', 'T', B[1:l,:], tau1, A)
+        # Q = Q * Z'
+        println("multiplying q....")
+        @time LAPACK.ormrq!('R', 'T', B[1:l,:], tau1, Q)
+        @time for i=1:l
+            for j=1:n-l
+                B[i, j] = 0.0
+            end
+        end
+        for j = n-l+1:n
+            for i = j-n+l+1:l
+                B[i, j] = 0.0
+            end
+        end
+
     end
-    return B1
-    #     # A = A * Z'
-    #     LAPACK.ormrq!('R', 'T', B[1:l,:], tau1, A)
-    #     # Q = Q * Z'
-    #     LAPACK.ormrq!('R', 'T', B[1:l,:], tau1, Q)
+
     #
     #     # Q_b = LAPACK.orgrq!(B[1:l,:], tau1, length(tau1))
     #     # Q_t = zeros(Float64, n-l, n)
