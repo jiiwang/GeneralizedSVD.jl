@@ -66,37 +66,119 @@
 # end
 #
 
-ENV["MPLBACKEND"]="qt5agg";
-using PyPlot;
-pygui(true)
+function test1()
+    A1 = [1.0 2 1 0;2 3 1 1;3 4 1 2;4 5 1 3;5 6 1 4]
+    B1 = [6.0 7 1 5;7 1 -6 13;-4 8 9 -2]
 
-function genetest(m)
+    A2 = [1.0 2 1 0;2 3 1 1;3 4 1 2;4 5 1 3;5 6 1 4]
+    B2 = [6.0 7 1 5;7 1 -6 13;-4 8 9 -2]
+
+    A = [1.0 2 1 0;2 3 1 1;3 4 1 2;4 5 1 3;5 6 1 4]
+    B = [6.0 7 1 5;7 1 -6 13;-4 8 9 -2]
+    m, n = size(A1)
+    p = size(B1)[1]
+
+    U1, V1, Q1, k1, l1, A1, B1 = @time dggsvp3!(A1, B1)
+    println("k: ", k1)
+    println("l: ", l1)
+    U2, V2, Q2, k2, l2, A2, B2 = @time preproc(A2, B2)
+    # A2, U, Q = preproc(A2, B2)
+
+    e = eps(Float64)
+    println("Stability test on dggsvp3")
+    println("res_a = ", opnorm(U1*A1*Q1' - A, 1)/(max(m,n)*opnorm(A, 1)*e))
+    println("res_b = ", opnorm(V1*B1*Q1' - B, 1)/(max(m,n)*opnorm(B, 1)*e))
+    println("orthog_u = ", opnorm(U1'*U1-I, 1)/(m*e))
+    println("orthog_v = ", opnorm(V1'*V1-I, 1)/(p*e))
+    println("orthog_q = ", opnorm(Q1'*Q1-I, 1)/(n*e))
+    println("--------------------------------------")
+    println("Stability test on preproc")
+    println("res_a = ", opnorm(U2*A2*Q2' - A, 1)/(max(m,n)*opnorm(A, 1)*e))
+    println("res_b = ", opnorm(V2*B2*Q2' - B, 1)/(max(m,n)*opnorm(B, 1)*e))
+    println("orthog_u = ", opnorm(U2'*U2-I, 1)/(m*e))
+    println("orthog_v = ", opnorm(V2'*V2-I, 1)/(p*e))
+    println("orthog_q = ", opnorm(Q2'*Q2-I, 1)/(n*e))
+
+end
+
+function test2()
+    A = [1.0 2 1 0;2 3 1 1;3 4 1 2;4 5 1 3;5 6 1 4]
+    B = [6.0 7 1 5;7 1 -6 13;-4 8 9 -2]
+    return preproc(A,B)
+end
+
+function test3(m, n, p)
+    A = randn(m, n)
+    B = randn(p, n)
+    A1 = copy(A)
+    B1 = copy(B)
+    A2 = copy(A)
+    B2 = copy(B)
+    U1, V1, Q1, k1, l1, A1, B1 = @time dggsvp3!(A1, B1)
+    println("k: ", k1)
+    println("l: ", l1)
+    U2, V2, Q2, k2, l2, A2, B2 = @time preproc(A2, B2)
+    # A2, U, Q = preproc(A2, B2)
+
+    e = eps(Float64)
+    println("Stability test on dggsvp3")
+    println("res_a = ", opnorm(U1*A1*Q1' - A, 1)/(max(m,n)*opnorm(A, 1)*e))
+    println("res_b = ", opnorm(V1*B1*Q1' - B, 1)/(max(m,n)*opnorm(B, 1)*e))
+    println("orthog_u = ", opnorm(U1'*U1-I, 1)/(m*e))
+    println("orthog_v = ", opnorm(V1'*V1-I, 1)/(p*e))
+    println("orthog_q = ", opnorm(Q1'*Q1-I, 1)/(n*e))
+    println("--------------------------------------")
+    println("Stability test on preproc")
+    println("res_a = ", opnorm(U2*A2*Q2' - A, 1)/(max(m,n)*opnorm(A, 1)*e))
+    println("res_b = ", opnorm(V2*B2*Q2' - B, 1)/(max(m,n)*opnorm(B, 1)*e))
+    println("orthog_u = ", opnorm(U2'*U2-I, 1)/(m*e))
+    println("orthog_v = ", opnorm(V2'*V2-I, 1)/(p*e))
+    println("orthog_q = ", opnorm(Q2'*Q2-I, 1)/(n*e))
+end
+
+
+function preproctest(m, p, n)
     # params: row(A): row(B): col ratio
 
-    maxI = 20
+    maxI = 25
+    maxJ = 5
     X = zeros(maxI)
-    tgsvd = zeros(maxI)
-    tsvd = zeros(maxI)
+    twrapper = zeros(maxI)
+    tnative = zeros(maxI)
 
     for i = 1:maxI
         X[i] = 10*m*i
-        A1 = randn(10*m*i, 10*n*i)
-        B1 = randn(10*p*i, 10*n*i)
-        A2 = copy(A1)
-        B2 = copy(B1)
-        A_ = copy(A1)
-        B_ = copy(B1)
-        ans1 = @timed gsvd(A1, B1)
-        ans2 = @timed svd(A2, B2)
-        tgsvd[i] = ans1[2]
-        tsvd[i] = ans2[2]
+        time1 = 0.0
+        time2 = 0.0
+        for j = 1:maxJ
+            A1 = randn(10*m*i, 10*n*i)
+            B1 = randn(10*p*i, 10*n*i)
+            A2 = deepcopy(A1)
+            B2 = deepcopy(B1)
+            # A_ = deepcopy(A1)
+            # B_ = deepcopy(B1)
+            ans1 = @timed dggsvp3!(A1, B1)
+            ans2 = @timed preproc(A2, B2)
+            time1 = time1 + ans1[2]
+            time2 = time2 + ans2[2]
+        end
+            twrapper[i] = time1/maxJ
+            tnative[i] = time2/maxJ
+
+        # e = eps(Float64)
+        # res_a1 = opnorm(ans1[1][1]'*A_*ans1[1][3] - ans1[1][4]*ans1[1][6], 1)/(max(10*m*i,10*n*i)*opnorm(A_, 1)*e)
+        # res_a2 = opnorm(ans2[1].U'*A_*ans2[1].Q - ans2[1].D1*ans2[1].R0, 1)/(max(10*m*i,10*n*i)*opnorm(A_, 1)*e)
+        println("m: ", X[i])
+        # println("residual err of A by new gsvd: ", res_a1)
+        # println("residual err of A by current gsvd in Julia: ", res_a2)
+        println("--------------------------------------------------------")
     end
 
-    plot(X, tgsvd, color="red", linewidth=2.0, linestyle="-", label="preproc_julia_native");
-    plot(X, tsvd, color="blue", linewidth=2.0, linestyle="--", label="preproc_wrapper");
+    plot(X, twrapper, color="red", linewidth=2.0, linestyle="-", label="wrapper preproc");
+    plot(X, tnative, color="blue", linewidth=2.0, linestyle="--", label="native preproc");
     xlabel("# row of A");
     ylabel("elapsed time in seconds");
-    title("cpu timing of preproc");
+    title("cpu timing of preproc, m:p:n = $m:$p:$n");
     legend();
     show()
 end

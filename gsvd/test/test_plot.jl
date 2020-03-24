@@ -5,8 +5,8 @@ pygui(true)
 function genetest(m, p, n)
     # params: row(A): row(B): col ratio
 
-    maxI = 30
-    maxJ = 3
+    maxI = 15
+    maxJ = 1
     X = zeros(maxI)
     tgsvd = zeros(maxI)
     tsvd = zeros(maxI)

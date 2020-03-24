@@ -72,7 +72,8 @@ function gsvd(A, B, option)
     # Step 1:
     # preprocess A, B
     # U, V, Q, k, l, A, B = dggsvp3!(A, B)
-    ans1 = @timed dggsvp3!(A, B)
+    # ans1 = @timed dggsvp3!(A, B)
+    ans1 = @timed preproc(A, B)
     t_pre = ans1[2]
     U = ans1[1][1]
     V = ans1[1][2]
@@ -228,8 +229,8 @@ function gsvd(A, B, option)
         S = zeros(Float64, p, k+l)
         @views S[1:l, k+1:k+l] = S1
         # orthog_overall(U, V, Q)
-        # return U, V, Q, C, S, R, k, l
-        return t_pre, t_qr, t_csd
+        return U, V, Q, C, S, R, k, l
+        # return t_pre, t_qr, t_csd
     end
 end
 
