@@ -1,6 +1,7 @@
 # using Pkg
 # Pkg.add("LinearAlgebra")
 using LinearAlgebra
+import Base.show
 include("preproc.jl")
 
 struct GSVD{T,S} <: Factorization{T}
@@ -20,6 +21,30 @@ end
 function GSVD(U::AbstractMatrix{T}, V::AbstractMatrix{T}, Q::AbstractMatrix{T},
                         D1::AbstractMatrix{T}, D2::AbstractMatrix{T}, k::Int, l::Int, R::AbstractMatrix{T}) where T
     GSVD{T,typeof(U)}(U, V, Q, D1, D2, k, l, R)
+end
+
+function show(io::IO, mime::MIME{Symbol("text/plain")}, F::GSVD{<:Any,<:AbstractArray})
+    summary(io, F); println(io)
+    println(io, "U factor:")
+    show(io, mime, F.U)
+    println(io, "\nV factor:")
+    show(io, mime, F.V)
+    println(io, "\nQ factor:")
+    show(io, mime, F.Q)
+    println(io, "\nD1 factor:")
+    show(io, mime, F.D1)
+    println(io, "\nD2 factor:")
+    show(io, mime, F.D2)
+    println(io, "\nGeneralized singular values:")
+    show(io, mime, sqrt.(diag(F.D1'*F.D1) ./ diag(F.D2'*F.D2)))
+    println(io, "\nk factor:")
+    show(io, mime, F.k)
+    println(io, "\nl factor:")
+    show(io, mime, F.l)
+    println(io, "\neffective numerical rank of the matrix [A; B]:")
+    show(io, mime, F.k + F.l)
+    println(io, "\nR factor:")
+    show(io, mime, F.R)
 end
 
 # This function computes the generalized singular value
@@ -77,7 +102,7 @@ end
 # returns U, V, Z, alpha, beta, R, k, l if option = 0
 # U, V, Z, D1, D2, R, k, l if option = 1
 
-function gsvd(A, B)    
+function gsvd(A, B)
 # function gsvd(A, B, option)
     m, n = size(A)
     p = size(B)[1]
