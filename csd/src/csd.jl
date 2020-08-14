@@ -3,14 +3,14 @@
 using LinearAlgebra
 
 # This function computes the cosine-sine decomposition (CSD) of an
-# (m+p) by l orthogonal matrix Q = (Q1’ Q2’)’, such that:
+# (m+p) by l orthogonal matrix Q = (Q1' Q2')', such that:
 #
-# Q1 = U * C * Z’,  Q2 = V * S * Z’
+# Q1 = U * C * Z',  Q2 = V * S * Z'
 #
 # where U, V and Z are orthogonal matrices of size m-by-m, p-by-p,
 # and l-by-l, respectively.
 # C and S are  m-by-l and p-by-l "diagonal" matrices and
-# C’ * C + S’ * S = I.
+# C' * C + S' * S = I.
 #
 # C and S have the following structures(both alpha and beta are of length l):
 #

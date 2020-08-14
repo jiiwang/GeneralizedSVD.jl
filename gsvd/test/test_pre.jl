@@ -182,3 +182,9 @@ function preproctest(m, p, n)
     legend();
     show()
 end
+
+function test_profiling(m,n,p)
+    A = randn(m,n)
+    B = randn(p,n)
+    @time preproc(A,B)
+end

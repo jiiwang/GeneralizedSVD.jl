@@ -1,7 +1,6 @@
 using LinearAlgebra
 
 function preproc(A, B)
-    A_ = deepcopy(A)
     m, n = size(A)
     p = size(B)[1]
     tola = max(m,n)*norm(A, 1)*eps(Float64)
@@ -13,6 +12,7 @@ function preproc(A, B)
     # B * P = V * (B11  B12) l
     #             ( 0    0 ) p-l
     #
+    # println("------QR with col pivoting of B------")
     F1 = qr!(B, Val(true))
     if p > n
         V = F1.Q*Matrix(1.0I, p, p)
@@ -51,6 +51,7 @@ function preproc(A, B)
     # Step 2: RQ decomposition of (B11  B12)
     # (B11  B12) = (0  B22) * Z
     if p >= l && n != l
+        # println("------RQ of (B11  B12)------")
         B[1:l,:], tau1 = @views LAPACK.gerqf!(B[1:l,:])
         @views LAPACK.ormrq!('R', 'T', B[1:l,:], tau1, A)
         @views LAPACK.ormrq!('R', 'T', B[1:l,:], tau1, Q)
@@ -75,6 +76,7 @@ function preproc(A, B)
     #
     #       A11 * P = U * (T11  T12)
     #                     ( 0    0 )
+    # println("------QR with col pivoting of A11------")
     @views F2 = qr!(A[:,1:n-l], Val(true))
 
     # Determine the numerical rank of A11
@@ -84,6 +86,8 @@ function preproc(A, B)
             k += 1
         end
     end
+
+    # println("k: ", k)
 
     if m > n-l
         U = F2.Q*Matrix(1.0I, m, m)
@@ -113,6 +117,7 @@ function preproc(A, B)
     # Step 4: RQ decomposition of (T11  T12)
     # (T11  T12) = (0  T12) * Z
     if n-l > k
+        println("------RQ of (T11  T12)------")
         A[1:k,1:n-l], tau2 = @views LAPACK.gerqf!(A[1:k,1:n-l])
         @views LAPACK.ormrq!('R', 'T', A[1:k,1:n-l], tau2, Q[1:n,1:n-l])
         # Clean up A
@@ -129,6 +134,7 @@ function preproc(A, B)
     if m > k
         # Weird, you have to add @views for submatrix input, otherwise, it will not
         # be overwritten.
+        # println("------QR of submatrix of A------")
         A[k+1:m,n-l+1:n], tau3 = @views LAPACK.geqrf!(A[k+1:m,n-l+1:n])
         @views LAPACK.ormqr!('R', 'N', A[k+1:m,n-l+1:n], tau3, U[:,k+1:m])
         # @views F3 = qr!(A[k+1:m,n-l+1:n])
