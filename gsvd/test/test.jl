@@ -1,6 +1,4 @@
-using Profile
-
- # This function tests the time performance
+# This function tests the time performance
 # and stability of Generalized Singular Value Decomposition (GSVD)
 #
 # First, we generate a m by n random matrix A and p by n random matrix B,
@@ -79,19 +77,18 @@ function test1()
     B_ = copy(B)
     m,n = size(A)
     p = size(B)[1]
-    @time U, V, Q, C, S, R, k, l = gsvd(A, B, 1)
+    @time F = gsvd(A, B)
     e = eps(Float64)
-    res_a = opnorm(U'*A_*Q - C*R, 1)/(max(m,n)*opnorm(A_, 1)*e)
-    res_b = opnorm(V'*B_*Q - S*R, 1)/(max(m,n)*opnorm(B_, 1)*e)
-    orthog_u = opnorm(I - U'*U, 1)/(m*e)
-    orthog_v = opnorm(I - V'*V, 1)/(p*e)
-    orthog_q = opnorm(I - Q'*Q, 1)/(n*e)
+    res_a = opnorm(F.U'*A_*F.Q - F.D1*F.R, 1)/(max(m,n)*opnorm(A_, 1)*e)
+    res_b = opnorm(F.V'*B_*F.Q - F.D2*F.R, 1)/(max(m,n)*opnorm(B_, 1)*e)
+    orthog_u = opnorm(I - F.U'*F.U, 1)/(m*e)
+    orthog_v = opnorm(I - F.V'*F.V, 1)/(p*e)
+    orthog_q = opnorm(I - F.Q'*F.Q, 1)/(n*e)
     println("res_a: ", res_a)
     println("res_b: ", res_b)
     println("orthog_u: ", orthog_u)
     println("orthog_v: ", orthog_v)
     println("orthog_q: ", orthog_q)
-    return U, V, Q, C, S, R, k, l
 end
 
 # Example 2 from Ch.4 of Jenny's Thesis

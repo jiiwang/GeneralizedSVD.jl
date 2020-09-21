@@ -3,8 +3,8 @@ using LinearAlgebra
 function preproc(A, B)
     m, n = size(A)
     p = size(B)[1]
-    tola = max(m,n)*norm(A, 1)*eps(Float64)
-    tolb = max(p,n)*norm(B, 1)*eps(Float64)
+    tola = max(m,n)*opnorm(A, 1)*eps(Float64)
+    tolb = max(p,n)*opnorm(B, 1)*eps(Float64)
 
     # Step 1: QR decomposition with
     # col pivoting of B
@@ -117,7 +117,7 @@ function preproc(A, B)
     # Step 4: RQ decomposition of (T11  T12)
     # (T11  T12) = (0  T12) * Z
     if n-l > k
-        println("------RQ of (T11  T12)------")
+        # println("------RQ of (T11  T12)------")
         A[1:k,1:n-l], tau2 = @views LAPACK.gerqf!(A[1:k,1:n-l])
         @views LAPACK.ormrq!('R', 'T', A[1:k,1:n-l], tau2, Q[1:n,1:n-l])
         # Clean up A

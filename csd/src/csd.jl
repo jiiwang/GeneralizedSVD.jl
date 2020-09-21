@@ -1,62 +1,69 @@
-# using Pkg
-# Pkg.add("LinearAlgebra")
+# module CSD
+
 using LinearAlgebra
 
-# This function computes the cosine-sine decomposition (CSD) of an
-# (m+p) by l orthogonal matrix Q = (Q1' Q2')', such that:
-#
-# Q1 = U * C * Z',  Q2 = V * S * Z'
-#
-# where U, V and Z are orthogonal matrices of size m-by-m, p-by-p,
-# and l-by-l, respectively.
-# C and S are  m-by-l and p-by-l "diagonal" matrices and
-# C' * C + S' * S = I.
-#
-# C and S have the following structures(both alpha and beta are of length l):
-#
-# (1) If m >= l and p >= l:
-#         C =                           l
-#                   l ( diag(alpha(1), ... , alpha(l)) )
-#                 m-l (      0                         )
-#
-#         S =                           l
-#                   l ( diag(beta(1), ... , beta(l))   )
-#                 p-l (     0                          )
-#
-# (2) If m >= l and p < l:
-#         C =         l-p                        p
-#                l-p ( I                         0              )
-#                  p ( 0     diag(alpha(l-p+1), ... , alpha(l)) )
-#                m-l ( 0                         0              )
-#
-#         S =         l-p                        p
-#                  p ( 0       diag(beta(l-p+1), ... , beta(l)) )
-#
-# (3) If m <= l and p >= l,
-#         C =                            m                 l-m
-#                    m ( diag(alpha(1), ... , alpha(m))     0 )
-#
-#         S =                            m                 l-m
-#                   m ( diag(beta(1), ... , beta(m)))       0 )
-#                 l-m (                 0                   I )
-#                 p-l (                 0                   0 )
-#
-# (4) If m <= l and p < l,
-#          C =            l-p                       m+p-l               l-m
-#                   l-p ( I                          0                   0 )
-#                 m+p-l ( 0      diag(alpha(l-p+1), ... , alpha(m) )     0 )
-#
-#          S =            l-p                       m+p-l               l-m
-#                 m+p-l ( 0      diag(beta(l-p+1), ... , beta(m) )      0 )
-#                   l-p ( 0                         0                   I )
-#
-# argument
-# Q1: m by l matrix
-# Q2: p by l matrix
-# option: 0 or 1
-#
-# returns U, V, Z, alpha, beta if option = 0
-# U, V, Z, C, S if option = 1
+# export csd
+
+"""
+	csd(Q1, Q2, option)
+
+This function computes the cosine-sine decomposition (CSD) of an
+(m+p) by l orthogonal matrix Q = (Q1' Q2')', such that:
+
+```math
+Q1 = U  C  Z',  Q2 = V  S  Z'
+```
+
+where U, V and Z are orthogonal matrices of size m-by-m, p-by-p,
+and l-by-l, respectively.
+C and S are  m-by-l and p-by-l "diagonal" matrices and
+C' * C + S' * S = I.
+
+C and S have the following structures (both alpha and beta are of length l):
+
+(1) If m >= l and p >= l:
+        C =                           l
+                  l ( diag(alpha(1), ... , alpha(l)) )
+                m-l (      0                         )
+
+        S =                           l
+                  l ( diag(beta(1), ... , beta(l))   )
+                p-l (     0                          )
+
+(2) If m >= l and p < l:
+        C =         l-p                        p
+               l-p ( I                         0              )
+                 p ( 0     diag(alpha(l-p+1), ... , alpha(l)) )
+               m-l ( 0                         0              )
+
+        S =         l-p                        p
+                 p ( 0       diag(beta(l-p+1), ... , beta(l)) )
+
+(3) If m <= l and p >= l,
+        C =                            m                 l-m
+                   m ( diag(alpha(1), ... , alpha(m))     0 )
+
+        S =                            m                 l-m
+                  m ( diag(beta(1), ... , beta(m)))       0 )
+                l-m (                 0                   I )
+                p-l (                 0                   0 )
+
+(4) If m <= l and p < l,
+         C =            l-p                       m+p-l               l-m
+                  l-p ( I                          0                   0 )
+                m+p-l ( 0      diag(alpha(l-p+1), ... , alpha(m) )     0 )
+
+         S =            l-p                       m+p-l               l-m
+                m+p-l ( 0      diag(beta(l-p+1), ... , beta(m) )      0 )
+                  l-p ( 0                         0                   I )
+
+# Arguments
+- Q1: m by l matrix
+- Q2: p by l matrix
+- option: 0 or 1
+	- returns U, V, Z, alpha, beta if option = 0
+
+"""
 
 function csd(Q1, Q2, option)
 # function csd(Q1::Array{Float64,2}, Q2::Array{Float64,2})
@@ -422,3 +429,5 @@ function csd(Q1, Q2, option)
         end
     end
 end
+
+# end

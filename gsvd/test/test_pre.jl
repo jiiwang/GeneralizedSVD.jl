@@ -65,6 +65,7 @@
 #     return P2
 # end
 #
+include("generatebyrank.jl")
 
 function test1()
     A1 = [1.0 2 1 0;2 3 1 1;3 4 1 2;4 5 1 3;5 6 1 4]
@@ -183,8 +184,53 @@ function preproctest(m, p, n)
     show()
 end
 
-function test_profiling(m,n,p)
-    A = randn(m,n)
-    B = randn(p,n)
-    @time preproc(A,B)
+
+function test_profiling(m, n, p, k, l)
+
+
+end
+
+# test timing of preproc
+# m = 300
+# n = 300
+# p = 200
+# k = 80
+# l = 200
+function test_profiling1()
+    A11 = generator(300, 100, 80);
+    A12 = randn(300, 200);
+    A = [A11 A12];
+
+    println("rank of A11: ",rank(A11));
+
+    F = svd(A11);
+
+
+    tola = max(300,300)*opnorm(A, 1)*eps(Float64);
+    tola1 = max(300,300)*eps(opnorm(A, 1));
+    println(tola);
+    println(tola1);
+
+    println(diag(A)[1:100])
+
+    k = 0;
+    for i = 1:min(300, 100)
+        if abs(A[i,i]) > tola1
+            k += 1
+        end
+    end
+    println("k: ", k)
+
+    k1 = 0;
+    for i = 1:size(F.S)
+        if S[i] > tola
+            k1 += 1
+        end
+    end
+
+    println("k1: ", k+1)
+
+    B = generator(200, 300, 200);
+    println("l: ", rank(B));
+    # @time preproc(A,B);
 end

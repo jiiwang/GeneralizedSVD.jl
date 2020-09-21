@@ -1,6 +1,8 @@
-# using Pkg
-# Pkg.add("LinearAlgebra")
+# module Generalizedsvd
+
 using LinearAlgebra
+# using Main.CSD
+
 import Base.show
 include("preproc.jl")
 
@@ -121,6 +123,7 @@ function gsvd(A, B)
     # Step 2:
     # QR in a split fashion
     # A23 is upper triangular
+
     if m-k-l >= 0
         @views A23 = A[k+1:k+l, n-l+1:n]
     # A23 is upper trapezoidal
@@ -285,3 +288,5 @@ function householderqr(R1, R2)
     Q2 = Matrix(F.Q)[r+1:end,:]
     return Q1, Q2, F.R
 end
+
+# end
