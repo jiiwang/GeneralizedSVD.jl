@@ -19,34 +19,35 @@ struct GSVD{T,S} <: Factorization{T}
                                  D1::AbstractMatrix{T}, D2::AbstractMatrix{T}, k::Int, l::Int, R::AbstractMatrix{T}) where {T,S}
         new(U, V, Q, D1, D2, k, l, R)
     end
+
+    function show(io::IO, mime::MIME{Symbol("text/plain")}, F::GSVD{<:Any,<:AbstractArray})
+        summary(io, F); println(io)
+        println(io, "U factor:")
+        show(io, mime, F.U)
+        println(io, "\nV factor:")
+        show(io, mime, F.V)
+        println(io, "\nQ factor:")
+        show(io, mime, F.Q)
+        println(io, "\nD1 factor:")
+        show(io, mime, F.D1)
+        println(io, "\nD2 factor:")
+        show(io, mime, F.D2)
+        println(io, "\nGeneralized singular values:")
+        show(io, mime, sqrt.(diag(F.D1'*F.D1) ./ diag(F.D2'*F.D2)))
+        println(io, "\nk factor:")
+        show(io, mime, F.k)
+        println(io, "\nl factor:")
+        show(io, mime, F.l)
+        println(io, "\neffective numerical rank of the matrix [A; B]:")
+        show(io, mime, F.k + F.l)
+        println(io, "\nR factor:")
+        show(io, mime, F.R)
+    end
 end
+
 function GSVD(U::AbstractMatrix{T}, V::AbstractMatrix{T}, Q::AbstractMatrix{T},
                         D1::AbstractMatrix{T}, D2::AbstractMatrix{T}, k::Int, l::Int, R::AbstractMatrix{T}) where T
     GSVD{T,typeof(U)}(U, V, Q, D1, D2, k, l, R)
-end
-
-function show(io::IO, mime::MIME{Symbol("text/plain")}, F::GSVD{<:Any,<:AbstractArray})
-    summary(io, F); println(io)
-    println(io, "U factor:")
-    show(io, mime, F.U)
-    println(io, "\nV factor:")
-    show(io, mime, F.V)
-    println(io, "\nQ factor:")
-    show(io, mime, F.Q)
-    println(io, "\nD1 factor:")
-    show(io, mime, F.D1)
-    println(io, "\nD2 factor:")
-    show(io, mime, F.D2)
-    println(io, "\nGeneralized singular values:")
-    show(io, mime, sqrt.(diag(F.D1'*F.D1) ./ diag(F.D2'*F.D2)))
-    println(io, "\nk factor:")
-    show(io, mime, F.k)
-    println(io, "\nl factor:")
-    show(io, mime, F.l)
-    println(io, "\neffective numerical rank of the matrix [A; B]:")
-    show(io, mime, F.k + F.l)
-    println(io, "\nR factor:")
-    show(io, mime, F.R)
 end
 
 # This function computes the generalized singular value
@@ -121,7 +122,7 @@ function gsvd(A, B)
     # orthog_preproc(U,V,Q)
 
     # Step 2:
-    # QR in a split fashion
+    # QR decomposition of A23 and B13
     # A23 is upper triangular
 
     if m-k-l >= 0
