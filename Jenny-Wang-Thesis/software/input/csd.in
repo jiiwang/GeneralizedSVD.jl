@@ -1,0 +1,10 @@
+CSD: Data file for testing CSD routines
+12                                     Number of values of M, P, N
+20 41 36  50 67 34  28 32 41  17 28 37 Values of M (row dimension)
+20 23 47  30 46 31  39 50 63  17 42 31 Values of P (row dimension)
+20 16 22  40 67 32  39 47 52  34 47 52 Values of N (column dimension)
+1.5                                    Threshold value of test ratio
+T                                      Put T to test the error exits
+2                                      Code to interpret the seed
+3 27 61 59
+CSD 8 
