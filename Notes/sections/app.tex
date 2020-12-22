@@ -1,0 +1,35 @@
+ 
+
+\subsection{Genomic signal processing}
+The GSVD is applicable for comparative analysis of genome-scale expression datasets of two different organisms \cite{alter2003generalized} and is further extended to tensor \cite{sankaranarayanan2015tensor}.
+
+\subsection{Tikhonov regularization}
+Tikhonov regularization in general form can be analyzed with the truncated GSVD when we are to solve the ill-posed linear least squares problem. \cite{hansen1989regularization} \cite{dykes2014simplified} \cite{wei2016tikhonov} Computerized ionospheric tomography \cite{bhuyan2004application} is one of the applications in this regard. 
+
+\subsection{Matrix pencil $A - \lambda B$}
+The GSVD is also used in the field of the canonical structure of matrix pencil $A-\lambda B$. \cite{kaagstrom1984generalized} More specifically, the column and row nullities of $A$ and $B$ and common null space reveal the information about the Kronecker structure of $A-\lambda B$.
+
+\subsection{Generalized total least squares problem}
+By making use of the GSVD, one can solve the generalized TLS problem. TLS is also called error-in-variable regression in statistics domain. The great advantage of the GSVD is that it replaces these implicit transformation of data procedures by one, which is numerically reliable and can more easily handle (nearly) singular associated error covariance matrix. \cite{van1989analysis} \cite{bai1992csd}
+
+\subsection{Oriented energy and oriented signal-to-signal ratio}
+In the context of oriented energy, one of the concerns is to characterize the signal-to-signal ratio of two given sequences of $m$-vectors $\{a_k\}$, $\{b_k\}$, $k = 1,\cdots,n$ with associated $m$-by-$n$ matrices $A$ and $B$. \cite{de1988mathematical} In other words, we're primarily interested in how to separate the desired signal (for instance $\{a_k\}$) from the undesired one ($\{b_k\}$). More specifically, given that rank($B$) = $l$, the question transforms to find the optimal $l$-dimensional subspace where the desired signal sequence $\{a_k\}$ can be optimally distinguished from the corrupting sequence $\{b_k\}$.
+
+\subsection{Subspaces of the $U$ matrix}\cite{edelman2019gsvd}
+The $U$ matrix of the GSVD provides orthonormal bases for three mutually orthogonal subspaces that are powerful in many applications: 
+
+\begin{equation*}
+    U = \begin{bmatrix}
+        \makecell{U_{1} = \\ \text{orthogonal basis for} \\ \{Ax:Bx=0\}} & \makecell{U_{2} = \\ \text{completion to all of} \\ col(A)=\{Ax\}} & \makecell{U_{3} = \\ \text{orthonomal basis for} \\ col(A)^{\perp}}
+    \end{bmatrix}
+\end{equation*}
+The ``completion'' referred to in the above equation means that taken together, the columns of $U_1$ and $U_2$ form and orthonormal basis for $col(A)$.
+
+\subsubsection{Linear discriminant analysis}
+Howland and Park \cite{howland2003structure} \cite{kim2005dimension} applied the GSVD to discriminant analysis to overcome the limitation of nonsingular covariance matrices that are used to represent the scatter within and between clusted text data. 
+
+\subsubsection{One Way ANOVA (Analysis of variance)}
+A commonly used statistics test is to decide whether a proposed clustering of a vector $v$ is justified. The test takes the average square component in the $U_2$ direction and divides it by the average square component in the $U_3$ direction. \cite{wikipedia_2020}
+
+\subsection{The Jacobi ensemble from random matrix theory is a GSVD}\cite{edelman2019gsvd}
+Classical random matrix theory centers are Hermite, Laguerre, and Jacobi ensembles. Historically, they are presented in eigenvalue format, but we have argued that the eigenvalue, SVD, GSVD formats, respectively, are mathematically more natural providing simpler derviations and clearer insights. 

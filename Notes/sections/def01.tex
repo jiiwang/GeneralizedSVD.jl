@@ -1,0 +1,1107 @@
+\subsection{Our definition} \label{def}
+    The generalized singular value decomposition of an $m$-by-$n$ matrix $A$ and $p$-by-$n$ matrix $B$ is given as follows:
+        \begin{align} \label{eq-def}
+            A = UCRQ^T,\ \  \ \ B = VSRQ^T
+        \end{align}
+
+        \begin{itemize}
+            \item $U$ is an $m$-by-$m$ orthogonal matrix.
+            \item $V$ is a $p$-by-$p$ orthogonal matrix.
+            \item $Q$ is an $n$-by-$n$ orthogonal matrix. 
+            \item $C$ is an $m$-by-$(k+l)$ real, non-negative diagonal matrix with 1s in the first $k$ entries, the diagonal elements are stored as $\alpha_1, \cdots, \alpha_{k+l}$.
+            \item $S$ is a $p$-by-$(k+l)$ real, non-negative matrix whose top right $l$-by-$l$ block is diagonal, the diagonal elements are stored as $\beta_1, \cdots, \beta_{k+l}$.
+            \item $C^T C + S^T S = I$.
+            \item $R$ is a $(k+l)$-by-$n$ matrix of structure [0, $R_0$] where $R_0$ is $(k+l)$-by-$(k+l)$, upper triangular and nonsingular. 
+        \end{itemize}
+        
+        Structures of $C$ and $S$ depend on the row size of $A$ and the rank of $[A; B]$. Two cases are detailed below:
+        
+        \begin{enumerate}[\hspace{2em}(1)]
+            \item $m \ge k+l$
+                \begin{displaymath}
+                    C = \bordermatrix{ & k & l  \cr
+                    \hfill k & I & 0 \cr
+                    \hfill l & 0 & \Sigma_1 \cr
+                    m-k-l & 0 & 0}, \  \ \ \
+                    S = \bordermatrix{ & k & l \cr
+                    \hfill l & 0 & \Sigma_2 \cr
+                    \hfill p-l & 0 & 0}
+                \end{displaymath}
+                
+                Here, $\Sigma_1$ and $\Sigma_2$ are diagonal matrices and $\Sigma_1^2 + \Sigma_2^2 = I$, and $\Sigma_2$ is nonsingular. Also, $1 = \alpha_1 =  \cdots = \alpha_k$, $(\Sigma_1)_{ii} = \alpha_{k+i}$ for $i = 1, \cdots, l$, $0 = \beta_1 = \cdots = \beta_k$, $(\Sigma_2)_{ii} = \beta_{k+i}$ for $i = 1, \cdots, l$.
+                
+            \item $m < k+l$
+                \begin{displaymath}
+                    C = \bordermatrix{ & k & m-k & k+l-m  \cr
+                    \hfill k & I & 0 & 0\cr
+                    \hfill m-k & 0 & \Sigma_1 & 0}, \  \ \ \
+                    S = \bordermatrix{ & k & m-k & k+l-m \cr
+                    \hfill m-k & 0 & \Sigma_2 & 0\cr
+                    \hfill k+l-m & 0 & 0 & I\cr
+                    \hfill p-l & 0 & 0 & 0}
+                \end{displaymath}
+                
+                Still, $\Sigma_1$ and $\Sigma_2$ are diagonal matrices and $\Sigma_1^2 + \Sigma_2^2 = I$, and $\Sigma_2$ is nonsingular. Also, $1 = \alpha_1 =  \cdots = \alpha_k$, $(\Sigma_1)_{ii} = \alpha_{k+i}$ for $i = 1, \cdots, m-k$, $0 = \alpha_{m+1} = \cdots \alpha_{k+l}$, $0 = \beta_1 = \cdots = \beta_k$, $(\Sigma_2)_{ii} = \beta_{k+i}$ for $i = 1, \cdots, m-k$, $1 = \beta_{m+1} = \cdots = \beta_{k+l}$.
+                
+        \end{enumerate}
+    
+    \subsection{Essential properties} \label{properties}
+        \begin{enumerate}[\textit{Property} 1.]
+         \item $C^T C $ = diag($\alpha_1^{2}, ..., \alpha_{k+l}^{2}$), $S^T S$ = diag($\beta_1^{2}, ..., \beta_{k+l}^{2}$), where $\alpha_i$, $\beta_i \in [0, 1]$ for $i = 1,..., k+l$. The ratios $\alpha_i/\beta_i$ are called the \textbf{generalized singular values} of the pair $A, B$, and are in non-increasing order. The first $k$ values are infinite, the remaining $l$ values are finite.
+         
+         \item Our formulation always reveals the rank of $[A; B]$ and $B$.
+         
+             From our decomposition, we can immediately know the rank of $[A; B]$ from the number of columns of $C$ and $S$, the number of rows of $R$, and the number of the generalized singular values. Equivalently, rank($[A; B]$) = $k+l$.
+             
+            One can also gain the rank information of $B$ from the number of finite generalized singular values. In other words, rank($B$) = $l$.
+         
+         \item We can get the common nullspace of $A$ and $B$ from our formulation.
+         
+             If we rewrite our formulation of GSVD as:
+             \begin{align}
+                 A(Q_1, \ Q_2) = UC(0, \ R_0),\ \ \ \ B(Q_1, \ Q_2) = VS(0, \ R_0)
+             \end{align}
+             where $Q_1$ is $n$-by-($n-k-l$), $Q_2$ is $n$-by-$(k+l)$ and $R_0$ is $(k+l)$-by-$(k+l)$. Then, we have null($A$) $\cap$ null($B$) = span$\{Q_1\}$. In other words, $Q_1$ is the orthonormal basis of the common nullspace of $A$ and $B$.
+         
+         \item We can solve the generalized eigenvalue problem ($A^TAx = \lambda B^TBx$) from our formulation.
+            
+            If we let $X = Q\bordermatrix{ & n-k-l & k+l   \cr
+                                    \hfill & I & 0 \cr
+                                    \hfill & 0 & R_0^{-1} }$, then
+            
+            \begin{displaymath}
+                X^TA^TAX = \bordermatrix{ & n-k-l & k+l   \cr
+                \hfill n-k-l & 0 & 0 \cr
+                \hfill k+l & 0 & C^TC}, \  \ \ \
+                X^TB^TBX = \bordermatrix{ & n-k-l & k+l   \cr
+                \hfill n-k-l & 0 & 0 \cr
+                \hfill k+l & 0 & S^TS}
+            \end{displaymath}
+            
+            Thus, we know the ``non-trivial" eigenpairs of the generalized eigenvalue problem:
+            \begin{align*}
+                A^TAX_{i+n-k-l} = \lambda_{i} B^TBX_{i+n-k-l}, \ \ i = 1, \cdots, k+l
+            \end{align*}
+            $\lambda_i = (\alpha_i/\beta_i)^2$ are eigenvalues, where $\alpha_i/\beta_i$ is the generalized singular value of $A$ and $B$. $X_{i+n-k-l}$ denotes the $(i+n-k-l)th$ column of $X$ and are the corresponding eigenvectors.
+            
+        \item Two special cases of the generalized singular value decomposition.
+            \begin{itemize}
+                \item When $B$ is square and nonsingular, the generalized singular value decomposition of $A$ and $B$ is equivalent to the singular value decomposition of $AB^{-1}$, regardless of how the GSVD is defined.
+                
+                \item No matter how we fomulate GSVD, if the columns of $(A^T, \ B^T)^T$ are orthonormal, then the generalized singular value decomposition of $A$ and $B$ is equivalent to the Cosine-Sine decomposition (CSD) of $(A^T, \ B^T)^T$, namely:
+                \begin{align}
+                    A = UCQ^T, \ \ \ \ B = VSQ^T
+                \end{align}
+                where $U$ is $m$-by-$m$, $V$ is $p$-by-$p$ and $Q$ is $n$-by-$n$ and all of them are orthogonal matrices.
+            \end{itemize}
+     \end{enumerate}
+     
+     \subsection{Other notable definitions} \label{other-defs}
+        We list several major definitions of the GSVD for further discussion.
+        
+        \subsubsection{Definition(1): Van Loan (1976) \cite[pp.~309]{golub2013matrix}}
+        
+        Given an $m$-by-$n$ matrix $A$ and a $p$-by-$n$ matrix $B$ with $m \ge n$ and $r$ = rank$([A; B])$, the generalized singualr value decomposition of $A$ and $B$ is:
+        \begin{align}
+            A = UCX^{-1}, \ \   \ \ B = VSX^{-1}  
+        \end{align}
+        where
+        \begin{displaymath}
+            C = \bordermatrix{ & q & r-q & n-r  \cr
+            \hfill q & I & 0 & 0\cr
+            \hfill r-q & 0 & \Sigma_1 & 0\cr
+            \hfill m-r & 0 & 0 & 0}, \  \ \ \
+            S = \bordermatrix{ & q & r-q & n-r \cr
+            \hfill q & 0 & 0 & 0\cr
+            \hfill r-q & 0 & \Sigma_2 & 0\cr
+            \hfill p-r & 0 & 0 & 0}
+        \end{displaymath}
+        
+        \begin{itemize}
+            \item $U$ is an $m$-by-$m$ orthogonal matrix.
+            \item $V$ is a $p$-by-$p$ orthogonal matrix.
+            \item $X$ is an $n$-by-$n$ nonsingular matrix. 
+            \item $C$ and $S$ are $m$-by-$n$ and $p$-by-$n$, and $q = max\{r-p, 0\}$. $1 = \alpha_1 = \cdots = \alpha_q$, $\Sigma_1$ = diag$(\alpha_{q+1}, \cdots, \alpha_r)$, $0 = \beta_1 = \cdots = \beta_q$, $\Sigma_2$ = diag$(\beta_{q+1}, \cdots, \beta_r)$. $\Sigma_1^2 + \Sigma_2^2 = I$.
+        \end{itemize}
+        
+        \paragraph{Remark.}
+            This definition is due to Van Loan \cite{van1976generalizing}. It holds all properties in Section \ref{properties} except \textit{Property} 3.
+            
+            For \textit{Property} 1, we can obtain that the generalized singular value are elements of the set $\mu(A,B) = \{\alpha_i/\beta_i|i=1, \cdots, r\}$.
+            
+            For \textit{Property} 2, one can immediately know that rank$([A; B])$ is the number of non-trivial diagonal entries of $C$ and $S$.
+            % need to think about how to describe the non-trivial entries in the diagonal of $C$ and $S$.
+            
+            For \textit{Property} 4, 
+                \begin{align*}
+                    X^TA^TAX &= X^T(UCX^{-1})^T(UCX^{-1})X \\
+                             &= X^T(X^{-1})^{T}C^TU^TUCX^{-1}X \\
+                             &= X^T(X^T)^{-1}C^TC \\
+                             &= C^TC
+                \end{align*}
+            Similarly, $X^TB^TBX = S^TS$. Therefore, the first $r$ quotients of the diagonal entries of $C^TC$ and $S^TS$ are the ``non-trivial" eigenvalues of the generalized eigenvalue problem and the first $r$ columns of $X$ are the corresponding eigenvectors.
+
+        % \subsubsection{Definition(2): Paige (1981) \cite{paige1981towards}}
+        
+        % Given an $m$-by-$n$ matrix $A$ and a $p$-by-$n$ matrix $B$ with $r$ = rank($[A; B]$), the generalized singular value decomposition of $A$ and $B$ is below:
+        % \begin{align}
+        %     A = UC(W^TR,  \ 0)Q^T, \ \   \ \ B = VS(W^TR,  \ 0)Q^T
+        % \end{align}
+        % where
+        % \begin{displaymath}
+        %     C = \bordermatrix{ & k & s & r-k-s  \cr
+        %     \hfill k & I & 0 & 0\cr
+        %     \hfill s & 0 & \Sigma_1 & 0\cr
+        %     \hfill m-k-s & 0 & 0 & 0}, \  \ \ \
+        %     S = \bordermatrix{ & k & s & r-k-s \cr
+        %     \hfill p-r+k & 0 & 0 & 0\cr
+        %     \hfill s & 0 & \Sigma_2 & 0\cr
+        %     \hfill r-k-s & 0 & 0 & I}
+        % \end{displaymath}
+        
+        % \begin{itemize}
+        %     \item $U$ is an $m$-by-$m$ orthogonal matrix.
+        %     \item $V$ is a $p$-by-$p$ orthogonal matrix.
+        %     \item $W$ is an $r$-by-$r$ orthogonal matrix. 
+        %     \item $R$ is an $r$-by-$r$ nonsingular matrix, its singular values are equal to the nonzero singular values of $[A; B]$. rank($R$) = rank($[A; B]$).
+        %     \item $Q$ is an $n$-by-$n$ orthogonal matrix.
+        %     \item $C$ and $S$ are $m$-by-$r$ and $p$-by-$r$. $k$ = rank($[A; B]$) - rank$(B)$, $s$ = rank($A$) + rank($B$) - rank($[A; B]$). $\alpha_1 = \cdots = \alpha_k = 1$, $\Sigma_1$ = diag$(\alpha_{k+1}, \cdots, \alpha_{k+s})$, $\alpha_{k+s+1} = \cdots = \alpha_r = 0$, $\beta_1 = \cdots = \beta_k = 0$, $\Sigma_2$ = diag$(\beta_{k+1}, \cdots, \beta_{k+s})$, $\beta_{k+s+1} = \cdots = \beta_r = 1$. $\alpha_i/\beta_i$ are called the ``non-trivial" generalized singular values of matrix pair $A$, $B$. $\Sigma_1^2 + \Sigma_2^2 = I$.
+        % \end{itemize}
+        
+        % \paragraph{Remark}
+        %     Given this definition, we can have all four properties discussed in Section \ref{properties}.
+            
+        %     For \textit{Property} 1, we can obtain that rank($[A; B]) = r$.
+            
+        %     For \textit{Property} 2, if rewriting the decomposition as
+        %         \begin{align}
+        %              A(Q_1, \ Q_2) = UC(W^TR, \ 0),\ \ \ \ B(Q_1, \ Q_2) = VS(W^TR, \ 0)
+        %          \end{align}
+        %      where $Q_1$ is $n$-by-$r$, $Q_2$ is $n$-by-($n-r$), then null($A$) $\cap$ null($B$) = span$\{Q_2$\}.
+             
+        %      For \textit{Property} 3, if we let 
+        %                 $X = Q\bordermatrix{ & k+l & n-k-l   \cr
+        %                               \hfill & R^{-1}W & 0 \cr
+        %                               \hfill & 0 & I }$, then
+        %           \begin{displaymath}
+        %                 X^TA^TAX = \bordermatrix{ & k+l & n-k-l   \cr
+        %                 \hfill k+l & C^TC & 0 \cr
+        %                 \hfill n-k-l & 0 & 0}, \  \ \ \
+        %                 X^TB^TBX = \bordermatrix{ & k+l & n-k-l   \cr
+        %                 \hfill k+l & S^TS & 0 \cr
+        %                 \hfill n-k-l & 0 & 0} 
+        %           \end{displaymath}
+        %       Thus, we know that the  ``non-trivial" eigenvalues of the generalized eigenvalue problem are the square of the generalized singular values and and the first $r$ columns of $X$ are the corresponding eigenvectors.
+                
+        \subsubsection{Definition(2): MATLAB 2019b \cite{MATLAB:2019}} \label{def_mat}
+        
+        The generalized singular value decomposition of an $m$-by-$n$ matrix $A$ and a $p$-by-$n$ matrix $B$ is the following:
+        \begin{align}
+            A = UCX^T, \ \   \ \ B = VSX^T
+        \end{align}
+
+        \begin{itemize}
+            \item $U$ is an $m$-by-$m$ orthogonal matrix.
+            \item $V$ is a $p$-by-$p$ orthogonal matrix.
+            \item $X$ is an $n$-by-$q$ matrix where $q = min\{m + p, n\}$. 
+            \item $C$ is an $m$-by-$q$ block-diagonal matrix and $S$ is a $p$-by-$q$ diagonal matrix. Both are nonnegative and $C^T C + S^T S = I$. If $q > m$, the rightmost $m$-by-$m$ block of $C$ is diagonal. Otherwise, nonzero elements are on the main diagonal of $C$.
+            \item $C^T C $ = diag($\alpha_1^{2}, \cdots, \alpha_q^{2}$), $S^T S$ = diag($\beta_1^{2}, \cdots, \beta_q^{2}$), where $\alpha_i$, $\beta_i \in [0, 1]$ for $i = 1,\cdots, q$. The ratios $\alpha_i/\beta_i$ are called the generalized singular values of the pair $A, B$ and are in non-decreasing order.
+        \end{itemize}
+        
+        Specifically, $C$ and $S$ have the following structures:
+        \begin{enumerate}
+            \item $m + p \geq n$, thus $q = n$:
+                \begin{enumerate}
+                    \item $n > m, n \leq p$:
+                        \begin{displaymath}
+                            C = \bordermatrix{ & n-m & m   \cr
+                            \hfill m & 0 & \Sigma_1}, \  \ \ \
+                            S = \bordermatrix{ & n  \cr
+                            \hfill n & \Sigma_2 \cr
+                            \hfill p-n & 0 }
+                         \end{displaymath}
+                         
+                        where $\Sigma_1$ = diag($\alpha_{n-m+1}, \cdots, \alpha_{n}$) and $\Sigma_2$ = diag($\beta_1, \cdots, \beta_n$).
+                    \item $n \leq m, n > p$:
+                        \begin{displaymath}
+                            C = \bordermatrix{ & n  \cr
+                            \hfill n & \Sigma_1 \cr
+                            \hfill m-n & 0 }, \ \ \ \
+                            S = \bordermatrix{ & p & n-p   \cr
+                            \hfill p & \Sigma_2 & 0}
+                        \end{displaymath}
+                        
+                        where $\Sigma_1$ = diag($\alpha_1, \cdots, \alpha_{n}$) and $\Sigma_2$ = diag($\beta_1, \cdots, \beta_p$).
+                    \item $n \leq m, n \leq p$:
+                        \begin{displaymath}
+                            C = \bordermatrix{ & n  \cr
+                            \hfill n & \Sigma_1 \cr
+                            \hfill m-n & 0 }, \ \ \ \
+                            S = \bordermatrix{ & n  \cr
+                            \hfill n & \Sigma_2 \cr
+                            \hfill p-n & 0 }
+                        \end{displaymath}
+                        
+                        where $\Sigma_1$ = diag($\alpha_1, \cdots, \alpha_{n}$) and $\Sigma_2$ = diag($\beta_1, \cdots, \beta_n$).
+                    
+                    \item $n > m, n > p$:
+                        \begin{displaymath}
+                            C = \bordermatrix{ & n-m & m   \cr
+                            \hfill m & 0 & \Sigma_1}, \  \ \ \
+                            S = \bordermatrix{ & p & n-p   \cr
+                            \hfill p & \Sigma_2 & 0}
+                        \end{displaymath}
+                        
+                        where $\Sigma_1$ = diag($\alpha_{n-m+1}, \cdots, \alpha_{n}$) and $\Sigma_2$ = diag($\beta_1, \cdots, \beta_p$).
+                \end{enumerate}
+            \item $m + p < n$, thus $q = m+p$:
+                \begin{displaymath}
+                    C = \bordermatrix{ & p & m   \cr
+                    \hfill m & 0 & \Sigma_1}, \  \ \ \
+                    S = \bordermatrix{ & p & m   \cr
+                    \hfill p & \Sigma_2 & 0}
+                \end{displaymath}
+                where $\Sigma_1$ = diag($\alpha_{p+1}, \cdots, \alpha_{p+m}$) and $\Sigma_2$ = diag($\beta_1, \cdots, \beta_p$).
+        \end{enumerate}
+        
+        \paragraph{Remark 1.}
+            The detailed structures of $C$ and $S$ above are not explicitly documented in MATLAB. They are summarized by the author.
+            
+        \paragraph{Remark 2.}
+            This definition lifts the limitations of $m \geq n, p \geq n $ and $null(A) \cap null(B) = {0}$ by Golub and Van Loan \cite[pp.~466]{10.5555/248979}. Thus, the invertibility of $X$ cannot be guaranteed. 
+        
+        \paragraph{Remark 3.}
+            The matrix $X$ has full rank if and only if the matrix $[A;  B]$ has full rank. In fact, the SVD of $X$ and the condition number of $X$ are equal to the SVD of $[A; B]$ and the condition number of $[A; B]$. 
+        
+        \paragraph{Remark 4.}
+            For \textit{Property} 1, MATLAB does have the definition of the generalzied singular values. However, the length are different from that of ours. In this definition, the length is $q$ where $q = min\{m + p, n\}$ while we define the generalized singular values as a list of size $k+l$ = rank$([A; B])$.
+            
+            Meanwhile, \textit{Property} 4 is true given this definition. 
+        
+        % $C$ and $S$ has the following structures:
+        % \begin{displaymath}
+        %     C = \bordermatrix{ & q-m & m  \cr
+        %     \hfill m & 0 & \Sigma_1}, \  \ \ \
+        %     S = \bordermatrix{ & q-m & m \cr
+        %     \hfill q-m & I & 0\cr
+        %     \hfill p-q+m & 0 & \Sigma_2}
+        % \end{displaymath}
+        
+        \subsubsection{Definition(3): Edelman (2019) \cite{edelman2019gsvd}}
+        
+        The generalized singular value decomposition of an $m$-by-$n$ matrix $A$ and a $p$-by-$n$ matrix $B$ is the following: 
+        \begin{align} \label{eq-def-edelman}
+            A = UCH, \ \   \ \ B = VSH
+        \end{align}
+         \begin{displaymath}
+            C = \bordermatrix{ & k & s & l-s  \cr
+            \hfill k & I & 0 & 0\cr
+            \hfill s & 0 & \Sigma_1 & 0\cr
+            \hfill m-k-s & 0 & 0 & 0}, \  \ \ \
+            S = \bordermatrix{ & k & s & l-s \cr
+            \hfill p-l & 0 & 0 & 0\cr
+            \hfill s & 0 & \Sigma_2 & 0\cr
+            \hfill l-s & 0 & 0 & I}
+        \end{displaymath}
+        
+        \begin{itemize}
+            \item $U$ is an $m$-by-$m$ orthogonal matrix.
+            \item $V$ is a $p$-by-$p$ orthogonal matrix.
+            \item $C$ is an $m$-by-$(k+l)$ matrix and $S$ is an $n$-by-$(k+l)$ matrix where $k+l$ = rank$([A; B])$. $C^T C + S^T S = I$. $k$ = rank$([A; B])$ - rank$(B)$, $s$ = rank($A$) + rank($B$) - rank$([A; B])$. $\alpha_1 = \cdots = \alpha_k = 1$, $\Sigma_1$ = diag$(\alpha_{k+1}, \cdots, \alpha_{k+s})$, $\alpha_{k+s+1} = \cdots = \alpha_{k+l} = 0$, $\beta_1 = \cdots = \beta_k = 0$, $\Sigma_2$ = diag$(\beta_{k+1}, \cdots, \beta_{k+s})$, $\beta_{k+s+1} = \cdots = \beta_{k+l} = 1$. $\Sigma_1^2 + \Sigma_2^2 = I$.
+            \item $H$ is an $(k+l)$-by-$n$ matrix and has full row rank.
+        \end{itemize}
+        
+        \paragraph{Remark 1.}
+            Unlike our definition (also used by LAPACK \cite[pp.~23--24]{anderson1999lapack}) where we put $\beta$ in the top rows by placing the positive diagonal in the top right block, this definition (together with Paige and Saunders's \cite[pp.~401]{paige1981towards}) puts them in the bottom rows. \cite[pp.~29]{edelman2019gsvd}
+            
+            To be consistent with the 3-by-3 structures of $C$ and $S$ in Eq. \eqref{eq-def-edelman}, we combine the two cases of $C$ and $S$ in Section \ref{def} into one: 
+            \begin{align} \label{cs-structure-rewrite}
+                C = \bordermatrix{ & k & s & l-s  \cr
+                    \hfill k & I & 0 & 0\cr
+                    \hfill s & 0 & \Sigma_1 & 0\cr
+                    \hfill m-k-s & 0 & 0 & 0}, \  \ \ \
+                S = \bordermatrix{ & k & s & l-s \cr
+                    \hfill s & 0 & \Sigma_2 & 0\cr
+                    \hfill l-s & 0 & 0 & I\cr
+                    \hfill p-l & 0 & 0 & 0}
+            \end{align}
+            where $s$ = rank($A$) + rank($B$) - rank$([A; B])$. Likewise, $s$ equals the number of non-zero and non-one $\alpha$ or $\beta$. \vspace{5pt}
+            
+            Therefore, to achieve Eq. \eqref{eq-def-edelman} from Eq. \eqref{eq-def}, we shall perform three computations:
+            \begin{itemize}
+                \item $S$ in Eq. \eqref{eq-def-edelman} is obtained by left multiply a permutation matrix with $S$ in Eq. \eqref{cs-structure-rewrite} which moves the bottom $(p-l)$ rows to the top. 
+                \item $V$ in Eq. \eqref{eq-def-edelman} is obtained by right multiply a permutation matrix with $V$ in Eq. \eqref{eq-def} which moves the right $(p-l)$ columns to the left.                
+                \item $H = RQ^T$. Namely, multiply $R$ and $Q^{T}$ in Eq. \eqref{eq-def} to get $H$ in Eq. \eqref{eq-def-edelman} 
+            \end{itemize}
+            
+            
+        
+        \paragraph{Remark 2.}
+            All properties in Section \ref{properties} hold true by this definition. Specifically,
+            
+            \textit{Property} 2 is true since rank$([A; B])$ is the number of columns in $C$ and $S$, or the number of rows in $R$. To tell the rank of $B$, one can subtract the number of 1s in the main diagonal of $C$ from rank$([A; B])$.
+            
+            \textit{Property} 3 holds because null($A$) $\cap$ null($B$) = null($H$). Alternatively, if we do RQ factorization on $H$, namely, $H = (0, \ R_0)Q^T$, where $R_0$ is an $(k+l)$-by-$(k+l)$ upper triangular matrix and $Q$ is an $n$-by-$n$ orthgonal matrix, then null($A$) $\cap$ null($B$) = span$\{Q(:,1:n-k-l)$\}.
+            
+            \textit{Property} 4 is verified as true if we do RQ factorization on $H$, namely, $H = (0, \ R_0)Q^T$, and let $X = Q\bordermatrix{ & n-k-l & k+l   \cr
+                       \hfill & I & 0 \cr
+                       \hfill & 0 & R_0^{-1} }$, then
+            the  ``non-trivial" eigenvalues of the generalized eigenvalue problem are the square of the generalized singular values and and the last $k+l$ columns of $X$ are the corresponding eigenvectors.  
+
+    \subsection{Numeric Examples}
+    We now illustrate the different formulations discussed in Section \ref{other-defs} (specifically, ours v.s. MATLAB) with matrices of small size. Depending on the structures of $C$ and $S$ documented in Section \ref{def}, we devise four pairs: Example 1 and 2 are contained in case (1) while Example 3 and 4 fall into case (2).   
+        
+    \paragraph{Example 1.} Consider a 5-by-4 matrix $A$ and a $3$-by-$4$ matrix $B$:
+    \begin{equation*}
+        A = \begin{bmatrix}
+            1 & 2 & 3 & 0\\
+            5 & 4 & 2 & 1\\
+            0 & 3 & 5 & 2\\
+            2 & 1 & 3 & 3\\
+            2 & 0 & 5 & 3
+        \end{bmatrix}, \ \ \ \
+        B = \begin{bmatrix}
+            1 & 0 & 3 & -1 \\
+            -2 & 5 & 0 & 1 \\
+            4 & 2 & -1 & 2
+        \end{bmatrix}
+    \end{equation*}
+        
+    \begin{enumerate}[(1).]
+        \item \textbf{Results by proposed definition}
+            
+            We obtain $k = 1$ and $l = 3$ from the computation of the GSVD of $A$ and $B$. Since $m = 5$ and $m \geq k+l$, $C$ and $S$ should fall into case (1) in Section \ref{def}. This is verified below. 
+            
+            \begin{equation*}
+                C = \begin{bmatrix}
+                    1.0 & 0.0      & 0.0      & 0.0  \\
+                    0.0 & 0.894685 & 0.0      & 0.0  \\  
+                    0.0 & 0.0      & 0.600408 & 0.0  \\  
+                    0.0 & 0.0      & 0.0      & 0.27751 \\
+                    0.0 & 0.0      & 0.0      & 0.0    
+                \end{bmatrix} , \ \ \ \
+                S = \begin{bmatrix}
+                    0.0 & 0.446698 & 0.0      & 0.0   \\  
+                    0.0 & 0.0      & 0.799694 & 0.0     \\
+                    0.0 & 0.0      & 0.0      & 0.960723
+                \end{bmatrix}
+            \end{equation*}
+
+            The generalized singular values computed are \texttt{Inf}, 2.0028872436786482, 0.7507971450334572, 0.2888559753309598.
+
+            The computed orthogonal matrices $U$, $V$, $Q$, and the $R$ matrix are: 
+    
+            \begin{align*}
+                U &= \begin{bmatrix}
+                 -0.060976  & -0.446679  & -0.448921 & -0.482187 & -0.602266 \\
+                  0.0904806 & -0.867093  &  0.416172 &  0.115882 &  0.230944 \\
+                 -0.481907  & -0.212508  & -0.636747 &  0.477322 &  0.298869 \\
+                 -0.523214  & 0.0347528  &  0.410748 &  0.420777 & -0.615851 \\
+                 -0.69434   & 0.0475385  &  0.226075 & -0.590913 &  0.339624
+                \end{bmatrix} \\
+                V &= \begin{bmatrix}
+                 -0.804633 & -0.328486 & -0.494634 \\
+                 -0.288044 & -0.512512 &  0.808927 \\
+                 -0.519227 &  0.793365 &  0.317765
+                \end{bmatrix} \\
+                Q &= \begin{bmatrix}
+                  0.214542 &   0.484366  &  0.833941 &  -0.15461 \\
+                  0.259709 &   0.413752  & -0.147691 &   0.85997 \\ 
+                 -0.361334 &   0.767117  & -0.413972 & -0.331052 \\
+                 -0.86946  & -0.0756949  &  0.333702 &  0.356304
+                \end{bmatrix} \\
+                R &= \begin{bmatrix}
+                 5.74065 & -7.07986      & 0.125979 &    -0.316232 \\
+                 0.0     & -7.96103      & -2.11852 &     -2.98601 \\
+                 0.0     & -4.44089e-16  & 5.72211  &     -0.43623 \\
+                 0.0     &  1.33227e-15  & -8.88178e-16 &  5.66474     
+                \end{bmatrix} 
+            \end{align*}
+    
+        \item \textbf{Results by MATLAB}
+        
+            In this example, $m + p \geq n$, $m \geq n$ and $p < n$. Thus, we should expect the structures of $C$ and $S$ same as case 1.(b) in Section \ref{def_mat}. 
+        
+            \begin{equation*}
+                C = \begin{bmatrix}
+                    0.2775  &       0  &       0    &     0 \\
+                         0  &  0.6004  &       0    &     0 \\
+                         0  &       0  &  0.8947    &     0 \\
+                         0  &       0  &       0    & 1.0000 \\
+                         0  &       0  &       0    &     0
+                \end{bmatrix}, \ \ \ \
+                S = \begin{bmatrix}
+                    0.9607 &        0 &        0    &  0 \\
+                         0 &   0.7997 &        0    &  0 \\
+                         0 &        0 &   0.4467    &  0 
+                \end{bmatrix}
+            \end{equation*}
+    
+            The generalized singular values computed are: 0.2889, 0.7508, 2.0029, \texttt{Inf}. 
+            
+            The computed orthogonal matrices $U$, $V$ and the $X$ matrix are:
+    
+            \begin{align*}
+                U &= \begin{bmatrix}
+                    0.4822 &  -0.4489 &  -0.4467 &  -0.0610 &  -0.6023 \\
+                   -0.1159 &   0.4162 &  -0.8671 &   0.0905 &   0.2309 \\
+                   -0.4773 &  -0.6367 &  -0.2125 &  -0.4819 &   0.2989 \\
+                   -0.4208 &   0.4107 &   0.0348 &  -0.5232 &  -0.6159 \\
+                    0.5909 &   0.2261 &   0.0475 &  -0.6943 &   0.3396
+                \end{bmatrix} \\
+                V &= \begin{bmatrix}
+                    0.4946 &  -0.3285 &  -0.8046 \\
+                   -0.8089 &  -0.5125 &  -0.2880 \\
+                   -0.3178 &   0.7934 &  -0.5192
+                \end{bmatrix} \\
+                X &= \begin{bmatrix}
+                    0.8758 &  4.8394  & -5.1611 & -2.0437 \\
+                   -4.8715 & -1.2203  & -5.5489 & -1.7290 \\
+                    1.8753 & -2.2244  & -4.2415 & -7.4528 \\
+                   -2.0184 &  1.7541  & -1.1683 & -4.5260
+                \end{bmatrix}
+            \end{align*}
+        
+        \item \textbf{Findings}
+        
+        Comparing the diagonal entries of $C$ and $S$ as well as the generalized singular values of both definitions, one may find that they are the same but sorted in opposite orders.
+        
+        If digging into the $X$ matrix produced by MATLAB, we find that it's non-singular and has full rank.  
+        
+    \end{enumerate}
+            
+% Likewise, we test GSVD in Julia 1.3 with the same inputs. For the numerical rank, $k = 1$ and $l = 3$. $D1$ and $D2$ (equivalent to $C$ and $S$ in the proposed version) are:
+
+% \begin{lstlisting}[language=julia, style=jlcodestyle, caption={$D1$ and $D2$ of Example 1 in Julia 1.3}, captionpos=b]
+% julia> Matrix(F.D1)
+% 5×4 Array{Float64,2}:
+%  1.0  0.0       0.0       0.0    
+%  0.0  0.894685  0.0       0.0    
+%  0.0  0.0       0.600408  0.0    
+%  0.0  0.0       0.0       0.27751
+%  0.0  0.0       0.0       0.0
+ 
+% julia> Matrix(F.D2)
+% 3×4 Array{Float64,2}:
+%  0.0  0.446698  0.0       0.0     
+%  0.0  0.0       0.799694  0.0     
+%  0.0  0.0       0.0       0.960723
+% \end{lstlisting}
+
+% The computed orthogonal matrices $U$, $V$, $Q$, the $R0$ matrix (equivalent to $R$ in the proposed version) are: 
+% \begin{lstlisting}[language=julia, style=jlcodestyle, caption={Other products of Example 1 in Julia 1.3}, captionpos=b]
+% julia> F.U
+% 5×5 Array{Float64,2}:
+%  -0.060976   -0.446679   -0.448921   0.482187  -0.602266
+%   0.0904806  -0.867093    0.416172  -0.115882   0.230944
+%  -0.481907   -0.212508   -0.636747  -0.477322   0.298869
+%  -0.523214    0.0347528   0.410748  -0.420777  -0.615851
+%  -0.69434     0.0475385   0.226075   0.590913   0.339624
+
+% julia> F.V
+% 3×3 Array{Float64,2}:
+%  -0.804633  -0.328486   0.494634
+%  -0.288044  -0.512512  -0.808927
+%  -0.519227   0.793365  -0.317765
+
+% julia> F.Q
+% 4×4 Array{Float64,2}:
+%   0.214542   0.484366   -0.833941   0.15461 
+%   0.259709   0.413752    0.147691  -0.85997 
+%  -0.361334   0.767117    0.413972   0.331052
+%  -0.86946   -0.0756949  -0.333702  -0.356304
+
+% julia> F.R0
+% 4×4 Array{Float64,2}:
+%  5.74065  -7.07986  -0.125979  0.316232
+%  0.0      -7.96103   2.11852   2.98601 
+%  0.0       0.0      -5.72211   0.43623 
+%  0.0       0.0       0.0       5.66474 
+% \end{lstlisting}
+
+    \paragraph{Example 2.} Consider a 3-by-4 matrix $A$ and a $4$-by-$4$ matrix $B$ but with rank deficiency:
+        \begin{equation*}
+            A = \begin{bmatrix}
+                1 & 2 & 1 & 0\\
+                2 & 3 & 1 & 1\\
+                3 & 4 & 1 & 2\\
+            \end{bmatrix}, \ \ \ \
+            B = \begin{bmatrix}
+                4 & 5 & 1 & 3 \\
+                5 & 6 & 1 & 4 \\
+                6 & 7 & 1 & 5 \\
+                7 & 1 & -6 & 13
+            \end{bmatrix}
+        \end{equation*}
+    
+    \begin{enumerate}[(1).]
+        \item \textbf{Results by proposed definition}
+            
+            Upon execution of the GSVD of $A$ and $B$, we get $k = 0$ and $l = 2$. This means that both $B$ and $[A; B]$ are not in full rank. We check the structures of $C$ and $S$ and find it consistent with that of case (1) in Section \ref{def} when $m \geq k+l$. Specifically, 
+            
+            \begin{equation*}
+                C = \begin{bmatrix}
+                     0.476231 & 0.0  \\     
+                     0.0      & 0.0697426 \\
+                     0.0      & 0.0      
+                \end{bmatrix}, \ \ \ \
+                S = \begin{bmatrix}
+                     0.87932 & 0.0    \\  
+                     0.0     & 0.997565 \\
+                     0.0     & 0.0  \\   
+                     0.0     & 0.0   
+                \end{bmatrix}
+            \end{equation*}
+   
+            The generalized singular values computed are 0.5415903238738987, 0.06991284853891487.
+
+            The computed orthogonal matrices $U$, $V$, $Q$, and the $R$ matrix are: 
+    
+            \begin{align*}
+                U &= \begin{bmatrix}
+                 -0.409031 &  0.816105 & -0.408248 \\
+                 -0.56342  &  0.126058 &  0.816497 \\
+                 -0.71781  & -0.563988 & -0.408248
+                \end{bmatrix} \\
+                V &= \begin{bmatrix}
+                 -0.472375 & -0.0876731 & -0.390874  & -0.785107  \\
+                 -0.55599  & -0.135916  & -0.53894   &  0.618017  \\
+                 -0.639606 & -0.184159  &  0.745532  &  0.0342253 \\
+                  0.242159 & -0.969498  & -0.0307137 & -0.0221441
+                \end{bmatrix} \\
+                Q &= \begin{bmatrix}
+                 -0.436701 & -0.689898 &  0.299328  &  0.493696 \\
+                  0.563299 &  0.126599 &  0.793024  &  0.194368 \\
+                 -0.689898 &  0.436701 &  0.493696  & -0.299328 \\
+                 -0.126599 &  0.563299 & -0.194368  &  0.793024
+                \end{bmatrix} \\
+                R &= \begin{bmatrix}
+                 0.0 & 0.0 & -12.2133       & -8.28663 \\
+                 0.0 & 0.0 &   3.55271e-15  & -18.1154       
+                \end{bmatrix}
+            \end{align*}
+    
+            It is easily verified that $R$ has 2 zero columns in the leftmost since $k+l < n$. 
+            
+        \item \textbf{Results by MATLAB}
+        
+            Since $m + p \geq n$, $m < n$ and $p \leq n$, the structures of $C$ and $S$ should be the same as case 1.(a) in Section \ref{def_mat}. 
+            
+            \begin{equation*}
+                C = \begin{bmatrix}
+                     0  &  0.0460  &       0  &       0 \\ 
+                     0  &       0  &  0.6490  &       0 \\
+                     0  &       0  &       0  &  0.9946
+                \end{bmatrix}, \ \ \ \
+                S = \begin{bmatrix}
+                    1.0000  &       0  &       0  &       0 \\
+                         0  &  0.9989  &       0  &       0 \\
+                         0  &       0  &  0.7608  &       0 \\
+                         0  &       0  &       0  &  0.1039 
+                \end{bmatrix}
+            \end{equation*}
+    
+            The generalized singular values computed are 0, 0.0460, 0.8531, 9.5769.
+            
+            The computed orthogonal matrices $U$, $V$ and the $X$ matrix are:
+    
+            \begin{align*}
+                U &= \begin{bmatrix}
+                    0.0438  &  0.0710  &  0.9965 \\
+                   -0.7618  & -0.6430  &  0.0793 \\
+                    0.6464  & -0.7626  &  0.0259
+                \end{bmatrix} \\
+                V &= \begin{bmatrix}
+                    0.0621  &  0.0228  & -0.8563 &   0.5121 \\
+                   -0.1574  &  0.3650  & -0.4722 &  -0.7868 \\
+                   -0.4326  &  0.8097  &  0.1962 &   0.3445 \\
+                    0.8855  &  0.4589  &  0.0720 &  -0.0075
+                \end{bmatrix} \\
+                X &= \begin{bmatrix}
+                    3.0643 &   9.9974 &  -5.3968 &  1.2397 \\
+                   -2.7768 &   8.4399 &  -7.4530 &  2.3475 \\
+                   -5.8412 &  -1.5575 &  -2.0562 &  1.1078 \\
+                    8.9055 &  11.5549 &  -3.3406 &  0.1319 
+                \end{bmatrix} 
+            \end{align*}
+        
+        \item \textbf{Findings}
+            
+            Neither do the diagonal entries of $C$ and $S$ nor the generalize singular values produced by the two formulations bear any resemblance, regardless of numerical values or length.
+            
+            To examine the $X$ matrix in MATLAB, we find that $X$ is close to singular and ill-conditioned. $X$ is rank deficient and its rank is 2.
+            
+    \end{enumerate}
+
+% Again, same inputs are tested in Julia 1.3. For the numerical rank, $k = 0$ and $l = 2$. $D1$ and $D2$ (equivalent to $C$ and $S$ in the proposed version) are:
+
+% \begin{lstlisting}[language=julia, style=jlcodestyle, caption={$D1$ and $D2$ of Example 2 in Julia 1.3}, captionpos=b]
+% julia> Matrix(F.D1)
+% 3×2 Array{Float64,2}:
+%  0.476231  0.0      
+%  0.0       0.0697426
+%  0.0       0.0      
+
+% julia> Matrix(F.D2)
+% 4×2 Array{Float64,2}:
+%  0.87932  0.0     
+%  0.0      0.997565
+%  0.0      0.0     
+%  0.0      0.0 
+% \end{lstlisting}
+
+% The computed orthogonal matrices $U$, $V$, $Q$, the $R0$ matrix (equivalent to $R$ in the proposed version) are: 
+% \begin{lstlisting}[language=julia, style=jlcodestyle, caption={Other products of Example 2 in Julia 1.3}, captionpos=b]
+% julia> F.U
+% 3×3 Array{Float64,2}:
+%  0.409031   0.816105  -0.408248
+%  0.56342    0.126058   0.816497
+%  0.71781   -0.563988  -0.408248
+
+% julia> F.V
+% 4×4 Array{Float64,2}:
+%   0.472375  -0.0876731  -0.390874   -0.785107 
+%   0.55599   -0.135916   -0.53894     0.618017 
+%   0.639606  -0.184159    0.745532    0.0342253
+%  -0.242159  -0.969498   -0.0307137  -0.0221441
+
+% julia> F.Q
+% 4×4 Array{Float64,2}:
+%  -0.436701  -0.689898  -0.299328   0.493696
+%   0.563299   0.126599  -0.793024   0.194368
+%  -0.689898   0.436701  -0.493696  -0.299328
+%  -0.126599   0.563299   0.194368   0.793024
+
+% julia> F.R0
+% 2×4 Array{Float64,2}:
+%  0.0  0.0  -12.2133    8.28663
+%  0.0  0.0    0.0     -18.1154 
+% \end{lstlisting}
+%     It is clear that the leftmost 2 columns of $R0$ is all zeros. \\
+
+    \paragraph{Example 3.} Let $A$ be a 3-by-4 matrix and B be a $4$-by-$4$ matrix:
+        \begin{equation*}
+            A = \begin{bmatrix}
+                1 & 4 & 1 & 0\\
+                5 & 3 & 1 & 1\\
+                3 & 0 & 1 & 2\\
+            \end{bmatrix}, \ \ \ \
+            B = \begin{bmatrix}
+                4 & 5 & 1 & 3 \\
+                -2 & 0 & 1 & 4 \\
+                3 & 2 & 1 & -5 \\
+                1 & 1 & -6 & 3
+            \end{bmatrix}
+        \end{equation*}
+    
+    \begin{enumerate}[(1).]
+        \item \textbf{Results by proposed definition}
+        
+            We obtain $k = 0$ and $l = 4$ from the computation of the GSVD of $A$ and $B$. Since $m = 3$ and $m < k+l$, $C$ and $S$ should be contained in case (2) in Section \ref{def}. This is verified below. 
+            
+            \begin{equation*}
+                C = \begin{bmatrix}
+                 0.99144 & 0.0      & 0.0      & 0.0 \\
+                 0.0     & 0.681061 & 0.0      & 0.0 \\
+                 0.0     & 0.0      & 0.167854 & 0.0
+                \end{bmatrix}, \ \ \ \
+                S = \begin{bmatrix}
+                 0.130566 & 0.0      & 0.0       & 0.0 \\
+                 0.0      & 0.732227 & 0.0       & 0.0 \\
+                 0.0      & 0.0      & 0.985812  & 0.0 \\
+                 0.0      & 0.0      & 0.0       & 1.0
+                \end{bmatrix}
+            \end{equation*}
+        
+            The generalized singular values computed are 7.593384394490093, 0.930122554989402, 0.17026951585960612, 0.0.
+        
+            The computed orthogonal matrices $U$, $V$, $Q$, and the $R$ matrix are: 
+        
+            \begin{align*}
+                U &= \begin{bmatrix}
+                 -0.519777 & 0.747619  & 0.413398 \\
+                  0.470025 & 0.654341  &-0.592381 \\
+                  0.713378 & 0.113599  & 0.691511
+                \end{bmatrix} \\
+                V &= \begin{bmatrix}
+                  0.259832 &  0.927018   & 0.177229  & -0.20424  \\
+                 -0.733955 &  0.0402919  & 0.652334  & -0.184789 \\
+                 -0.597084 &  0.369645   &-0.576157  & 0.418206 \\
+                 -0.1931.  & -0.0487437  &-0.459449  & -0.865588
+                \end{bmatrix} \\
+                Q &= \begin{bmatrix}
+                 -0.685431 & -0.564405 & -0.459976 & -0.00724571 \\
+                  0.681731 & -0.704114 & -0.149854 & -0.130423   \\
+                 -0.127188 & -0.380896 &  0.646684 &  0.648491   \\
+                 -0.221923 & -0.201466 &  0.589716 & -0.749931  
+                \end{bmatrix} \\
+                R &= \begin{bmatrix}
+                 -3.71474     & -2.42556     & -0.179891   & -0.941672 \\
+                 -7.20246e-16 & -9.84284     & -1.8323     & -0.522579 \\
+                 -8.91076e-17 &  2.04711e-15 &  6.16149    & -1.43582 \\
+                  1.84152e-15 &  1.41087e-15 &  1.2978e-15  & 8.05363 
+                \end{bmatrix} 
+            \end{align*}
+        \item \textbf{Results by MATLAB}
+            
+            In this example, $m + p \geq n$, $m < n$ and $p \leq n$. Thus, we should expect the structures of $C$ and $S$ same as case 1.(a) in Section \ref{def_mat}. 
+            
+            \begin{equation*}
+                C = \begin{bmatrix}
+                     0   & 0.1679  &       0  &       0 \\
+                     0   &      0  &  0.6811  &       0 \\
+                     0   &      0  &       0  &  0.9914
+                \end{bmatrix}, \ \ \ \
+                S = \begin{bmatrix}
+                    1.0000  &       0  &       0  &       0 \\
+                         0  &  0.9858  &       0  &       0 \\
+                         0  &       0  &  0.7322  &       0 \\
+                         0  &       0  &       0  &  0.1306
+                \end{bmatrix}
+            \end{equation*}
+    
+            The generalized singular values computed are: 0, 0.1703, 0.9301, 7.5934.
+            
+            The computed orthogonal matrices $U$, $V$ and the $X$ matrix are given below.
+    
+            \begin{align*}
+                U &= \begin{bmatrix}
+                    0.4134 &  -0.7476 &   0.5198 \\
+                   -0.5924 &  -0.6543 &  -0.4700 \\
+                    0.6915 &  -0.1136 &  -0.7134
+                \end{bmatrix} \\
+                V &= \begin{bmatrix}
+                    0.2042 &   0.1772 &  -0.9270 &  -0.2598 \\
+                    0.1848 &   0.6523 &  -0.0403 &   0.7340 \\
+                   -0.4182 &  -0.5762 &  -0.3696 &   0.5971 \\
+                    0.8656 &  -0.4594 &   0.0487 &   0.1931
+                \end{bmatrix} \\
+                X &= \begin{bmatrix}
+                    0.0584 &  -2.8237  & -6.4020 &  -4.0048 \\
+                    1.0504 &  -0.7361  & -7.2732 &   0.6748 \\
+                   -5.2227 &   3.0534  & -2.2253 &  -0.6694 \\ 
+                    6.0397 &   4.7103  & -1.2944 &  -1.9132
+                \end{bmatrix} 
+            \end{align*} 
+            
+        \item \textbf{Findings}
+        
+            If comparing the diagonal entries of $C$ and $S$ as well as the generalized singular values of both definitions, we observe that they are the essentially the same but in opposite orders.
+        
+            Analyzing the $X$ matrix produced by MATLAB, we find that it's invertible and has full rank.  
+            
+    \end{enumerate}
+    
+
+
+% Similarly, we test GSVD in Julia 1.3 with the same inputs. For the numerical rank, $k = 0$ and $l = 4$. $D1$ and $D2$ (equivalent to $C$ and $S$ in the proposed version) are:
+
+% \begin{lstlisting}[language=julia, style=jlcodestyle, caption={$D1$ and $D2$ of Example 3 in Julia 1.3}, captionpos=b]
+% julia> Matrix(F.D1)
+% 3×4 Array{Float64,2}:
+%  0.99144  0.0       0.0       0.0
+%  0.0      0.681061  0.0       0.0
+%  0.0      0.0       0.167854  0.0
+
+% julia> Matrix(F.D2)
+% 4×4 Array{Float64,2}:
+%  0.130566  0.0       0.0       0.0
+%  0.0       0.732227  0.0       0.0
+%  0.0       0.0       0.985812  0.0
+%  0.0       0.0       0.0       1.0
+% \end{lstlisting}
+
+% The computed orthogonal matrices $U$, $V$, $Q$, the $R0$ matrix (equivalent to $R$ in the proposed version) are: 
+% \begin{lstlisting}[language=julia, style=jlcodestyle, caption={Other products of Example 3 in Julia 1.3}, captionpos=b]
+% julia> F.U
+% 3×3 Array{Float64,2}:
+%   0.519777  0.747619   0.413398
+%  -0.470025  0.654341  -0.592381
+%  -0.713378  0.113599   0.691511
+
+% julia> F.V
+% 4×4 Array{Float64,2}:
+%  -0.259832   0.927018    0.177229   0.20424 
+%   0.733955   0.0402919   0.652334   0.184789
+%   0.597084   0.369645   -0.576157  -0.418206
+%   0.1931    -0.0487437  -0.459449   0.865588
+
+% julia> F.Q
+% 4×4 Array{Float64,2}:
+%  -0.685431  0.564405   0.459976   0.00724571
+%   0.681731  0.704114   0.149854   0.130423  
+%  -0.127188  0.380896  -0.646684  -0.648491  
+%  -0.221923  0.201466  -0.589716   0.749931  
+
+% julia> F.R0
+% 4×4 Array{Float64,2}:
+%  3.71474  -2.42556  -0.179891  -0.941672
+%  0.0       9.84284   1.8323     0.522579
+%  0.0       0.0      -6.16149    1.43582 
+%  0.0       0.0       0.0        8.05363 
+% \end{lstlisting}
+    
+    \paragraph{Example 4.} Given a 3-by-5 matrix $A$ and a $4$-by-$5$ matrix $B$ which are rank deficient:
+        \begin{displaymath}
+            A = \begin{bmatrix}
+                1 & 4 & 2 & 3 & 0\\
+                3 & 4 & 0 & -2 & 1\\
+                4 & 7 & 5 & 6 & 3\\
+            \end{bmatrix}, \ \ \ \
+            B = \begin{bmatrix}
+                1 & 4 & 2 & 3 & 0\\
+                2 & 5 & 3 & 4 & 1 \\
+                3 & 6 & 4 & 5 & 2\\
+                0 & 1 & -1 & 3 & 1
+            \end{bmatrix}
+        \end{displaymath}
+    
+    \begin{enumerate}[(1).]
+        \item \textbf{Results by proposed definition}
+        
+            Upon execution of the GSVD of $A$ and $B$, we get $k = 1$ and $l = 3$. This means that both $B$ and $[A; B]$ are not in full rank. We find that the structures of $C$ and $S$ comply with those of case (2) in Section \ref{def} when $m < k+l$.
+            
+            \begin{equation*}
+                C = \begin{bmatrix}
+                 1.0 & 0.0      & 0.0      & 0.0 \\
+                 0.0 & 0.849235 & 0.0      & 0.0 \\
+                 0.0 & 0.0      & 0.605834 & 0.0 \\
+                \end{bmatrix} , \ \ \ \
+                S = \begin{bmatrix}
+                 0.0 & 0.528015 & 0.0       & 0.0 \\
+                 0.0 & 0.0      & 0.795591  & 0.0 \\
+                 0.0 & 0.0      & 0.0       & 1.0 \\
+                 0.0 & 0.0      & 0.0       & 0.0
+                \end{bmatrix}
+            \end{equation*}
+    
+            The generalized singular values computed are \texttt{Inf}, 1.6083530545973714, 0.7614900645668164, 0.0.
+
+            The computed orthogonal matrices $U$, $V$, $Q$, and the $R$ matrix are: 
+            \begin{align*}
+                U &= \begin{bmatrix}
+                     -2.22045e-16 &  0.355381  &   -0.934722  \\
+                      1.0   &       -1.74736e-16 &  -1.8521e-16 \\
+                     -2.2915e-16 &  -0.934722  &   -0.355381  
+                \end{bmatrix} \\
+                V &= \begin{bmatrix}
+                      0.571577  &   -0.711781  &    1.07608e-17 & -0.408248 \\  
+                     -0.120069  &   -0.564727  &   -2.13123e-16 &  0.816497 \\  
+                     -0.811716  &   -0.417673  &   -1.59451e-16 & -0.408248 \\   
+                      1.38917e-16 &  1.22399e-16 & -1.0     &      3.46945e-17
+                \end{bmatrix} \\
+                Q &= \begin{bmatrix}
+                     -0.735494 & -0.356936 & -0.479812 &  0.318474  &  3.59984e-16 \\
+                      0.29657 &  -0.540179 &  0.367864 &  0.633716  &  0.288675 \\ 
+                      0.130491 &  0.610611 & -0.189162 &  0.700722  & -0.288675  \\ 
+                     -0.237256 &  0.432143 &  0.0711454 & 0.0435931 &  0.866025 \\  
+                      0.545689 & -0.145639 & -0.770462 &  -0.0637737 &  0.288675 
+                \end{bmatrix} \\
+                R &= \begin{bmatrix}
+                    0.0 & -4.24145 & -0.880735 & 3.33933 & -0.288675 \\
+                    0.0 &  0.0  &  2.7394 & -8.38306 & -5.97906 \\
+                    0.0 &  0.0  &  -1.77636e-15 & -12.2122 & -8.79399 \\
+                    0.0 &  0.0  &  -4.996e-16 & 2.22045e-16 & -3.4641  
+                \end{bmatrix}    
+            \end{align*}
+
+            We can verify that $R$ has a zero column in the leftmost since $k+l < n$. 
+            
+        \item \textbf{Results by MATLAB}
+        
+            Since we have $m + p  \leq n$ and $m < n$, $p < n$, the structures of $C$ and $S$ should follow case 1.(d) in Section \ref{def_mat}. This is verified below.
+            
+            \begin{equation*}
+                C = \begin{bmatrix}
+                    0 & 0 & 0.8178 & 0 & 0 \\
+                    0 & 0 & 0 & 0.9995 & 0 \\
+                    0 & 0 & 0 & 0 & 1.0000
+                \end{bmatrix}, \ \ \ \
+                S = \begin{bmatrix}
+                    1.0000 & 0 & 0 & 0 & 0 \\
+                    0 & 1.0000 & 0 & 0 & 0 \\
+                    0 & 0 & 0.5755 & 0 & 0 \\
+                    0 & 0 & 0 & 0.0312 & 0
+                \end{bmatrix}
+            \end{equation*}
+            
+            The generalized singular values computed are 0, 0, 1.4209, 32.0780, \texttt{Inf}.
+            
+            The computed orthogonal matrices $U$, $V$ and the $X$ matrix are:
+            
+            \begin{align*}
+                U &= \begin{bmatrix}
+                   -0.1968 &  0.9805 &  0.0000 \\
+                    0.0000 & -0.0000 &  1.0000 \\
+                   -0.9805 & -0.1968 & -0.0000
+                \end{bmatrix} 
+                \\
+                V &= \begin{bmatrix}
+                   -0.8338  &       0 &   0.3365  &  0.4376 \\
+                   -0.5289  &  0.0000 &  -0.2600  & -0.8079 \\
+                   -0.1581  &  0.0000 &  -0.9051  &  0.3947 \\
+                   -0.0000  & -1.0000 &  -0.0000  & -0.0000 
+                \end{bmatrix} 
+                \\ 
+                X &= \begin{bmatrix}
+                   -2.3660  &  0.0000 &  -5.0363  &  0.1935 &   3.0000 \\
+                   -6.9285  & -1.0000 &  -9.3550  &  2.5457 &   4.0000 \\
+                   -3.8868  &  1.0000 &  -6.4759  &  0.9776 &   0.0000 \\
+                   -5.4077  & -3.0000 &  -7.9154  &  1.7617 &  -2.0000 \\
+                   -0.8451  & -1.0000 &  -3.5968  & -0.5906 &   1.0000
+                \end{bmatrix}
+           \end{align*}
+            
+        \item \textbf{Findings}
+        
+        Neither do the diagonal entries of $C$ and $S$ nor the generalized singular values produced by the two formulations share anything in common. What's more, the length of the generalized singular values vary: in (1) it's 4 (equal to $k+l$); in (2) it's 5 (equal to $n$). 
+        
+        In (2), we find that $X$ is close to singular and ill-conditioned. $X$ is also not in full rank and its rank is 4.
+    \end{enumerate}
+    
+    
+
+% Again, same inputs are tested in Julia 1.3. For the numerical rank determination, $k = 1$ and $l = 3$. $D1$ and $D2$ (equivalent to $C$ and $S$ in the proposed version) are:
+
+% \begin{lstlisting}[language=julia, style=jlcodestyle, caption={$D1$ and $D2$ of Example 4 in Julia 1.3}, captionpos=b]
+% julia> Matrix(F.D1)
+% 3×4 Array{Float64,2}:
+%  1.0  0.0       0.0       0.0
+%  0.0  0.849235  0.0       0.0
+%  0.0  0.0       0.605834  0.0
+
+% julia> Matrix(F.D2)
+% 4×4 Array{Float64,2}:
+%  0.0  0.528015  0.0       0.0
+%  0.0  0.0       0.795591  0.0
+%  0.0  0.0       0.0       1.0
+%  0.0  0.0       0.0       0.0
+% \end{lstlisting}
+
+% The computed orthogonal matrices $U$, $V$, $Q$, the $R0$ matrix (equivalent to $R$ in the proposed version) are: 
+% \begin{lstlisting}[language=julia, style=jlcodestyle, caption={Other products of Example 4 in Julia 1.3}, captionpos=b]
+% julia> F.U
+% 3×3 Array{Float64,2}:
+%  -2.22045e-16  -0.355381     -0.934722  
+%   1.0           1.74736e-16  -1.8521e-16
+%  -2.2915e-16    0.934722     -0.355381  
+
+% julia> F.V
+% 4×4 Array{Float64,2}:
+%  -0.571577     -0.711781      1.94289e-16  -0.408248   
+%   0.120069     -0.564727      2.35922e-16   0.816497   
+%   0.811716     -0.417673     -1.82146e-17  -0.408248   
+%   7.69338e-17   2.44055e-16   1.0           3.46945e-17
+
+% julia> F.Q
+% 5×5 Array{Float64,2}:
+%  -0.735494  -0.356936  -0.479812   -0.318474   -1.66533e-16
+%   0.29657   -0.540179   0.367864   -0.633716   -0.288675   
+%   0.130491   0.610611  -0.189162   -0.700722    0.288675   
+%  -0.237256   0.432143   0.0711454  -0.0435931  -0.866025   
+%   0.545689  -0.145639  -0.770462    0.0637737  -0.288675   
+
+% julia> F.R0
+% 4×5 Array{Float64,2}:
+%  0.0  -4.24145  -0.880735  -3.33933   0.288675
+%  0.0   0.0      -2.7394    -8.38306  -5.97906 
+%  0.0   0.0       0.0       12.2122    8.79399 
+%  0.0   0.0       0.0        0.0      -3.4641
+% \end{lstlisting}
+%     It is clear that the leftmost column of $R0$ is all zeros. \\
+
+    % \paragraph{Conclusion.} We find that in all cases, the computed $C$ and $S$ by our proposed version and Julia 1.3 are exactly the same. $U$, $V$, $Q$ and $R$ are mostly the same except for sign difference in certain columns. 
+    
+    % However, the results computed by MATLAB bear less resemblance. On one hand, when the input matrices are of full rank (Case 1 and 3), the diagonal entries of $C$ and $S$, and the generalized singular values produced by MATLAB are the same as those computed by proposed version and Julia 1.3, but in a reversed ordering. On the other hand, when the input matrices are rank deficient (Case 2 and 4), neither the diagonal entries of $C$ and $S$ nor the generalize singular values produced by MATLAB and Julia share anything in common, regardless of numerical values or length. \\
+    
+    %     \subsubsection{Link between Definition(1) and Definition(2)}
+    %     % MATLAB documents the algorithm as follows:
+        
+    %     % ``The generalized singular value decomposition uses the CS decomposition described in \cite{golub2013matrix}, as well as the built-in \texttt{svd} and \texttt{qr} functions. The CS decomposition is implemented in a local function in the \texttt{gsvd} program file."
+        
+    %     Definition(1) imposes a constraint on the size of matrix $A$ such that $m \geq n$. To discuss the connection between Definition(1) and Definition(2), we first narrow down Definition(2) to case 1(b) and 1(c) in Section \ref{def_mat}. 
+        
+    %     In either case, one may verify that the size of $C$ and $S$ are the same as those in Definition(1). Namely, $C$ is $m$-by-$n$ and $S$ is $p$-by-$n$. However, the ordering of diagonal entries in $C$ and $S$ are opposite from each other. 
+        
+    %     For Definition(1),
+    %     \begin{align*}
+    %         \begin{pmatrix}
+    %              A  \\
+    %              B 
+    %         \end{pmatrix} = 
+    %         \begin{pmatrix}
+    %             Q_{1} \\
+    %             Q_{2} 
+    %         \end{pmatrix}R = 
+    %         \begin{pmatrix}
+    %             U & 0 \\
+    %             0 & V
+    %         \end{pmatrix}
+    %         \begin{pmatrix}
+    %             C  \\
+    %             S 
+    %         \end{pmatrix}Z^{T}R
+    %     \end{align*}
+        
+    %     Let $X = R^{-1}Z$, then 
+        
+    %     \begin{align*}
+    %         \begin{pmatrix}
+    %              A  \\
+    %              B 
+    %         \end{pmatrix} = 
+    %         \begin{pmatrix}
+    %             U & 0 \\
+    %             0 & V
+    %         \end{pmatrix}
+    %         \begin{pmatrix}
+    %             C  \\
+    %             S 
+    %         \end{pmatrix}X^{-1}
+    %     \end{align*}
+        
+    %     For Definition (2)
+    %     \begin{align*}
+    %         \begin{pmatrix}
+    %              A  \\
+    %              B 
+    %         \end{pmatrix} = 
+    %         \begin{pmatrix}
+    %             Q_{1} \\
+    %             Q_{2} 
+    %         \end{pmatrix}R = 
+    %         \begin{pmatrix}
+    %             U & 0 \\
+    %             0 & V
+    %         \end{pmatrix}
+    %         \begin{pmatrix}
+    %             \Sigma_1  \\
+    %             \Sigma_2 
+    %         \end{pmatrix}Z^{T}R =
+    %         \begin{pmatrix}
+    %             U & 0 \\
+    %             0 & V
+    %         \end{pmatrix}
+    %         \begin{pmatrix}
+    %             C  \\
+    %             S 
+    %         \end{pmatrix}PZ^{T}R
+    %     \end{align*}  
+        
+    %     Let $X = R^{T}ZP^{T}$, then
+    %     \begin{align*}
+    %         \begin{pmatrix}
+    %              A  \\
+    %              B 
+    %         \end{pmatrix} = 
+    %         \begin{pmatrix}
+    %             U & 0 \\
+    %             0 & V
+    %         \end{pmatrix}
+    %         \begin{pmatrix}
+    %             C  \\
+    %             S 
+    %         \end{pmatrix}X^{T}
+    %     \end{align*}
+        
+    % Note that if $[A; B]$ is rank deficient, we may use QR decomposition with column pivoting or SVD? \cite{bai1993computing} \cite[pp.~310]{golub2013matrix}

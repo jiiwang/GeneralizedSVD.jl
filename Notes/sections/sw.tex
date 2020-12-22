@@ -1,0 +1,98 @@
+\subsection{Interface design}
+The products of the GSVD are six matrices and two integers indicating the rank. To follow Julia's convention, we encapsulate all the products into a composite type named \texttt{GeneralizedSVD}. In this way, users do not need to explicitly enumerate every matrix or integer in the return statement. In addition, doing so will facilitate those who only want to access part of the products. Hence, we define the composite type as a struct. 
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+struct GeneralizedSVD{T} <: Factorization{T}
+    U::AbstractMatrix{T}
+    V::AbstractMatrix{T}
+    Q::AbstractMatrix{T}
+    C::AbstractMatrix{T}
+    S::AbstractMatrix{T}
+    k::Int
+    l::Int
+    R::AbstractMatrix{T}
+end
+\end{lstlisting}
+
+\paragraph{Interface 1} We adopt the practice of polymorphism when designing the interface of the GSVD. This enables SVD of one matrix and GSVD of a matrix pair to share a single interface with entities of different input parameters. Such polymorphism allows a function to be written generically and thus maintain the language's expressiveness. We now present the interface below.
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+svd(A, B) -> GeneralizedSVD
+\end{lstlisting}
+
+Compute the generalized SVD of \texttt{A} and \texttt{B}, returning a \texttt{GeneralizedSVD} factorization object \texttt{F}, such that \texttt{A = F.U*F.C*F.R*F.Q'} and \texttt{B = F.V*F.S*F.R*F.Q'}. \\
+
+For an m-by-n matrix \texttt{A} and p-by-n matrix \texttt{B},
+
+    \begin{itemize}
+        \item \texttt{U} is an m-by-m orthogonal matrix,
+        \item \texttt{V} is a p-by-p orthogonal matrix,
+        \item \texttt{Q} is an n-by-n orthogonal matrix,
+        \item \texttt{C} is an m-by-(k+l) diagonal matrix with 1s in the first K entries,
+        \item \texttt{S} is a p-by-(k+l) matrix whose top right L-by-L block is diagonal,
+        \item \texttt{R} is a (k+l)-by-n matrix whose rightmost (k+l)-by-(k+l) block is nonsingular upper block triangular,
+        \item \texttt{k+l} is the effective numerical rank of the matrix \texttt{[A; B]}.
+    \end{itemize}
+    
+Iterating the decomposition produces the components \texttt{U, V, Q, C, S, and R}. 
+
+\paragraph{Interface 2} As used elsewhere in Julia, we provide another interface that overrides input matrices. 
+
+\begin{lstlisting}[language=julia, style=jlcodestyle]
+svd!(A, B) -> GeneralizedSVD
+\end{lstlisting}
+
+\texttt{svd!} is the same as \texttt{svd}, but modifies the arguments \texttt{A} and \texttt{B} in-place, instead of making copies.
+
+\subsection{Architecture}
+We implement the GSVD algorithm described in the previous section in Julia 1.3 using \texttt{Float64} data. The structural unit called \texttt{Module} is native to Julia to group relevant functions and definitions. Considering that the CS decomposition not only serves as a building block for our GSVD algorithm, but is also a powerful tool in other applications, it is wise to separate CS decomposition as a standalone module called \texttt{CSD}. The main module is \texttt{GSVD}.
+
+The algorithm starts from the main function \texttt{svd()} under module \texttt{GSVD}. It then calls \texttt{preproc()}. Once return, it calls \texttt{csd} intermodularly. Finally, the main function post processes to formulate the outputs. 
+
+\begin{center}
+    \fbox{\texttt{svd()}} $\rightarrow$ \fbox{\texttt{preproc()}} $\rightarrow$ \fbox{\texttt{csd()}} $\rightarrow$ \fbox{\texttt{svd():postproc}}
+\end{center}
+
+
+\subsection{Implementation details}
+
+\begin{enumerate}[\textit{Step} 1]
+    \item Pre-processing:
+    
+    This step is to reduce two input matrices $A$ and $B$ into two upper triangular forms. This is done via a call to \texttt{preproc()}. This function makes use of three fundamental orthogonal decompositions. First is QR decomposition with column pivoting to reveal the numerical rank of $B$ and $[A; B]$ without forming the matrix explicitly. This is done by a call to \texttt{qr(A, pivot=Val(true)))}. Second is RQ decomposition via a call to \texttt{LAPACK.gerqf!()}. Last is QR decomposition by calling \texttt{qr()}. Upon return to \texttt{svd()}, two of the upper triangular matrices overwrites $A$ and $B$, the orthogonal matrices are placed in U, V, and Q and rank information is stored in $K$ and $L$.
+    \item QR decomposition:
+    
+    This step is to reduce two upper triangular matrices to one and is done by directly calling \texttt{qr()}. On exit, $Q_1$ and $Q_2$ overwrites $A$ and $B$.  
+    
+    \item CS decomposition:
+    
+    This step calls \texttt{csd()} from module \texttt{CSD}. This function requires SVD, QR decomposition and QL decomposition and is done by calls to \texttt{svd()}, \texttt{qr()} and \texttt{LAPACK.geqlf!()} respectively. it return $U_1, V_1, Z_1, C, S$ on exit.   
+    
+    \item Post-processing:
+    In this step, we update matrix $U$, $V$ and $Q$ by matrix-matrix multiply. To formulate $R$, we utilize RQ decomposition via a call to \texttt{LAPACK.gerqf!()}. Finally, we put matrices $U, V, C, S, Q$ and $K$, $L$ into the constructor of \texttt{GeneralizedSVD} as return. 
+\end{enumerate}
+
+\subsection{GSVD in other languages: a comparison}
+    We list several major languages that feature GSVD, shown in Table \ref{tab:gsvdlang}.
+    
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{|c|c|}
+            \hline
+            Language & GSVD Documentation \\ \hline\hline
+            Native Julia (proposed) &  \makecell[l]{\texttt{svd(A, B) -> GeneralizedSVD} \\ Computes the generalized SVD of \texttt{A} and \texttt{B},  returning a \texttt{GSVD} factorization\\ object \texttt{F}, such that \\ \texttt{A = F.U*F.C*F.R*F.Q'} and \texttt{B = F.V*F.S*F.R*F.Q'}.}\\ \hline
+            Julia 1.3 (LAPACK wrapper) &  \makecell[l]{\texttt{svd(A, B) -> GeneralizedSVD} \\ Computes the generalized SVD of \texttt{A} and \texttt{B},  returning a \texttt{GeneralizedSVD}\\ factorization object \texttt{F}, such that \\ \texttt{A = F.U*F.D1*F.R0*F.Q'} and \texttt{B = F.V*F.D2*F.R0*F.Q'}.}\\ \hline
+            MATLAB (2019b) & \makecell[l]{\texttt{[U,V,X,C,S] = gsvd(A,B)} \\
+            Returns unitary matrices \texttt{U} and \texttt{V}, a (usually) square matrix \texttt{X}, and \\ nonnegative diagonal matrices \texttt{C} and \texttt{S} so that \\
+                \texttt{A = U*C*X', B = V*S*X', C'*C + S'*S = I}.}\\ \hline
+            Mathematica & \makecell[l]{\texttt{SingularValueDecomposition[{m,a}]} \\
+            Gives a list of matrices \{\texttt{{u,ua},{w,wa},v}\} such that \texttt{m} can be written as \\ \texttt{u.w.Conjugate[Transpose[v]]} and \texttt{a} can be written as \\ \texttt{ua.wa.Conjugate[Transpose[v]]}. } \\ \hline
+            R (geigen v2.3, LAPACK wrapper) & \makecell[l]{\texttt{z <- gsvd(A, B)}\\
+            Computes The Generalized Singular Value Decomposition of matrices \\ $A$ and $B$ such that $A = UD_{1}[0 \ R]Q^{T}$ and $B = VD_{2}[0 R]Q^{T}$. Note that \\ the return value is the same as the output of LAPACK 3.6 and above. }
+            \\\hline
+            Python (R. Luo's thesis) &  \makecell[l]{Didn't disclose API design. The author defined GSVD as follows: \\
+            Given two $M_i$-by-$N$ column-matched but row-independent matrices $D_{i}$, \\ each with full column rank and $N \leq Mi$, the GSVD is an exact \\ simultaneous factorization $Di = Ui \Sigma_i V^T, i = 1, 2$. $U_i$ is $M_i$-by-$N$ and \\ are column-wise orthonormal and $V$ is $N$-by-$N$ nonsingular matrix with\\ normalized rows. $diag(\Sigma_i)$ returns two lists of $N$ positive values and \\the ratios are called the generalized singular values.} \\ \hline
+        \end{tabular}
+        \caption{GSVD in different languages}
+        \label{tab:gsvdlang}
+    \end{table}
