@@ -12,8 +12,9 @@ Project structure:
     |     |── src
     │     └── test
     |── examples
-    |         
+    |
+    |── app
 ── ref
 ── fig stats
-── GSVD working notes.pdf
+── notes
 ```
