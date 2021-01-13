@@ -356,15 +356,7 @@ $S$ is nonsingular, and $R$ is upper triangular and nonsingular.
 \subsection{CS Decomposition} \label{csd}
 
 \subsubsection{Definition}
-Suppose we have an $(m+p)-by-n$ matrix $Q$ such that $m+p \geq n$ 
-and has orthonormal columns. 
-If we partition $Q$ into 2-by-1 block
-\[ 
-Q = \bordermatrix{ & n  \cr
-\hfill m & Q_1  \cr
-\hfill p & Q_2}, 
-\] 
-then the CS decomposition of $Q_1$ and $Q_2$ is the following:
+Suppose we have an $(m+p)-by-n$ matrix $Q$ such that $m+p \geq n$ and has orthonormal columns. If we partition $Q$ into 2-by-1 form as $[Q_1; Q_2]$, then the CS decomposition of $Q_1$ and $Q_2$ is the following:
 \begin{align} \label{eq:csddef} 
 Q_1 = UCZ^T,\ \  \ \ Q_2 = VSZ^T
 \end{align}
@@ -383,65 +375,52 @@ where
 %\begin{align} \label{cosine-sine}
 %\alpha_i^{2} + \beta_i^{2} = 1 \ \  \text{for} \ \ i = 1,2,\cdots,n
 %\end{align}
+
 $C$ and $S$ have the following detailed structures: 
-
-\begin{displaymath}
-C = \bordermatrix{ & n-q_2 & t & n-q_1 \cr
-                \hfill n-q_2 & I & 0 & 0 \cr
-                \hfill t & 0 & \Sigma_1 & 0 \cr
-                \hfill m-q_1 & 0 & 0 & 0}, \  \ \ \
-S = \bordermatrix{ & n-q_2 & t & n-q_1 \cr
-                \hfill t & 0 & \Sigma_2 & 0 \cr
-                \hfill n-q_1 & 0 & 0 & I \cr
-                \hfill p-q_2 & 0 & 0 & 0}
-\end{displaymath}
-where $q_{1} = min\{m, n\}, q_{2} = min\{p, n\}$ and $t = q_1 + q_2 - n$. $\Sigma_1$ and $\Sigma_2$ are diagonal matrices and satisfy $\Sigma_1^2 + \Sigma_2^2 = I_{t}$.
-
-
-%\begin{enumerate}
-%        \item $m \geq n$ and $p \geq n$:
-%        \begin{displaymath}
-%            C = \bordermatrix{ & n  \cr
-%            \hfill n & \Sigma_1 \cr
-%            \hfill m-n & 0}, \  \ \ \
-%            S = \bordermatrix{ & n \cr
-%            \hfill n & \Sigma_2 \cr
-%            \hfill p-n & 0}
-%        \end{displaymath}
-%        
-%        \item $m \geq n$ and $p < n$:
-%        \begin{displaymath}
-%            C = \bordermatrix{ & n-p & p  \cr
-%            \hfill n-p & I & 0 \cr
-%            \hfill p & 0 & \Sigma_1 \cr
-%            \hfill m-n & 0 & 0}, \  \ \ \
-%            S = \bordermatrix{ & n-p & p\cr
-%            \hfill p & 0 & \Sigma_2}
-%        \end{displaymath}
-%        
-%        \item $m \leq n$ and $p \geq n$:
-%        \begin{displaymath}
-%            C = \bordermatrix{ & m & n-m\cr
-%            \hfill m & \Sigma_1 & 0}, \  \ \ \
-%            S = \bordermatrix{ & m & n-m  \cr
-%            \hfill m & \Sigma_2 & 0 \cr
-%            \hfill n-m & 0 & I \cr
-%            \hfill p-n & 0 & 0}
-%        \end{displaymath}
-%        
-%        \item $m \leq n$ and $p < n$:
-%        \begin{displaymath}
-%            C = \bordermatrix{ & n-p & t & n-m \cr
-%            \hfill n-p & I & 0 & 0 \cr
-%            \hfill t & 0 & \Sigma_1 & 0}, \  \ \ \
-%            S = \bordermatrix{ & n-p & t & n-m \cr
-%            \hfill t & 0 & \Sigma_2 & 0 \cr
-%            \hfill n-m & 0 & 0 & I}
-%        \end{displaymath}
-%        where $t = m+p-n$.
-%    \end{enumerate}
-%where $\Sigma_1$ and $\Sigma_2$ are diagonal matrices 
-%and satisfy $\Sigma_1^2 + \Sigma_2^2 = I$.
+\begin{enumerate}
+        \item $m \geq n$ and $p \geq n$:
+        \begin{displaymath}
+            C = \bordermatrix{ & n  \cr
+            \hfill n & \Sigma_1 \cr
+            \hfill m-n & 0}, \  \ \ \
+            S = \bordermatrix{ & n \cr
+            \hfill n & \Sigma_2 \cr
+            \hfill p-n & 0}
+        \end{displaymath}
+        
+        \item $m \geq n$ and $p < n$:
+        \begin{displaymath}
+            C = \bordermatrix{ & n-p & p  \cr
+            \hfill n-p & I & 0 \cr
+            \hfill p & 0 & \Sigma_1 \cr
+            \hfill m-n & 0 & 0}, \  \ \ \
+            S = \bordermatrix{ & n-p & p\cr
+            \hfill p & 0 & \Sigma_2}
+        \end{displaymath}
+        
+        \item $m \leq n$ and $p \geq n$:
+        \begin{displaymath}
+            C = \bordermatrix{ & m & n-m\cr
+            \hfill m & \Sigma_1 & 0}, \  \ \ \
+            S = \bordermatrix{ & m & n-m  \cr
+            \hfill m & \Sigma_2 & 0 \cr
+            \hfill n-m & 0 & I \cr
+            \hfill p-n & 0 & 0}
+        \end{displaymath}
+        
+        \item $m \leq n$ and $p < n$:
+        \begin{displaymath}
+            C = \bordermatrix{ & n-p & t & n-m \cr
+            \hfill n-p & I & 0 & 0 \cr
+            \hfill t & 0 & \Sigma_1 & 0}, \  \ \ \
+            S = \bordermatrix{ & n-p & t & n-m \cr
+            \hfill t & 0 & \Sigma_2 & 0 \cr
+            \hfill n-m & 0 & 0 & I}
+        \end{displaymath}
+        where $t = m+p-n$.
+    \end{enumerate}
+where $\Sigma_1$ and $\Sigma_2$ are diagonal matrices 
+and satisfy $\Sigma_1^2 + \Sigma_2^2 = I$.
 \end{itemize} 
 
 \paragraph{Why called the CSD?}
@@ -457,56 +436,61 @@ resemblance between \eqref{cosine-sine} and cosine-sine relation. Thus, we name 
 \begin{remark}
 {\rm  
 LAPACK provides a routine to compute the CSD of 
-a 2-by-1 partitioned matrix, developed by Sutton \cite{sutton2009computing}.  
+a 2-by-1 partitioned matrix, which is developed 
+by Sutton \cite{sutton2009computing}.  
     
-Given an $(m+p)$-by-$n$ matrix $Q$ with 
-orthonormal columns that has been partitioned into a 2-by-1 block structure: 
+Given an $(m+p)$-by-$n$ matrix $Q$ with orthonormal columns that has been partitioned into a 2-by-1 block structure: 
         \begin{displaymath}
             Q = \bordermatrix{ & n  \cr
             \hfill m & Q_1 \cr
             \hfill p & Q_2}
         \end{displaymath}
-There exist an $m$-by-$m$ matrix $U$, a $p$-by-$p$ matrix $V$, and an $n$-by-$n$ matrix $Z$ (all are orthogonal) such that:
+    There exist an $m$-by-$m$ matrix $U$, a $p$-by-$p$ matrix $V$, and an $n$-by-$n$ matrix $Z$ (all are orthogonal) such that:
         \begin{displaymath}
             \begin{pmatrix}
                 U & 0 \\
                 0 & V
             \end{pmatrix}^{T}
             \begin{pmatrix}
-                Q_1 \\ \hline
+                Q_1 \\
+                \hline
                 Q_2
             \end{pmatrix}Z = 
             \begin{pmatrix}
-                C \\ \hline
+                C \\
+                \hline
                 S
             \end{pmatrix} =
             \begin{pmatrix}
                 I_1 & 0 & 0 \\
                 0 & \Sigma_{1} & 0 \\
-                0 & 0 & 0 \\ \cline{1-3} 
+                0 & 0 & 0 \\
+                \cline{1-3} 
                 0 & 0 & 0 \\
                 0 & \Sigma_{2} & 0 \\
                 0 & 0 & I_2
             \end{pmatrix}
         \end{displaymath}
 where $\Sigma_{1}$ and $\Sigma_{2}$ are $r$-by-$r$ non-negative diagonal matrices 
-satisfying $\Sigma_{1}^{2} + \Sigma_{2}^{2} = I$, 
-where $r = \min\{m,p,n,m+p-n\}$. 
+satisfying $\Sigma_{1}^{2} + \Sigma_{2}^{2} = I$, where $r = \min\{m,p,n,m+p-n\}$. 
 $I_1$ is a $k_1$-by-$k_1$ identity matrix and $I_2$ is 
 a $k_2$-by-$k_2$ identity matrix, where 
 $k_1 = \max\{n-p,0\}$, $k_2 = \max\{n-m,0\}$. 
-\Red{We observe that the detailed structures of $C$ and $S$ match
-those in \eqref{eq:csddef} except that the top zero rows of $S$ are brought down to the bottom.}  
+
+We observe that the detailed structures of $C$ and $S$ match
+the structures of $C$ and $S$ in the definition \eqref{eq:csddef}. 
 }
 \end{remark} 
 
 \subsubsection{Algorithm} 
 Now, we present an algorithm to compute the CS decomposition. 
 The algorithm extends the one proposed by Van Loan \cite{vanloan85}.    
-%We split this algorithm into two cases: $m \leq p$ and $m > p$.
     
-%\begin{enumerate}
-%\item If $m \leq p$:
+First, we set $q_1 = \min\{m, n\}$ and $q_2 = \min\{p, n\}$. 
+We split this algorithm into two cases: $m \leq p$ and $m > p$.
+    
+\begin{enumerate}
+\item If $m \leq p$:
 \begin{enumerate}[\textit{Step} 1.]
 \item SVD of $Q_2$ such that:
 \begin{equation}
@@ -525,17 +509,18 @@ $\Sigma = \mbox{diag}(\beta_n, \cdots, \beta_{n-q_2+1})$
 such that 
 $1 \geq \beta_n \geq \beta_{n-1} \geq \cdots \geq \beta_{n-q_2+1} \geq 0$. 
 
-Reverse the order of $\beta_{i}$:
+This means we need to reverse the order of $\beta_{i}$ to preserve 
+that the sine values are in non-decreasing order. Thus,
 \begin{itemize}
-\item Reorder the diagonal entries of (1,1) block non-decreasingly and then swap (1,1) and (1,2) blocks:
+\item Reorder the diagonal entries of $S$ in non-decreasing, such that:
 \begin{displaymath}
-S := \bordermatrix{ & n-q_2 & q_2 \cr
-\hfill q_2 & 0 & \widehat{\Sigma} \cr
+S = \bordermatrix{ & n-q_2 & q_2 \cr
+\hfill q_2 & 0 & \hat{\Sigma} \cr
 \hfill p-q_2 & 0 & 0}
 \end{displaymath} 
-where $\widehat{\Sigma} = \mbox{diag}(\beta_{n-q_2+1}, \cdots, \beta_{n})$
-\item Reverse the first $q_2$ columns of $V$: $V(:,1:q_2) := V(:,q_2:-1:1)$. 
-\item Reverse the columns of $Z$: $Z := Z(:,n:-1:1)$. 
+where $\hat{\Sigma} = \mbox{diag}(\beta_{n-q_2+1}, \cdots, \beta_{n})$
+\item Reverse the first $q_2$ columns of $V$: $V(:,1:q_2) = V(:,q_2:-1:1)$. 
+\item Reverse the columns of $Z$: $Z = Z(:,n:-1:1)$. 
 \end{itemize}
                     
 Since $Q_2$ has $(n-q_2)$ zero singular values, 
@@ -547,19 +532,14 @@ $0 \leq \beta_{n-q_2+1} \leq \cdots \leq \beta_{r}
 \leq \frac{1}{\sqrt{2}} < \beta_{r+1} 
 \leq \cdots \leq \beta_{n} \leq 1$. 
                 
-\item $T = Q_1Z$. It follows that:
-\begin{align*}
-	T^{T}T &= (Q_{1}Z)^{T}Q_{1}Z \\
-		   &= Z^{T}Q_{1}^{T}Q_{1}Z \\
-		   &= Z^{T}(I - Q_{2}^{T}Q_{2})Z \\
-		   &= Z^{T}(I - ZS^{T}V^{T}VSZ^{T})Z \\
-		   &= Z^{T}(I - ZS^{T}SZ^{T})Z \\
-		   &= I - S^{T}S \\
-		   &= diag(1-\beta_{1}^{2}, 1-\beta_{2}^{2}, \cdots, 1-\beta_{n}^{2})
-\end{align*}
-
+%(\textcolor{red}{Footnote needed to justify the choice of 
+%$\frac{1}{\sqrt{2}}$ as the threshold. Any suggestion on formatting? ...\
+%depending on the length of justification, could be a footnote, 
+%or a remark at the end of algorithm description})
+                
+\item $T = Q_1Z$.
 \item QR decomposition of $T$:
-\begin{equation} \label{eq-case1-step4}
+\begin{equation}
 T = UR,
 \end{equation}
 where $U$ is an $m$-by-$m$ orthogonal matrix,
@@ -573,17 +553,20 @@ R = \bordermatrix{ & n-q_2 & r-n+q_2 & q_1-r & n-q_1 \cr
 where $q_1 = \min\{m, n\}$,
 and $R_{22} = \mbox{diag}(\alpha_{n-q_2+1}, \cdots, \alpha_{r})$.
                     
+%(\textcolor{red}{Footnote needed to justify the near-zero block matrices 
+%in the upper diagonal. This justification could be really long, 
+%where is the proper place to put it?, a remark or subsection on technical
+%details} ) 
+                    
 Combining \textit{Step} 3 and \textit{Step} 4, we obtain:
 \begin{align} \label{eq-q_1-case1}
 Q_1 = URZ^{T}
 \end{align}
+The formula above can be treated as the SVD of $Q_1$. 
 
-From \textit{Step} 3, we gained that $T^{T}T$ is diagonal. From \eqref{eq-case1-step4}, we know that 
-$T^{T}T = (UR)^{T}UR = R^{T}U^{T}UR = R^{T}R$. Since $R$ is upper triangular, $R$ has to be diagonal. Then,
-\eqref{eq-q_1-case1} above can be treated as the SVD of $Q_1$. 
 Thus, the fact that $Q_1$ has $(n-q_1)$ zero singular values implies 
-that $\alpha_{q_1} = \cdots = \alpha_{n} = 0$, and 
-$\beta_{q_1} = \cdots = \beta_{n} = 1$, respectively.  
+that $\alpha_{q_1} = \cdots = \alpha_{l} = 0$, and 
+$\beta_{q_1} = \cdots = \beta_{l} = 1$, respectively. 
 
 \item SVD of $(R_{33} \ R_{34})$ such that:
 \begin{align} \label{eq-r-svd}
@@ -594,12 +577,12 @@ $Z_{r}$ is an $(n-r)$-by-$(n-r)$ orthogonal matrix and $C_{r}$
 is a $(q_1-r)$-by-$(n-r)$ matrix with the main diagonal entries 
 storing non-zero $\alpha_{r+1}, \cdots, \alpha_{q_1}$.
 
-\item Plug \eqref{eq-r-svd} into \eqref{eq-q_1-case1}, and  
+\item Plugging \eqref{eq-r-svd} into \eqref{eq-q_1-case1}, and  
 update $U$, $R$ and $Z$ accordingly:
 \begin{itemize}
 \item Update the $(r+1)$ to $q_1$ columns of $U$:
 \begin{displaymath}
-U := U\bordermatrix{ & r & q_1-r & m-q_1 \cr
+U = U\bordermatrix{ & r & q_1-r & m-q_1 \cr
 \hfill r & I & 0 & 0 \cr
 \hfill q_1-r & 0 & U_{r} & 0 \cr
 \hfill m-q_1 & 0 & 0 & I}
@@ -607,7 +590,7 @@ U := U\bordermatrix{ & r & q_1-r & m-q_1 \cr
 
 \item Update the last $(n-r)$ columns of $Z$:
 \begin{displaymath}
-Z := Z\bordermatrix{ & r & n-r \cr
+Z = Z\bordermatrix{ & r & n-r \cr
 \hfill r & I & 0 \cr
 \hfill n-r & 0 & Z_{r}}
 \end{displaymath}
@@ -640,12 +623,13 @@ W = Q_{w}R_{w}
                             
 Let $\ell = \min\{r, n-q_2\}$,
 \begin{displaymath}
-V := V\bordermatrix{ & r-\ell & q_2-r & p-q_2+\ell \cr
+V = V\bordermatrix{ & r-\ell & q_2-r & p-q_2+\ell \cr
 \hfill r-\ell & I & 0 & 0 \cr
 \hfill q_2-r & 0 & Q_{w} & 0 \cr
 \hfill p-q_2+\ell & 0 & 0 & I}
 \end{displaymath}
 \end{itemize}
+
 \end{enumerate}
 In summary, we obtain:
 \begin{align}
@@ -659,134 +643,140 @@ C = \bordermatrix{ & n-q_2 & t & n-q_1 \cr
                 \hfill m-q_1 & 0 & 0 & 0}, \  \ \ \
 S = \bordermatrix{ & n-q_2 & t & n-q_1 \cr
                 \hfill t & 0 & \Sigma_2 & 0 \cr
-                \hfill n-q_1 & 0 & 0 & I \cr
+                \hfill n-m & 0 & 0 & I \cr
                 \hfill p-q_2 & 0 & 0 & 0}
 \end{displaymath}
 where $t = q_1 + q_2 - n$, 
 $\Sigma_1 = \mbox{diag}(\alpha_{\ell-q_2+1}, \cdots, \alpha_{q_1})$ and 
 $\Sigma_2 = \mbox{diag}(\beta_{\ell-q_2+1}, \cdots, \beta_{q_1})$.
         
-%        \item If $m > p$:
-%            \begin{enumerate}[\textit{Step} 1.]
-%                \item Full SVD of $Q_1$ such that:
-%                    \begin{align}
-%                        Q_1 = UCZ^{T}
-%                    \end{align}
-%                    $U$ is $m$-by-$m$, $Z$ is $n$-by-$n$, both are orthogonal matrices. $C$ is $m$-by-$n$ with singular values $1 \geq \alpha_1 \geq \cdots \geq \alpha_{q_1} \geq 0$ placed in the main diagonal. Since $Q_1$ has $(n-q_1)$ zero singular values, we obtain $\alpha_{q_1+1} = \cdots = \alpha_{n} = 0$, and $\beta_{q_1+1} = \cdots = \beta_{n} = 1$, respectively. 
-%                \item Determine $r$ such that $1 \geq \alpha_{1} \geq \cdots \geq \alpha_{r} \geq \frac{1}{\sqrt{2}} > \alpha_{r+1} \geq \cdots \geq \alpha_{n} \geq 0$. 
-%                \item $T = Q_2Z$.
-%                \item QL decomposition of $T$:
-%                    \begin{align}
-%                        T = VL,
-%                    \end{align}
-%                    where $V$ is a $p$-by-$p$ orthogonal matrix, 
-%                    \begin{equation} \label{eq-L-block-case2}
-%                        L = \bordermatrix{ & n-q_2 & r & q_1+q_2-n-r & n-q_1 \cr
-%                                    \hfill p-q_2 & 0 & 0 & 0 & 0 \cr
-%                                    \hfill r & L_{11} & L_{12} & 0 & 0 \cr
-%                                    \hfill q_1+q_2-n-r & \epsilon & \epsilon & L_{23} & 0 \cr
-%                                    \hfill n-q_1 & \epsilon & \epsilon & \epsilon & I}
-%                    \end{equation}
-%                    and $L_{23} = diag(\beta_{n-q_2+r+1}, \cdots, \beta_{q_1})$.
-%                
-%                    To be consistent with the structure of $S$ given above, we pre-multiply $T$ with a permutation matrix $P$ in an effort to move the top $(n-q_2)$ rows to the bottom.
-%                    \begin{displaymath}
-%                        P = \bordermatrix{& p-q_2 & r & q_2-r \cr
-%                            \hfill r & 0 & I & 0 \cr
-%                            \hfill q_2-r & 0 & 0 & I \cr
-%                            \hfill p-q_2 & I & 0 & 0}
-%                    \end{displaymath}
-%                    Combining \textit{Step} 3 and \textit{Step} 4, we get:
-%                        \begin{align} \label{eq-q_2-case2}
-%                            Q_2 = V(P^{-1}PL)Z^{T}
-%                        \end{align}
-%                    This formula can be regarded as the SVD of $Q_2$. Therefore, the fact that $Q_2$ has $(n-q_2)$ zero singular values indicates that $\alpha_{1} = \cdots = \alpha_{n-q_2} = 1$, and $\beta_{1} = \cdots = \beta_{n-q_2} = 0$, respectively. 
-%                \item SVD of $(L_{11} \ L_{12})$ such that:
-%                    \begin{align} \label{eq-l-svd}
-%                        (L_{11} \ L_{12}) = V_{l}S_{l}Z_{l}^{T}
-%                    \end{align}
-%                    where $V_{l}$ is $r$-by-$r$ orthogonal matrix, $Z_{l}$ is $(n-q_2+r)$-by-$(n-q_2+r)$ orthogonal matrix and $S_{l}$ is $r$-by-$(n-q_2+r)$ and contains the $r$ singular values in a non-increasing fashion. However, by the nature of sine, we want to reverse the ordering of $\beta_i$. Accordingly, we need to reverse the columns of $V_{l}$ and $Z_{l}$.
-%                        \begin{itemize}
-%                            \item Reorder the diagonal entries of $S_{l}$ in non-decreasing order, such that:
-%                            \begin{displaymath}
-%                                S_{l} = \bordermatrix{ & r & n-q_2\cr
-%                                    \hfill r & \Sigma & 0}
-%                            \end{displaymath} where $\Sigma = diag(\beta_{n-q_2+1}, \cdots, \beta_{n-q_2+r})$
-%                            \item Reverse the columns of $V_l$: $V_l = V_l(:,r:-1:1)$. 
-%                            \item Reverse the columns of $Z_l$: $Z_l = Z_l(:,n-q_2+r:-1:1)$. 
-%                    \end{itemize} 
-%                \item To plug \eqref{eq-l-svd} into \eqref{eq-q_2-case2}, we shall update $V$, $L$ and $Z$ accordingly:
-%                    \begin{itemize}
-%                        \item Update $V$:
-%                            \begin{displaymath}
-%                                V = V\bordermatrix{ & p-q_2 & r & q_2-r \cr
-%                                    \hfill p-q_2 & I & 0 & 0 \cr
-%                                    \hfill r & 0 & U_{r} & 0 \cr
-%                                    \hfill q_2-r & 0 & 0 & I}P^{-1}
-%                            \end{displaymath}
-%                        \item Update the first ($r+n-q_2$) columns of $Z$:
-%                            \begin{displaymath}
-%                                Z = Z\bordermatrix{ & r+n-q_2 & q_2-r \cr
-%                                    \hfill r+n-q_2 & Z_{l} & 0 \cr
-%                                    \hfill q_2-r & 0 & I}
-%                            \end{displaymath}
-%                        \item Rewrite $L$ to formulate $S$:
-%                            \begin{displaymath}
-%                                S = \bordermatrix{ & n-q_2 & r & q_1+q_2-n-r & n-q_1 \cr
-%                                    \hfill r & 0 & S_{l}(:,1:r) & 0 & 0 \cr
-%                                    \hfill q_1+q_2-n-r & 0 & 0 & L_{23} & 0 \cr
-%                                    \hfill n-q_1 & 0 & 0 & 0 & I \cr
-%                                    \hfill p-q_2 & 0 & 0 & 0 & 0 }
-%                            \end{displaymath}
-%                    \end{itemize}
-%                \item Since $Z$ is updated, we need to modify $U$ as well:
-%                        \begin{itemize}
-%                            \item Set $W$:
-%                            
-%                                Let $C_1 = diag(\alpha_{1}, \cdots, \beta_{r+n-q_2})$, $W = C_1Z_{l}$.
-%                            \item QR decomposition of $W$:
-%                                \begin{align}
-%                                    W = Q_{w}R_{w}
-%                                \end{align}
-%                            \item Update $U$:
-%                                \begin{displaymath}
-%                                    U = U\bordermatrix{ & r+n-q_2 & m+r-l+q_2\cr
-%                                    \hfill r+n-q_2 & Q_{w} & 0 \cr
-%                                    \hfill m+r-l+q_2 & I & 0}
-%                                \end{displaymath}
-%                        \end{itemize}
-%            \end{enumerate}
-%    Putting all the 7 steps together, we have:
-%    \begin{align}
-%                Q_1 = UCZ^{T}, \ \ \ \ Q_2 = VSZ^{T}
-%            \end{align}
-%            and
-%            \begin{displaymath}
-%                C = \bordermatrix{ & n-q_2 & t & n-q_1 \cr
-%                \hfill n-q_2 & I & 0 & 0 \cr
-%                \hfill t & 0 & \Sigma_1 & 0 \cr
-%                \hfill m-q_1 & 0 & 0 & 0}, \  \ \ \
-%                S = \bordermatrix{ & n-q_2 & t & n-q_1 \cr
-%                \hfill t & 0 & \Sigma_2 & 0 \cr
-%                \hfill n-q_1 & 0 & 0 & I \cr
-%                \hfill p-q_2 & 0 & 0 & 0}
-%        \end{displaymath}
-%        where $t = q_1 + q_2 - n$, $\Sigma_1 = diag(\alpha_{l-q_2+1}, \cdots, \alpha_{q_1})$ and $\Sigma_2 = diag(\beta_{l-q_2+1}, \cdots, \beta_{q_1})$.
-%    \end{enumerate}
+        \item If $m > p$:
+            \begin{enumerate}[\textit{Step} 1.]
+                \item Full SVD of $Q_1$ such that:
+                    \begin{align}
+                        Q_1 = UCZ^{T}
+                    \end{align}
+                    $U$ is $m$-by-$m$, $Z$ is $n$-by-$n$, both are orthogonal matrices. $C$ is $m$-by-$n$ with singular values $1 \geq \alpha_1 \geq \cdots \geq \alpha_{q_1} \geq 0$ placed in the main diagonal. Since $Q_1$ has $(n-q_1)$ zero singular values, we obtain $\alpha_{q_1+1} = \cdots = \alpha_{n} = 0$, and $\beta_{q_1+1} = \cdots = \beta_{n} = 1$, respectively. 
+                \item Determine $r$ such that $1 \geq \alpha_{1} \geq \cdots \geq \alpha_{r} \geq \frac{1}{\sqrt{2}} > \alpha_{r+1} \geq \cdots \geq \alpha_{n} \geq 0$. 
+                \item $T = Q_2Z$.
+                \item QL decomposition of $T$:
+                    \begin{align}
+                        T = VL,
+                    \end{align}
+                    where $V$ is a $p$-by-$p$ orthogonal matrix, 
+                    \begin{equation} \label{eq-L-block-case2}
+                        L = \bordermatrix{ & n-q_2 & r & q_1+q_2-n-r & n-q_1 \cr
+                                    \hfill p-q_2 & 0 & 0 & 0 & 0 \cr
+                                    \hfill r & L_{11} & L_{12} & 0 & 0 \cr
+                                    \hfill q_1+q_2-n-r & \epsilon & \epsilon & L_{23} & 0 \cr
+                                    \hfill n-q_1 & \epsilon & \epsilon & \epsilon & I}
+                    \end{equation}
+                    and $L_{23} = diag(\beta_{n-q_2+r+1}, \cdots, \beta_{q_1})$.
+                
+                    To be consistent with the structure of $S$ given above, we pre-multiply $T$ with a permutation matrix $P$ in an effort to move the top $(n-q_2)$ rows to the bottom.
+                    \begin{displaymath}
+                        P = \bordermatrix{& p-q_2 & r & q_2-r \cr
+                            \hfill r & 0 & I & 0 \cr
+                            \hfill q_2-r & 0 & 0 & I \cr
+                            \hfill p-q_2 & I & 0 & 0}
+                    \end{displaymath}
+                    Combining \textit{Step} 3 and \textit{Step} 4, we get:
+                        \begin{align} \label{eq-q_2-case2}
+                            Q_2 = V(P^{-1}PL)Z^{T}
+                        \end{align}
+                    This formula can be regarded as the SVD of $Q_2$. Therefore, the fact that $Q_2$ has $(n-q_2)$ zero singular values indicates that $\alpha_{1} = \cdots = \alpha_{n-q_2} = 1$, and $\beta_{1} = \cdots = \beta_{n-q_2} = 0$, respectively. 
+                \item SVD of $(L_{11} \ L_{12})$ such that:
+                    \begin{align} \label{eq-l-svd}
+                        (L_{11} \ L_{12}) = V_{l}S_{l}Z_{l}^{T}
+                    \end{align}
+                    where $V_{l}$ is $r$-by-$r$ orthogonal matrix, $Z_{l}$ is $(n-q_2+r)$-by-$(n-q_2+r)$ orthogonal matrix and $S_{l}$ is $r$-by-$(n-q_2+r)$ and contains the $r$ singular values in a non-increasing fashion. However, by the nature of sine, we want to reverse the ordering of $\beta_i$. Accordingly, we need to reverse the columns of $V_{l}$ and $Z_{l}$.
+                        \begin{itemize}
+                            \item Reorder the diagonal entries of $S_{l}$ in non-decreasing order, such that:
+                            \begin{displaymath}
+                                S_{l} = \bordermatrix{ & r & n-q_2\cr
+                                    \hfill r & \Sigma & 0}
+                            \end{displaymath} where $\Sigma = diag(\beta_{n-q_2+1}, \cdots, \beta_{n-q_2+r})$
+                            \item Reverse the columns of $V_l$: $V_l = V_l(:,r:-1:1)$. 
+                            \item Reverse the columns of $Z_l$: $Z_l = Z_l(:,n-q_2+r:-1:1)$. 
+                    \end{itemize} 
+                \item To plug \eqref{eq-l-svd} into \eqref{eq-q_2-case2}, we shall update $V$, $L$ and $Z$ accordingly:
+                    \begin{itemize}
+                        \item Update $V$:
+                            \begin{displaymath}
+                                V = V\bordermatrix{ & p-q_2 & r & q_2-r \cr
+                                    \hfill p-q_2 & I & 0 & 0 \cr
+                                    \hfill r & 0 & U_{r} & 0 \cr
+                                    \hfill q_2-r & 0 & 0 & I}P^{-1}
+                            \end{displaymath}
+                        \item Update the first ($r+n-q_2$) columns of $Z$:
+                            \begin{displaymath}
+                                Z = Z\bordermatrix{ & r+n-q_2 & q_2-r \cr
+                                    \hfill r+n-q_2 & Z_{l} & 0 \cr
+                                    \hfill q_2-r & 0 & I}
+                            \end{displaymath}
+                        \item Rewrite $L$ to formulate $S$:
+                            \begin{displaymath}
+                                S = \bordermatrix{ & n-q_2 & r & q_1+q_2-n-r & n-q_1 \cr
+                                    \hfill r & 0 & S_{l}(:,1:r) & 0 & 0 \cr
+                                    \hfill q_1+q_2-n-r & 0 & 0 & L_{23} & 0 \cr
+                                    \hfill n-q_1 & 0 & 0 & 0 & I \cr
+                                    \hfill p-q_2 & 0 & 0 & 0 & 0 }
+                            \end{displaymath}
+                    \end{itemize}
+                \item Since $Z$ is updated, we need to modify $U$ as well:
+                        \begin{itemize}
+                            \item Set $W$:
+                            
+                                Let $C_1 = diag(\alpha_{1}, \cdots, \beta_{r+n-q_2})$, $W = C_1Z_{l}$.
+                            \item QR decomposition of $W$:
+                                \begin{align}
+                                    W = Q_{w}R_{w}
+                                \end{align}
+                            \item Update $U$:
+                                \begin{displaymath}
+                                    U = U\bordermatrix{ & r+n-q_2 & m+r-l+q_2\cr
+                                    \hfill r+n-q_2 & Q_{w} & 0 \cr
+                                    \hfill m+r-l+q_2 & I & 0}
+                                \end{displaymath}
+                        \end{itemize}
+            \end{enumerate}
+    Putting all the 7 steps together, we have:
+    \begin{align}
+                Q_1 = UCZ^{T}, \ \ \ \ Q_2 = VSZ^{T}
+            \end{align}
+            and
+            \begin{displaymath}
+                C = \bordermatrix{ & n-q_2 & t & n-q_1 \cr
+                \hfill n-q_2 & I & 0 & 0 \cr
+                \hfill t & 0 & \Sigma_1 & 0 \cr
+                \hfill m-q_1 & 0 & 0 & 0}, \  \ \ \
+                S = \bordermatrix{ & n-q_2 & t & n-q_1 \cr
+                \hfill t & 0 & \Sigma_2 & 0 \cr
+                \hfill n-m & 0 & 0 & I \cr
+                \hfill p-q_2 & 0 & 0 & 0}
+        \end{displaymath}
+        where $t = q_1 + q_2 - n$, $\Sigma_1 = diag(\alpha_{l-q_2+1}, \cdots, \alpha_{q_1})$ and $\Sigma_2 = diag(\beta_{l-q_2+1}, \cdots, \beta_{q_1})$.
+    \end{enumerate}
     
 \begin{remark}
 {\rm
-We justify here why we choose $\frac{1}{\sqrt{2}}$ as the threshold in \textit{Step} 2. Since $Q_{1}^{T}Q_{1} + Q_{2}^{T}Q_{2} = I$ and $\Vert Q_{1}^{T}Q_{1} + Q_{2}^{T}Q_{2} \Vert_{1}$ = 1, the singular values of $Q_{1}$ and $Q_{2}$ lie between 0 and 1. $\frac{1}{\sqrt{2}}$ is the exact midpoint in between so that it nicely separates large singular values from tiny singular values. This theoretical yet empirical choice is first suggested by Van Loan in \cite{vanloan85} because the midpoint balances the backward error defined in \eqref{backward_error_1} - \eqref{backward_error_5} and performance.
+We justify here why we choose $\frac{1}{\sqrt{2}}$ as the threshold in \textit{Step} 2 of both cases. Since $Q_{1}^{T}Q_{1} + Q_{2}^{T}Q_{2} = I$ and $\Vert Q_{1}^{T}Q_{1} + Q_{2}^{T}Q_{2} \Vert_{1}$ = 1, the singular values of $Q_{1}$ and $Q_{2}$ lie between 0 and 1. $\frac{1}{\sqrt{2}}$ is the exact midpoint in between so that it nicely separates large singular values from tiny singular values. This theoretical yet empirical choice is first suggested by Van Loan in \cite{vanloan85} because the midpoint balances the backward error defined in \eqref{backward_error_1} - \eqref{backward_error_5} and performance.
 }
 \end{remark}
 
 \begin{remark}
 {\rm 
-In \textit{Step} 4, $R$ is upper triangular in exact arithmetics, but the upper-right 5 block matrices are effectively zero matrices. Here, we rationalize this assertion. 
+In \textit{Step} 4 of case 1, $R$ is upper triangular in exact arithmetics, but the upper-right 5 block matrices are effectively zero matrices. Here, we rationalize this assertion. 
 
-From \textit{Step} 3, we have:
+If we analyse the $T$ matrix we computed in \textit{Step} 3, we have:
 \begin{align*}
-T^{T}T = diag(1-\beta_{1}^{2}, 1-\beta_{2}^{2}, \cdots, 1-\beta_{n}^{2}),
+T^{T}T &= (Q_{1}Z)^{T}(Q_{1}Z) \\
+	   &= Z^{T}Q_{1}^{T}Q_{1}Z \\
+	   &= Z^{T}(I - Q_{2}^{T}Q_{2})Z \\
+	   &= Z^{T}(I - ZS^{T}V^{T}VSZ^{T})Z \\
+	   &= Z^{T}(I - ZS^{T}SZ^{T})Z \\
+	   &= I - S^{T}S \\
+	   &= diag(1-\beta_{1}^{2}, 1-\beta_{2}^{2}, \cdots, 1-\beta_{n}^{2}),
 \end{align*}
 
 which indicates that the norms of each column of $T$ are in non-increasing order. Further, it implies that $\sigma_{min}(T_{1}) \geq \sigma_{min}(T_{2}) \geq \cdots \geq \sigma_{min}(T_{r})$ where $T_{i}$ is the first $i$ columns of $T$ and $r$ = rank$(T)$. This can be proven by \textbf{Corollary 2.4.4} in \cite[pp.~78--78]{golub2013matrix} by Golub and Van Loan.
@@ -822,6 +812,8 @@ From this theorem along with the $\frac{1}{\sqrt{2}}$ threshold we justified abo
 \end{align*}
 
 By that, we know that $R(1:n-q_{2},n-q_{2}+1:r), R(1:n-q_{2},r+1:q_{1}), R(1:n-q_{2},q_{1}+1:n), R(n-q_{2}+1:r,r+1:q_{1})$ and $R(n-q_{2}+1:r,q_{1}+1:n)$, namely the 5 upper right block matrices of $R$ in \eqref{eq-R-block-case1} are effectively zero matrices. 
+
+The justification why the 5 lower left block matrices are effective zero matrices in \eqref{eq-L-block-case2} in \textit{Step} 4 of case 2 is similar. 
 }
 
 \Red{This remark of justication is pretty long, but I think it makes more sense to put it here rather than an independent subsection since all three remarks in this section are justifications. Is it a good practice to include a theorem inside a remark? I skip the proof part because it's too long. What's your consideration?}

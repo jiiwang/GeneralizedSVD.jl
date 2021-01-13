@@ -79,7 +79,7 @@ function csd(Q1, Q2, option)
     q2 = min(p, l)
 
     # case 1: m<=p
-    if m <= p
+    # if m <= p
         # compute the full SVD of Q2
         D1 = svd(Q2, full = true)
 
@@ -244,190 +244,188 @@ function csd(Q1, Q2, option)
         end
 
     # case 2: m > p
-    else
-        # compute the full SVD of Q1
-        D1 = svd(Q1, full = true)
-
-        # set alpha(q1+1:l) = 0, beta(q1+1:l) = 0
-        alpha = fill(0.0, l)
-        beta = fill(0.0, l)
-        if l >= q1+1
-            for i = q1+1:l
-                alpha[i] = 0
-                beta[i] = 1
-            end
-        end
-
-         for i = 1:q1
-            alpha[i] = D1.S[i]
-        end
-
-        # find r such that 1>=alpha(1)>=...>=alpha(r)>=1/sqrt(2)
-		# >alpha(r+1)>=...>=alpha(q1)>=0
-        k_p = max(l-p, 0)
-        r = 0
-        if alpha[q1] > sqrt(0.5)
-            r = q1 - k_p
-        else
-            j = k_p + 1
-            for i = j:q1
-                if alpha[i] < sqrt(0.5)
-                    r = i - j
-                    break
-                end
-            end
-        end
-
-        # compute T = Q2 * Z
-        Z = D1.V
-        T = Q2 * Z
-
-        # compute the QL decomposition of T
-        A, tau = LAPACK.geqlf!(T)
-        A_ = copy(A)
-        Q = LAPACK.orgql!(A, tau, length(tau))
-        # @time Q = QL_generateQ(A, tau)
-
-        # if p >= l
-        #     @views L = LowerTriangular(A[p-l+1:p,1:l])
-        #     # sanitize L so that it only has non-negative diagonal entries
-        #     dia = Diagonal(sign.(diag(L)))
-        #     L = dia* L
-        #     @views Q[1:p, p-l+1:p] = Q[1:p, p-l+1:p] * dia
-        #     L_= [zeros(Float64, p-l, l); L]
-        # else
-        #     @views L = LowerTriangular(A[1:p,l-p+1:l])
-        #     # sanitize L so that it only has non-negative diagonal entries
-        #     dia = Diagonal(sign.(diag(L)))
-        #     L = dia* L
-        #     @views A_ = dia*A[1:p,1:l-p]
-        #     Q = Q*dia
-        #     L_= [A_ L]
-        # end
-
-        if p >= l
-            @views L = LowerTriangular(A_[p-l+1:p,1:l])
-            # sanitize L so that it only has non-negative diagonal entries
-            dia = Diagonal(sign.(diag(L)))
-            L = dia* L
-            @views Q[1:p, p-l+1:p] = Q[1:p, p-l+1:p] * dia
-            L_= [zeros(Float64, p-l, l); L]
-        else
-            @views L = LowerTriangular(A_[1:p,l-p+1:l])
-            # sanitize L so that it only has non-negative diagonal entries
-            dia = Diagonal(sign.(diag(L)))
-            L = dia* L
-            @views A_ = dia*A_[1:p,1:l-p]
-            Q = Q*dia
-            L_= [A_ L]
-        end
-
-        @views L1 = L_[p-q2+1:p-q2+r,1:l-q2+r]
-        @views L2 = L_[p-q2+r+1:q1-l+p,r+1+l-q2:q1]
-        # L1 = L_[p-q2+1:p-q2+r,1:l-q2+r]
-        # L2 = L_[p-q2+r+1:q1-l+p,r+1+l-q2:q1]
-
-        # compute the SVD of L1
-        D2 = svd(L1, full = true)
-        Vl = D2.U
-        Zl = D2.V
-
-        # arrange the values of S in non-decreasing order
-        s = reverse(D2.S)
-        # swap beta
-        j = 1
-        for i = l-q2+1:r+l-q2
-            beta[i] = s[j]
-            j += 1
-        end
-
-        # swap Vl
-        @views Vl[:,1:r] = Vl[:,r:-1:1]
-
-        # swap Zl
-        @views Zl[:,1:r+l-q2] = Zl[:,r+l-q2:-1:1]
-
-        # set alpha(1:l-q2) = 1, beta (1:l-q2) = 0
-        if l-q2 >= 1
-            for i = 1: l-q2
-                alpha[i] = 1
-                beta[i] = 0
-            end
-        end
-
-        # set beta(r+l-q2+1:q1) = diag(L2)
-        dia = diag(L2)
-        j = 1
-        for i = r+l-q2+1:q1
-            beta[i] = dia[j]
-            j += 1
-        end
-
-        # set V_
-        V_ = zeros(Float64, p, p)
-        V_[p-q2+1:p-q2+r,1:r] = Vl
-        V_[1:p-q2,q2+1:p] =  Matrix{Float64}(I, p-q2, p-q2)
-        V_[p-q2+r+1:p,r+1:q2] = Matrix{Float64}(I, q2-r, q2-r)
-
-        # update V
-        V = Q*V_
-
-        # update Z
-        @views Z[1:l, 1:r+l-q2] = Z[1:l, 1:r+l-q2] * Zl
-
-        # set W
-        @views S_ = Matrix(Diagonal(alpha[1:r+l-q2]))
-        W = S_ * Zl
-
-        # compute QR of W
-        D4 = qr(W)
-        row = size(W)[1]
-        col = size(W)[2]
-        Qw_ = D4.Q * Matrix(I, row, row)
-        # sanitize Rw so that it only has non-negative diagonal entries
-        Rw = Diagonal(sign.(diag(D4.R))) * D4.R
-        # In the following case, Rw is compactly stored as col-by-col matrix,
-		# we need to resize it to row-by-col
-        dia = sign.(diag(D4.R))
-        if  row > col
-            s = fill(1.0, row)
-            for i = 1:length(dia)
-                s[i] = dia[i]
-            end
-            Rw = [Rw; zeros(Float64, row-col, col)]
-            Qw = Qw_ * Diagonal(s)
-        else
-            Qw = Qw_ * Diagonal(dia)
-        end
-
-        # update U
-        @views D1.U[1:m,1:r+l-q2] = D1.U[1:m,1:r+l-q2] * Qw
-
-        # formulate C
-        C = zeros(Float64, m, l)
-        for i = 1:q1
-            C[i, i] = alpha[i]
-        end
-
-        # formulate S
-        S = zeros(Float64, p, l)
-        if p >= l
-            for i = 1:l
-                S[i, i] = beta[i]
-            end
-        else
-            j = 1
-            for i = l-p+1:l
-                S[j, i] = beta[i]
-                j += 1
-            end
-        end
-        if option == 1
-            return D1.U, V, Z, C, S
-        else
-            return D1.U, V, Z, alpha, beta
-        end
-    end
+    # else
+    #     # compute the full SVD of Q1
+    #     D1 = svd(Q1, full = true)
+	#
+    #     # set alpha(q1+1:l) = 0, beta(q1+1:l) = 0
+    #     alpha = fill(0.0, l)
+    #     beta = fill(0.0, l)
+    #     if l >= q1+1
+    #         for i = q1+1:l
+    #             alpha[i] = 0
+    #             beta[i] = 1
+    #         end
+    #     end
+	#
+    #      for i = 1:q1
+    #         alpha[i] = D1.S[i]
+    #     end
+	#
+    #     # find r such that 1>=alpha(1)>=...>=alpha(r)>=1/sqrt(2)
+	# 	# >alpha(r+1)>=...>=alpha(q1)>=0
+    #     k_p = max(l-p, 0)
+    #     r = 0
+    #     if alpha[q1] > sqrt(0.5)
+    #         r = q1 - k_p
+    #     else
+    #         j = k_p + 1
+    #         for i = j:q1
+    #             if alpha[i] < sqrt(0.5)
+    #                 r = i - j
+    #                 break
+    #             end
+    #         end
+    #     end
+	#
+    #     # compute T = Q2 * Z
+    #     Z = D1.V
+    #     T = Q2 * Z
+	#
+    #     # compute the QL decomposition of T
+    #     A, tau = LAPACK.geqlf!(T)
+    #     A_ = copy(A)
+    #     Q = LAPACK.orgql!(A, tau, length(tau))
+    #     # @time Q = QL_generateQ(A, tau)
+	#
+    #     # if p >= l
+    #     #     @views L = LowerTriangular(A[p-l+1:p,1:l])
+    #     #     # sanitize L so that it only has non-negative diagonal entries
+    #     #     dia = Diagonal(sign.(diag(L)))
+    #     #     L = dia* L
+    #     #     @views Q[1:p, p-l+1:p] = Q[1:p, p-l+1:p] * dia
+    #     #     L_= [zeros(Float64, p-l, l); L]
+    #     # else
+    #     #     @views L = LowerTriangular(A[1:p,l-p+1:l])
+    #     #     # sanitize L so that it only has non-negative diagonal entries
+    #     #     dia = Diagonal(sign.(diag(L)))
+    #     #     L = dia* L
+    #     #     @views A_ = dia*A[1:p,1:l-p]
+    #     #     Q = Q*dia
+    #     #     L_= [A_ L]
+    #     # end
+	#
+    #     if p >= l
+    #         @views L = LowerTriangular(A_[p-l+1:p,1:l])
+    #         # sanitize L so that it only has non-negative diagonal entries
+    #         dia = Diagonal(sign.(diag(L)))
+    #         L = dia* L
+    #         @views Q[1:p, p-l+1:p] = Q[1:p, p-l+1:p] * dia
+    #         L_= [zeros(Float64, p-l, l); L]
+    #     else
+    #         @views L = LowerTriangular(A_[1:p,l-p+1:l])
+    #         # sanitize L so that it only has non-negative diagonal entries
+    #         dia = Diagonal(sign.(diag(L)))
+    #         L = dia* L
+    #         @views A_ = dia*A_[1:p,1:l-p]
+    #         Q = Q*dia
+    #         L_= [A_ L]
+    #     end
+	#
+    #     @views L1 = L_[p-q2+1:p-q2+r,1:l-q2+r]
+    #     @views L2 = L_[p-q2+r+1:q1-l+p,r+1+l-q2:q1]
+    #     # L1 = L_[p-q2+1:p-q2+r,1:l-q2+r]
+    #     # L2 = L_[p-q2+r+1:q1-l+p,r+1+l-q2:q1]
+	#
+    #     # compute the SVD of L1
+    #     D2 = svd(L1, full = true)
+    #     Vl = D2.U
+    #     Zl = D2.V
+	#
+    #     # arrange the values of S in non-decreasing order
+    #     s = reverse(D2.S)
+    #     # swap beta
+    #     j = 1
+    #     for i = l-q2+1:r+l-q2
+    #         beta[i] = s[j]
+    #         j += 1
+    #     end
+	#
+    #     # swap Vl
+    #     @views Vl[:,1:r] = Vl[:,r:-1:1]
+	#
+    #     # swap Zl
+    #     @views Zl[:,1:r+l-q2] = Zl[:,r+l-q2:-1:1]
+	#
+    #     # set alpha(1:l-q2) = 1, beta (1:l-q2) = 0
+    #     if l-q2 >= 1
+    #         for i = 1: l-q2
+    #             alpha[i] = 1
+    #             beta[i] = 0
+    #         end
+    #     end
+	#
+    #     # set beta(r+l-q2+1:q1) = diag(L2)
+    #     dia = diag(L2)
+    #     j = 1
+    #     for i = r+l-q2+1:q1
+    #         beta[i] = dia[j]
+    #         j += 1
+    #     end
+	#
+    #     # set V_
+    #     V_ = zeros(Float64, p, p)
+    #     V_[p-q2+1:p-q2+r,1:r] = Vl
+    #     V_[1:p-q2,q2+1:p] =  Matrix{Float64}(I, p-q2, p-q2)
+    #     V_[p-q2+r+1:p,r+1:q2] = Matrix{Float64}(I, q2-r, q2-r)
+	#
+    #     # update V
+    #     V = Q*V_
+	#
+    #     # update Z
+    #     @views Z[1:l, 1:r+l-q2] = Z[1:l, 1:r+l-q2] * Zl
+	#
+    #     # set W
+    #     @views S_ = Matrix(Diagonal(alpha[1:r+l-q2]))
+    #     W = S_ * Zl
+	#
+    #     # compute QR of W
+    #     D4 = qr(W)
+    #     row = size(W)[1]
+    #     col = size(W)[2]
+    #     Qw_ = D4.Q * Matrix(I, row, row)
+    #     # sanitize Rw so that it only has non-negative diagonal entries
+    #     Rw = Diagonal(sign.(diag(D4.R))) * D4.R
+    #     # In the following case, Rw is compactly stored as col-by-col matrix,
+	# 	# we need to resize it to row-by-col
+    #     dia = sign.(diag(D4.R))
+    #     if  row > col
+    #         s = fill(1.0, row)
+    #         for i = 1:length(dia)
+    #             s[i] = dia[i]
+    #         end
+    #         Rw = [Rw; zeros(Float64, row-col, col)]
+    #         Qw = Qw_ * Diagonal(s)
+    #     else
+    #         Qw = Qw_ * Diagonal(dia)
+    #     end
+	#
+    #     # update U
+    #     @views D1.U[1:m,1:r+l-q2] = D1.U[1:m,1:r+l-q2] * Qw
+	#
+    #     # formulate C
+    #     C = zeros(Float64, m, l)
+    #     for i = 1:q1
+    #         C[i, i] = alpha[i]
+    #     end
+	#
+    #     # formulate S
+    #     S = zeros(Float64, p, l)
+    #     if p >= l
+    #         for i = 1:l
+    #             S[i, i] = beta[i]
+    #         end
+    #     else
+    #         j = 1
+    #         for i = l-p+1:l
+    #             S[j, i] = beta[i]
+    #             j += 1
+    #         end
+    #     end
+    #     if option == 1
+    #         return D1.U, V, Z, C, S
+    #     else
+    #         return D1.U, V, Z, alpha, beta
+    #     end
+    # end
 end
-
-# end
