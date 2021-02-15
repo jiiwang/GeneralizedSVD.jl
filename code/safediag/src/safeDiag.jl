@@ -5,10 +5,10 @@ using LinearAlgebra
 # export csd
 
 """
-	csd(Q1, Q2, option)
+	safeDiag(Q1, Q2, option)
 
 This function computes the cosine-sine decomposition (CSD) of an
-(m+p) by l orthogonal matrix Q = (Q1' Q2')', such that:
+(m+l) by l orthogonal matrix Q = (Q1' Q2')', such that:
 
 ```math
 Q1 = U  C  Z',  Q2 = V  S  Z'
@@ -65,7 +65,7 @@ C and S have the following structures (both alpha and beta are of length l):
 
 """
 
-function csd(Q1, Q2, option)
+function safeDiag(Q1, Q2, option)
 # function csd(Q1::Array{Float64,2}, Q2::Array{Float64,2})
     m = size(Q1)[1] # num of rows in Q1
     p = size(Q2)[1] # num of rows in Q2
