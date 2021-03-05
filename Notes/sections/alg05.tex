@@ -1,21 +1,22 @@
-\subsection{GSVD algorithm} \label{alg}
+ \subsection{GSVD algorithm} \label{alg}
 The algorithm consists of four steps. First step 
-is a pre-processing step where the input matrix pair $A, B$ is
+is a pre-processing step where the input matrix pair is
 reduced to a triangular pair while revealing their ranks~\cite{bai1993new}.
-We further reduce two upper triangular matrices to one upper triangular matrix in the QR decomposition step. Next is the safe diagonalization of a matrix with orthonormal columns that is partitioned into two blocks. \cite{van1976generalizing} The last step is post-processing to get the final products of the decomposition. 
+We further reduce two upper triangular matrices to one upper triangular matrix in the QR decomposition step. Next is the CS decomposition of a matrice with orthonormal columns that is partitioned into two blocks. \cite{van1976generalizing} The last step is post-processing to get the final product of the decomposition. 
     
-\paragraph{\Red{Step 1. Pre-processing.}}
+\paragraph{Step 1. Pre-processing:}
 To reduce ``regular matrices to their triangular form and reveal rank'', 
 we employ the QR decomposition with column pivoting followed by 
 RQ decomposition \cite{golub2013matrix} as well as QR decomposition. 
 We detail this in nine substeps below.
-\begin{enumerate}[{\rm Step 1}(1)]
+            
+\begin{enumerate}[(1)]
 \item QR decomposition with column pivoting of $B$:
-\begin{equation} \label{alg-step-1-1}
-    BP = V\bordermatrix{ & \ell & n-\ell \cr
-    \hfill \ell & B_{11} & B_{12} \cr
-    \hfill p-\ell & 0 & 0 \cr}
-\end{equation}
+\[
+BP = V\bordermatrix{ & \ell & n-\ell \cr
+\hfill \ell & B_{11} & B_{12} \cr
+\hfill p-\ell & 0 & 0 \cr}
+\]
 
 \item Update $A := AP$
 \item Set $Q := I_n$ and update $Q := QP$
@@ -23,58 +24,53 @@ We detail this in nine substeps below.
 \item If $n > \ell$:
 \begin{itemize}
 \item RQ decomposition of $(B_{11} \ \ B_{12})$:
-\begin{equation} \label{alg-step-1-4}
-   \bordermatrix{ & \ell & n-\ell \cr
-    \hfill \ell & B_{11} & B_{12} \cr}
-    = \bordermatrix{ & n-\ell & \ell \cr
-    \hfill \ell & 0 & B_{13} \cr}Z
-\end{equation}
-
+\[
+\bordermatrix{ & \ell & n-\ell \cr
+\hfill \ell & B_{11} & B_{12} \cr}
+= \bordermatrix{ & n-\ell & \ell \cr
+\hfill \ell & 0 & B_{13} \cr}Z
+\]
 \item Update $A := AZ^{T}$
 \item Update $Q := QZ^{T}$
 \end{itemize}
 
 \item Partition
-\begin{equation} \label{alg-step-1-5a}
-    A = \bordermatrix{ & n-\ell & \ell \cr
-    \hfill m & A_{1} & A_{2} \cr},
-\end{equation}
+\[
+A = \bordermatrix{ & n-\ell & \ell \cr
+\hfill m & A_{1} & A_{2} \cr},
+\]
 the QR decomposition with column pivoting of $A_1$ is:
-\begin{equation} \label{alg-step-1-5b}
-    A_{1}P_{1} = 
-    U\bordermatrix{ & k & n-\ell-k \cr
-    \hfill k & A_{11} & A_{12} \cr
-    \hfill m-k & 0 & 0 \cr}
-\end{equation}
+\[
+A_{1}P_{1} = 
+U\bordermatrix{ & k & n-\ell-k \cr
+\hfill k & A_{11} & A_{12} \cr
+\hfill m-k & 0 & 0 \cr}
+\]
 \item Update $A_{2} := U^{T}A_{2}$ 
 
-\item Partition:
-\begin{equation} \label{alg-step-1-7} 
-    A = \bordermatrix{ 
-               & k & n-\ell-k & \ell \cr
-    \hfill k   & A_{11} & A_{12} & A_{13} \cr
-    \hfill m-k & 0      & 0      & A_{23} \cr}
-\end{equation}
+\item Partition 
+$A = \bordermatrix{ 
+           & k & n-\ell-k & \ell \cr
+\hfill k   & A_{11} & A_{12} & A_{13} \cr
+\hfill m-k & 0      & 0      & A_{23} \cr}$
 
 \item Update $Q(:, 1:n-\ell) := Q(:, 1:n-\ell)P_{1}$
 
 \item If $n-\ell > k$:
 \begin{itemize}
 \item RQ decomposition of $(A_{11} \ \ A_{12})$:
-\begin{equation} \label{alg-step-1-9a} 
-    \bordermatrix{ & k & n-\ell-k \cr
-    \hfill k & A_{11} & A_{12} \cr}
-    = \bordermatrix{ & n-\ell-k & k \cr
-    \hfill k & 0 & A_{12} \cr}Z_{1}
-\end{equation}
-
+\[
+\bordermatrix{ & k & n-\ell-k \cr
+\hfill k & A_{11} & A_{12} \cr}
+= \bordermatrix{ & n-\ell-k & k \cr
+\hfill k & 0 & A_{12} \cr}Z_{1}
+\]
 and it results 
-\begin{equation} \label{alg-step-1-9b} 
-A = \bordermatrix{ 
+$A = \bordermatrix{ 
            & n-\ell-k & k  & \ell \cr
 \hfill k   & 0 & A_{12} & A_{13} \cr
-\hfill m-k & 0      & 0      & A_{23} \cr}
-\end{equation}
+\hfill m-k & 0      & 0      & A_{23} \cr}$
+
 
 \item Update $Q(:,1:n-\ell) = Q(:, 1:n-\ell) Z_{1}^{T}$
 \end{itemize}
@@ -82,23 +78,23 @@ A = \bordermatrix{
 \item If $m > k$:
 
 Let 
-\begin{equation} \label{alg-step-1-10a} 
-    A_{2} = \bordermatrix{ & \ell  \cr
-    \hfill k & A_{13}  \cr
-    \hfill m-k & A_{23} \cr}
-\end{equation}
+\[
+A_{2} = \bordermatrix{ & \ell  \cr
+\hfill k & A_{13}  \cr
+\hfill m-k & A_{23} \cr}
+\]
 \begin{itemize}
 \item QR decomposition of $A_{23}$:
-\begin{equation} \label{alg-step-1-10b} 
-    A_{23} = U_{1}\bordermatrix{ & \ell  \cr
-    \hfill \ell & A_{23}  \cr
-    \hfill m-k-\ell & 0 \cr}
-\end{equation}
+\[
+A_{23} = U_{1}\bordermatrix{ & \ell  \cr
+\hfill \ell & A_{23}  \cr
+\hfill m-k-\ell & 0 \cr}
+\]
 \item Update $U(:,k+1:m) = U(:,k+1:m)U_{1}$
 \end{itemize}    
 \end{enumerate}
-
-In summary, combining \eqref{alg-step-1-1}, \eqref{alg-step-1-4}, \eqref{alg-step-1-5b}, \eqref{alg-step-1-9a}, \eqref{alg-step-1-9b} and \eqref{alg-step-1-10b}, we have the following decomposition at the end of the pre-processing: 
+In summary, we have the following decomposition at the end of the
+pre-processing: 
 \begin{equation} \label{eq-alg-1}
 A = UR_{A}Q^{T},\ \ \ \ B = VR_{B}Q^{T}
 \end{equation}
@@ -114,9 +110,10 @@ R_{B} = \bordermatrix{ & n-k-\ell & k & \ell   \cr
 \hfill \ell & 0 & 0 & B_{13}\cr
 \hfill p-\ell & 0 & 0 & 0}
 \]
-where $A_{12}$ and $B_{13}$ are non-singular upper triangular matrix. 
+where $R_A$ and $R_B$ overwrite $A$ and $B$, respectively, and 
+$A_{12}$ and $B_{13}$ are non-singular upper triangular matrix. 
 $\ell$ is the rank of $B$, $k+\ell$ is the rank of $[A^T \ B^T]^T$. 
-$A_{23}$ is $\ell$-by-$\ell$ upper triangular.
+$A_{23}$ is $\ell$-by-$\ell$ upper triangular, 
 
 \item If $m-k-\ell < 0$:
 \[
@@ -127,15 +124,15 @@ R_{B} = \bordermatrix{ & n-k-\ell & k & \ell   \cr
 \hfill \ell & 0 & 0 & B_{13}\cr
 \hfill p-\ell & 0 & 0 & 0}, 
 \]
-where $A_{12}$ and $B_{13}$ are non-singular upper triangular matrix. 
+where $R_A$ and $R_B$ overwrite $A$ and $B$, respectively, and 
+$A_{12}$ and $B_{13}$ are non-singular upper triangular matrix. 
 $\ell$ is the rank of $B$, $k+\ell$ is the rank of $[A^T \ B^T]^T$. 
 $A_{23}$ is $(m-k)$-by-$\ell$ upper trapezoidal. 
 \end{itemize}        
-Note: $R_A$ and $R_B$ overwrite $A$ and $B$, respectively.
 
-\paragraph{\Red{Step 2. QR decomposition of $[A_{23}^{T} \ B_{13}^{T}]^T$.
-}} 
-\begin{itemize}
+\paragraph{Step 2. QR decomposition of $[A_{23}^{T} \ B_{13}^{T}]^T$:} 
+
+    \begin{itemize}
     	\item If $m-k-\ell \geq 0$:
 	    	\[
                 \bordermatrix{ & \ell  \cr
@@ -154,14 +151,13 @@ Note: $R_A$ and $R_B$ overwrite $A$ and $B$, respectively.
                     \hfill m-k & Q_{1}  \cr
                     \hfill \ell & Q_{2} \cr}R_{23}   
         	\]          
-\end{itemize}
-Thus, \eqref {eq-alg-1} can be rewritten as:
-\begin{equation} \label{eq-alg-2}
-A = U(Q_{A}\hat{R})Q^{T}, \quad 
-B = V(Q_{B}\hat{R})Q^{T}
-\end{equation}
-where 
-\begin{itemize}
+    \end{itemize}
+            Thus, \eqref {eq-alg-1} can be rewritten as:
+            \begin{equation} \label{eq-alg-2}
+                A = U(Q_{A}\hat{R})Q^{T}, \ \ \ \ B = V(Q_{B}\hat{R})Q^{T}
+            \end{equation}
+            where 
+            \begin{itemize}
             	\item If $m-k-\ell \geq 0$:
 					\[
                         Q_{A} = \bordermatrix{ & k & \ell \cr
@@ -189,53 +185,47 @@ where
             		\]
             \end{itemize}
         
-\paragraph{\Red{Step 3. Safe Diagonalization of 
-$Q_1$ and $Q_2$.}}
-Use the algorithm described in section~\ref{eq:csdspecial}, compute
-the CS decomposition:  
+\paragraph{Step 3. Safe Diagonalization of $Q_1$ and $Q_2$:} \footnote{It happens to be a special case of the 2-by-1 Cosine-sine decomposition}
+
 \begin{align} \label{eq-alg-3}
 Q_1 = U_1\Sigma_{1}Z_1^{T}, \ \ \ \ 
 Q_2 = V_1\Sigma_{2}Z_1^{T}
 \end{align}
 where
 \begin{itemize}
-\item If $m-k-\ell \geq 0$, 
+\item If $m-k-\ell \geq 0$:
 
-$Q_1, Q_2$ are $\ell$-by-$\ell$,  
 $U_{1}$, $Z_{1}$ and $V_{1}$ are $\ell$-by-$\ell$ orthogonal
-matrices, and $\Sigma_{1}$ and $\Sigma_{2}$ are 
-$\ell$-by-$\ell$ diagonal matrices: 
+matrices, and $\Sigma_{1}$ and $\Sigma_{2}$ are $\ell$-by-$\ell$ diagonal matrices such that $\Sigma_{1}^{T}\Sigma_{1} + \Sigma_{2}^{T}\Sigma_{2} = I_{\ell}$. $\Sigma_{1}$ and $\Sigma_{2}$ have the structures as follow:
+
 \[
-\Sigma_{1} = \mbox{diag}(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{\ell}), 
-\quad
-\Sigma_{2} = \mbox{diag}(\beta_{1}, \beta_{2}, \cdots, \beta_{\ell})
-\]
-where $1 \geq \alpha_{1} \geq \alpha_{2} \geq \cdots 
-\geq \alpha_{\ell} \geq 0$,  
-$0 \leq \beta_{1} \leq \beta_{2} \leq \cdots \leq \beta_{\ell} \leq 1$
-and $\Sigma_{1}^{T}\Sigma_{1} + \Sigma_{2}^{T}\Sigma_{2} = I_{\ell}$.
+	\Sigma_{1} = \mbox{diag}(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{\ell}), \  \ \ \
+    \Sigma_{2} = \mbox{diag}(\beta_{1}, \beta_{2}, \cdots, \beta_{\ell})\]
 
-\item If $m-k-\ell < 0$, 
+where $1 \geq \alpha_{1} \geq \alpha_{2} \geq \cdots \geq \alpha_{\ell} \geq 0$ and $0 \leq \beta_{1} \leq \beta_{2} \leq \cdots \leq \beta_{\ell} \leq 1$.
 
-$Q_1$ is $(m-k)$-by-$\ell$, $Q_2$ are $\ell$-by-$\ell$,  
+\item If $m-k-\ell < 0$:
+
 $U_{1}$ is $(m-k)$-by-$(m-k)$ orthogonal, and 
 $Z_{1}$ and $V_{1}$ are $\ell$-by-$\ell$ orthogonal. 
-$\Sigma_{1}$ is $(m-k)$-by-$\ell$ diagonal and 
-$\Sigma_{2}$ is $\ell$-by-$\ell$ diagonal:  
+$\Sigma_{1}$ is $(m-k)$-by-$\ell$ diagonal, 
+$\Sigma_{2}$ is $\ell$-by-$\ell$ diagonal 
+and $\Sigma_{1}^{T}\Sigma_{1} + \Sigma_{2}^{T}\Sigma_{2} = I_{\ell}$. $\Sigma_{1}$ and $\Sigma_{2}$ have the following structures:
+
 \[
-\Sigma_{1} = \bordermatrix{ & m-k & \ell-m+k \cr
-\hfill m-k & \Pi_{1} & 0 }, 
-\quad
-\Sigma_{2} = \bordermatrix{ & m-k & \ell-m+k   \cr
-\hfill m-k & \Pi_{2} & 0\cr
-\hfill \ell-m+k & 0 & I}
+	\Sigma_{1} = \bordermatrix{ & m-k & \ell-m+k \cr
+    	\hfill m-k & \Pi_{1} & 0 }, \  \ \ \
+    \Sigma_{2} = \bordermatrix{ & m-k & \ell-m+k   \cr
+    	\hfill m-k & \Pi_{2} & 0\cr
+        \hfill \ell-m+k & 0 & I}
 \]
-where $\Pi_{1} = \mbox{diag}(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{m-k})$, 
-$\Pi_{2} = \mbox{diag}(\beta_{1}, \beta_{2}, \cdots, \beta_{m-k})$, 
-and $1 \geq \alpha_{1} \geq \alpha_{2} \geq \cdots \geq \alpha_{m-k} \geq \alpha_{m-k+1} = \cdots = \alpha_{\ell} = 0$ and $0 \leq \beta_{1} \leq \beta_{2} \leq \cdots \leq \beta_{m-k} \leq \beta_{m-k+1} = \cdots = \beta_{\ell} = 1$.
-$\Sigma_{1}^{T}\Sigma_{1} + \Sigma_{2}^{T}\Sigma_{2} = I_{\ell}$. 
+
+where $\Pi_{1} = \mbox{diag}(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{m-k}), \Pi_{2} = \mbox{diag}(\beta_{1}, \beta_{2}, \cdots, \beta_{m-k})$, and $1 \geq \alpha_{1} \geq \alpha_{2} \geq \cdots \geq \alpha_{m-k} \geq \alpha_{m-k+1} = \cdots = \alpha_{\ell} = 0$ and $0 \leq \beta_{1} \leq \beta_{2} \leq \cdots \leq \beta_{m-k} \leq \beta_{m-k+1} = \cdots = \beta_{\ell} = 1$.
+
 \end{itemize}
+
 Combining \eqref{eq-alg-2} and \eqref{eq-alg-3} , we have
+
 \begin{equation} \label{eq-alg-4}
 A = U(\hat{U}C\hat{Q}^{T})\hat{R}Q^{T}, \ \ \ \ 
 B = V(\hat{V}S\hat{Q}^{T})\hat{R}Q^{T}
@@ -288,37 +278,11 @@ where
     \]
 \end{itemize}
 
-\paragraph{\Red{Step 4. Post-processing to form
-the desired GSVD \eqref{eq:gsvdbylapack}.}}
-\begin{itemize}
-\item $U := U \hat{U}$.
-\item $V := V \hat{V}$.
-\item Formulate $R$ by RQ decomposition: $\hat{Q}^{T}\hat{R} = RQ_{3}$ 
-\item $Q := Q Q_{3}^{T}$
-\item $C$ and $S$ defined in \eqref{eq-alg-4}.
-\end{itemize}
+We now detail the algorithm for computing the safe diagonalization of $Q_{1}$ and $Q_{2}$. 
+This algorithm extends the one proposed by Van Loan \cite{vanloan85}.    
 
-%------------------------------------------------------------------
-
-\subsection{GSVD of $Q_1$ and $Q_2$}  \label{eq:csdspecial}
-\Red{Why do we call it GSVD rather than safe diagonalization in the subsection title? typo?}
-In this section, we detail algorithm of \Red{Step 2 of the GSVD algorithm} 
-for computing the safe diagonalization of $Q_{1}$ and $Q_{2}$, where
-if $m - k - \ell \geq 0$, 
-\[
-Q_1, Q_2 \in \mathbb{R}^{\ell \times \ell},
-\] 
-and if $m - k - \ell < 0$, 
-\[
-Q_1 \in \mathbb{R}^{(m-k) \times \ell} 
-\quad \mbox{and} \quad
-Q_2 \in \mathbb{R}^{\ell \times \ell}. 
-\] 
-This is a special case of the 2-by-1 Cosine-sine decomposition. \cite{sutton2009computing} 
-
-\begin{enumerate}[Step 2(1).]
-\item \label{alg:csd1} 
-Compute the SVD of $Q_2$:
+\begin{enumerate}[\textit{Step} (i).]
+\item Compute the SVD of $Q_2$ such that:
 \begin{equation}
 Q_2 = V_{1}\Sigma_{2}Z_{1}^{T}, 
 \end{equation}
@@ -327,8 +291,7 @@ both are orthogonal matrices. $\Sigma_{2} = \mbox{diag}(\beta_{\ell}, \cdots, \b
 such that 
 $1 \geq \beta_{\ell} \geq \beta_{\ell-1} \geq \cdots \geq \beta_{1} \geq 0$. 
 
-\item \label{alg:csd2} 
-Reverse the order of $\beta_{i}$ in non-decreasing order:
+To reverse the order of $\beta_{i}$ in non-decreasing order, we need to:
 
 \begin{itemize}
 \item Reorder the diagonal entries of $\Sigma_{2}$ non-decreasingly: $\Sigma_{2} = \mbox{diag}(\beta_{1}, \cdots, \beta_{\ell})$; 
@@ -336,57 +299,61 @@ Reverse the order of $\beta_{i}$ in non-decreasing order:
 \item Reverse the columns of $Z_{1}$: $Z_{1} := Z_{1}(:,\ell:-1:1)$. 
 \end{itemize}
 
-\item \label{alg:csd3} 
-Determine $r$ such that 
+\item Determine $r$ such that 
 $0 \leq \beta_{1} \leq \cdots \leq \beta_{r} 
 \leq \frac{1}{\sqrt{2}} < \beta_{r+1} 
 \leq \cdots \leq \beta_{\ell} \leq 1$. 
 
-The justification for $r$ see Remark~\ref{rmk:betarank}. 
+We briefly justify here why we choose $\frac{1}{\sqrt{2}}$ as the threshold. Since $Q_{1}^{T}Q_{1} + Q_{2}^{T}Q_{2} = I$ and $\Vert Q_{1}^{T}Q_{1} + Q_{2}^{T}Q_{2} \Vert_{1}$ = 1, the singular values of $Q_{1}$ and $Q_{2}$ lie between 0 and 1. $\frac{1}{\sqrt{2}}$ is the exact midpoint in between ($(\frac{1}{\sqrt{2}})^{2} + (\frac{1}{\sqrt{2}})^{2} = 1$) so that it nicely separates large singular values from tiny singular values. This theoretical yet empirical choice is first suggested by Van Loan in \cite{vanloan85} because the midpoint balances the backward error defined in \eqref{backward_error_1} - \eqref{backward_error_5} and performance.
+                
+\item Matrix-matrix multiply:
 
-\item \label{alg:csd4} 
-Matrix-matrix multiply:
 \begin{equation} \label{eq-step3}
 T = Q_{1}Z_{1}
 \end{equation}
 
-\item \label{alg:csd5} 
-QR decomposition of $T$:
+It follows that:
+\begin{align} \label{eq-step3b}
+	\begin{split}
+	T^{T}T &= (Q_{1}Z_{1})^{T}Q_{1}Z_{1} \\
+		   &= Z_{1}^{T}Q_{1}^{T}Q_{1}Z_{1} \\
+		   &= Z_{1}^{T}(I - Q_{2}^{T}Q_{2})Z_{1} \\
+		   &= Z_{1}^{T}(I - Z_{1}\Sigma_{2}^{T}V_{1}^{T}V_{1}\Sigma_{2}Z^{T})Z_{1} \\
+		   &= Z_{1}^{T}(I - Z_{1}\Sigma_{2}^{T}\Sigma_{2}Z_{1}^{T})Z_{1} \\
+		   &= I - \Sigma_{2}^{T}\Sigma_{2} \\
+		   &= \mbox{diag}(1-\beta_{1}^{2}, 1-\beta_{2}^{2}, \cdots, 1-\beta_{\ell}^{2})
+	\end{split}
+\end{align}
+
+\item QR decomposition of $T$:
 \begin{equation} \label{eq-step4}
 T = U_{1}R,
 \end{equation}
-\begin{itemize}
-\item If $m - k - \ell \geq 0$:
 
-    since $Q_1$ is $\ell$-by-$\ell$, 
+\begin{itemize}
+	\item If $m - k - \ell \geq 0$:
+	
 	$U_{1}$ is an $\ell$-by-$\ell$ orthogonal matrix, and
 	\begin{equation} \label{eq-R-block-case1}
     R = \bordermatrix{ & r & \ell-r \cr
     \hfill r & \Pi & \epsilon \cr
-    \hfill \ell-r & 0 & R_{22}}, 
+    \hfill \ell-r & 0 & R_{22}}
     \end{equation}
-where $\Pi = \mbox{diag}(\alpha_{1}, \cdots, \alpha_{r})$. 
-The bottom $(\ell-r)$ rows vanish if $\ell-r \leq 0$.
-
-For the explanation of why $R_{22}$ may not be diagonal, 
-see Remark \ref{rmk:betarank}.
+	The bottom $(\ell-r)$ rows will not exist if $\ell-r \leq 0$.
 	
 	\item If $m - k - \ell < 0$:
 	
-        since $Q_1$ is $(m-k)$-by-$\ell$, 
 	$U_{1}$ is an $(m-k)$-by-$(m-k)$ orthogonal matrix, and
     \begin{equation} \label{eq-R-block-case2}
-        R = \bordermatrix{ & r & m-k-r & \ell-m+k \cr
-        \hfill r & \Pi & \epsilon & \epsilon \cr
-        \hfill m-k-r & 0 & R_{22} & R_{23} }, 
+    R = \bordermatrix{ & r & m-k-r & \ell-m+k \cr
+    \hfill r & \Pi & \epsilon & \epsilon \cr
+    \hfill m-k-r & 0 & R_{22} & R_{23} }
     \end{equation}
-where $\Pi = \mbox{diag}(\alpha_{1}, \cdots, \alpha_{r})$. 
-The bottom $(m-k-r)$ rows vanish if $m-k-r \leq 0$.
-
-For the explanation of why $\onebytwo{R_{22}}{R_{23}}$ may not be diagonal, 
-see Remark \ref{rmk:betarank}.
-
+    The bottom $(m-k-r)$ rows will not exist if $m-k-r \leq 0$.
 \end{itemize}
+
+$\Pi = \mbox{diag}(\alpha_{1}, \cdots, \alpha_{r})$ in both cases. 
+                    
 Combining \eqref{eq-step3} and \eqref{eq-step4}, we obtain:
 \begin{align} \label{eq-q_1-case1}
 Q_1 = U_{1}RZ_{1}^{T}
@@ -394,111 +361,111 @@ Q_1 = U_{1}RZ_{1}^{T}
 
 % TODO: need to reconsider this paragraph
 %From \eqref{eq-step3b}, we gained that $T^{T}T$ is diagonal. From \eqref{eq-step4}, we know that 
-%$T^{T}T = (UR)^{T}UR = R^{T}U^{T}UR = R^{T}R$ in exact arithmetics. 
-%Since $R$ is upper triangular, $R$ has to be diagonal. 
-%Then,  \eqref{eq-q_1-case1} above can be treated as the SVD of $Q_1$. 
+%$T^{T}T = (UR)^{T}UR = R^{T}U^{T}UR = R^{T}R$ in exact arithmetics. Since $R$ is upper triangular, $R$ has to be diagonal. Then,  \eqref{eq-q_1-case1} above can be treated as the SVD of $Q_1$. 
 
-%\Red{... at this step, 
-%the desired special CS decomposition \eqref{eq-alg-3}
-%be finalized (i.e., the notation should be finalized too) if the
-%next two steps are not executed....... should $R$ be
-%changed to $\Sigma_1$ ... fix this.} 
-
-As stated in \eqref{eq-R-block-case1} and \eqref{eq-R-block-case2}, the last few rows of $R$ might not exist. To be precise,
+\item 
 
 \begin{itemize}
-	\item If $m - k - \ell \geq 0$ and $\ell \leq r$:
-		$R = \mbox{diag}(\alpha_{1}, \cdots, \alpha_{\ell})$.
-	\item If $m - k - \ell < 0$ and $m - k \leq r$:
-		\begin{equation} \label{eq-R-earlyexit-case2}
-            R = \bordermatrix{ & m-k & \ell-m+k \cr
-            \hfill m-k & \Pi & 0}, 
-    	\end{equation}
-		where $\Pi = \mbox{diag}(\alpha_{1}, \cdots, \alpha_{m-k})$.
-\end{itemize}
-In either case, $\Sigma_{1} = R$, the algorithm ends here since we already obtain \eqref{eq-alg-3}.
-
- 
-\item \label{alg:csd6} 
-Refine $R$ in \eqref{eq-step4} to diagonal if necessary:  
-
-\begin{itemize} 
 \item If $m - k - \ell \geq 0$ and $\ell - r > 0$:
 
-\begin{itemize}
-\item SVD of the block $R_{22}$ of $R$ in \eqref{eq-R-block-case1}: 
+SVD of $R_{22}$ such that:
 \begin{align} \label{eq-r-svd-case1}
 R_{22} = U_{r}C_{r}Z_{r}^{T}
 \end{align}
 where $U_{r}$ is an $(\ell-r)$-by-$(\ell-r)$ orthogonal matrix, 
-$Z_{r}$ is an $(\ell-r)$-by-$(\ell-r)$ orthogonal matrix and 
-$C_{r} = \mbox{diag}(\alpha_{r+1}, \cdots, \alpha_{\ell})$.
-
-\item Update the $(r+1)$ to $\ell$ columns of $U_{1}$:
-    \begin{displaymath}
-    U_{1} := U_{1}\bordermatrix{ & r & \ell-r \cr
-    \hfill r & I & 0 \cr
-    \hfill \ell-r & 0 & U_{r}}
-    \end{displaymath}
-    
-\item Update the last $(\ell-r)$ columns of $Z_{1}$:
-    \begin{displaymath}
-    Z_{1} := Z_{1}\bordermatrix{ & r & \ell-r \cr
-    \hfill r & I & 0 \cr
-    \hfill \ell-r & 0 & Z_{r}}
-    \end{displaymath}
-    
-\item Rewrite $R$ to formulate $\Sigma_{1}$:
-    \begin{displaymath}
-    \Sigma_{1} = \bordermatrix{ & r & \ell-r \cr
-    \hfill r & \Pi & 0 \cr
-    \hfill \ell-r & 0 & C_{r}}
-    \end{displaymath}
-\end{itemize}
+$Z_{r}$ is an $(\ell-r)$-by-$(\ell-r)$ orthogonal matrix and $C_{r} = \mbox{diag}(\alpha_{r+1}, \cdots, \alpha_{\ell})$.
 
 \item If $m - k - \ell < 0$ and $m - k - r > 0$:
 
-\begin{itemize} 
-\item SVD of the block $\onebytwo{R_{22}}{R_{23}}$ of $R$ 
-in \eqref{eq-R-block-case2}: 
+SVD of $(R_{22} \ R_{23})$ such that:
 \begin{align} \label{eq-r-svd-case2}
-\onebytwo{R_{22}}{R_{23}} = U_{r}C_{r}Z_{r}^{T}
+(R_{22} \ R_{23}) = U_{r}C_{r}Z_{r}^{T}
 \end{align} 
 where $U_{r}$ is a $(m-k-r)$-by-$(m-k-r)$ orthogonal matrix, 
 $Z_{r}$ is an $(\ell-r)$-by-$(\ell-r)$ orthogonal matrix and $C_{r}$ 
 is a $(m-k-r)$-by-$(\ell-r)$ matrix with the main diagonal entries 
 storing non-zero $\alpha_{r+1}, \cdots, \alpha_{m-k}$.
 
-\item Update the $(r+1)$ to $(m-k)$ columns of $U_{1}$:
+\item Otherwise:
+
+We already have:
+\begin{align}
+Q_1 = U_{1}RZ_{1}^{T}, \ \ \ \ Q_2 = V_{1}\Sigma_{2}Z_{1}^{T}
+\end{align} 
+where $R$ is diagonal. 
+
+Therefore, let $\Sigma_{1}$ be $R$ and we return $U_{1}, \Sigma_{1}, Z_{1}, V_{1}, \Sigma_{2}$.  
+
+\end{itemize}
+
+\item 
+
+Plug \eqref{eq-r-svd-case1} or \eqref{eq-r-svd-case2} into \eqref{eq-q_1-case1}, and  
+update $U_{1}$, $R$, and $Z_{1}$ accordingly:
+
+\begin{itemize}
+\item If $m - k - \ell \geq 0$ and $\ell - r > 0$:
+
+    \begin{itemize}
+    \item Update the $(r+1)$ to $\ell$ columns of $U_{1}$:
     \begin{displaymath}
-    U_{1} := U_{1}\bordermatrix{ & r & m-k-r \cr
+    U_{1} := U_{1}\bordermatrix{ & r & \ell-r \cr
     \hfill r & I & 0 \cr
-    \hfill m-k-r & 0 & U_{r}}
+    \hfill \ell-r & 0 & U_{r}}
     \end{displaymath}
     
-\item Update the last $(\ell-r)$ columns of $Z_{1}$:
+    \item Update the last $(\ell-r)$ columns of $Z_{1}$:
     \begin{displaymath}
     Z_{1} := Z_{1}\bordermatrix{ & r & \ell-r \cr
     \hfill r & I & 0 \cr
     \hfill \ell-r & 0 & Z_{r}}
     \end{displaymath}
     
-\item Rewrite $R$ to formulate $\Sigma_{1}$:
+    \item Rewrite $R$ to formulate $\Sigma_{1}$:
+    \begin{displaymath}
+    \Sigma_{1} = \bordermatrix{ & r & \ell-r \cr
+    \hfill r & \Pi & 0 \cr
+    \hfill \ell-r & 0 & C_{r}}
+    \end{displaymath}
+    \end{itemize}
+    
+Now, we have the final decomposition of $Q_1$:
+\begin{align}
+Q_1 = U_{1}\Sigma_{1}Z_{1}^{T}
+\end{align}
+
+\item If $m - k - \ell < 0$ and $m - k - r > 0$:
+
+\begin{itemize}
+    \item Update the $(r+1)$ to $(m-k)$ columns of $U_{1}$:
+    \begin{displaymath}
+    U_{1} := U_{1}\bordermatrix{ & r & m-k-r \cr
+    \hfill r & I & 0 \cr
+    \hfill m-k-r & 0 & U_{r}}
+    \end{displaymath}
+    
+    \item Update the last $(\ell-r)$ columns of $Z_{1}$:
+    \begin{displaymath}
+    Z_{1} := Z_{1}\bordermatrix{ & r & \ell-r \cr
+    \hfill r & I & 0 \cr
+    \hfill \ell-r & 0 & Z_{r}}
+    \end{displaymath}
+    
+    \item Rewrite $R$ to formulate $\Sigma_{1}$:
     \begin{displaymath}
     \Sigma_{1} = \bordermatrix{ & r & \ell-r\cr
     \hfill r & \Pi & 0 \cr
     \hfill m-k-r & 0 & C_{r}}
     \end{displaymath}
-\end{itemize}
-\end{itemize} 
+    \end{itemize}
+    
 Thus, the final decomposition of $Q_1$ is the following:
 \begin{align}
 Q_1 = U_{1}\Sigma_{1}Z_{1}^{T}
 \end{align}
+\end{itemize}
 
-\item \label{alg:csd7} 
-If $R$ is refined in Step 2(\ref{alg:csd6}), i.e., $Z_{1}$ is modified, 
-we need to update $V$ as well:
+\item Since $Z_{1}$ is modified, we need to update $V$ as well:
 \begin{itemize}
 \item Set $W$: $W = \mbox{diag}(\beta_{r+1}, \cdots, \beta_{\ell})Z_{r}$
 
@@ -508,6 +475,7 @@ W = Q_{w}R_{w}
 \end{align}
 
 \item Update last $(\ell-r)$ columns of $V$:
+                            
 \begin{displaymath}
 V := V\bordermatrix{ & r & \ell-r \cr
 \hfill r & I & 0 \cr
@@ -515,88 +483,72 @@ V := V\bordermatrix{ & r & \ell-r \cr
 \end{displaymath}
 \end{itemize}
 \end{enumerate}
-
-
-\begin{remark} \label{rmk:betarank} 
-{\rm  
-This algorithm extends the one proposed 
-by Van Loan \cite{vanloan85}.    
-
-First, we briefly justify here why we choose $\frac{1}{\sqrt{2}}$ as the threshold. 
-Since $Q_{1}^{T}Q_{1} + Q_{2}^{T}Q_{2} = I$ and 
-$\Vert Q_{1}^{T}Q_{1} + Q_{2}^{T}Q_{2} \Vert_{1} = 1$, 
-the singular values of $Q_{1}$ and $Q_{2}$ lie between 0 and 1. 
-$\frac{1}{\sqrt{2}}$ is the exact midpoint in between 
-($(\frac{1}{\sqrt{2}})^{2} + (\frac{1}{\sqrt{2}})^{2} = 1$) 
-so that it nicely separates large singular values from tiny singular values. 
-This theoretical yet empirical choice is first suggested 
-by Van Loan in \cite{vanloan85} because the midpoint balances 
-the backward error defined in 
-\eqref{backward_error_1} - \eqref{backward_error_5} and performance.
-
-We then explain why $R$ may not be diagonal in finite precision arithmetic.
-
-In Step 2(\ref{alg:csd4}), in exact arithemetic, it follows that:
-\begin{align} \label{eq-remark_t}
-\begin{split}
-T^{T}T &= (Q_{1}Z_{1})^{T}Q_{1}Z_{1} \\
-&= Z_{1}^{T}Q_{1}^{T}Q_{1}Z_{1} \\
-&= Z_{1}^{T}(I - Q_{2}^{T}Q_{2})Z_{1} \\
-&= Z_{1}^{T}(I - Z_{1}\Sigma_{2}^{T}V_{1}^{T}V_{1}\Sigma_{2}Z^{T})Z_{1} \\
-&= Z_{1}^{T}(I - Z_{1}\Sigma_{2}^{T}\Sigma_{2}Z_{1}^{T})Z_{1} \\
-&= I - \Sigma_{2}^{T}\Sigma_{2} \\
-&= \mbox{diag}(1-\beta_{1}^{2}, 1-\beta_{2}^{2}, \cdots, 1-\beta_{\ell}^{2})
-\end{split}
-\end{align}
-Therefore, $QR$ of $T$ leads to diagonal $R$, the reasoning is the follows: by Step 2(\ref{alg:csd5}) $T^{T}T = (U_{1}R)^{T}U_{1}R = R^{T}R$ is diagonal by \eqref{eq-remark_t} and $R$ is upper triangular, thus $R$ must be diagonal. 
-
-But in numerical computation, we cannot ignore the upper-diagonal entries of $R_{22}$ and $\onebytwo{R_{22}}{R_{23}}$ in \eqref{eq-R-block-case1} and \eqref{eq-R-block-case2} respectively.
- 
-Before we proceed, we present the following theorem and its proof.
-
-\begin{theorem}
-Let $X$ be an $m$-by-$n$ matrix whose rank = $min(m, n)$ and
-\begin{align*}
-	X^{T}X = D^{T}D + E,
-\end{align*}
-where $\Vert E \Vert = O(\epsilon)$ and $D = diag(\Vert x_{1} \Vert, \Vert x_{2} \Vert, \cdots, \Vert x_{n} \Vert)$ and $x_{i}$ denotes the $i$-th column of $X$.
-
-Applying the full QR decomposition of $X$, one obtains:
+In summary, we obtain:
 \begin{align}
-	X = QR,
+Q_1 = U_{1}\Sigma_{1}Z_{1}^{T}, \ \ \ \ Q_2 = V_{1}\Sigma_{2}Z_{1}^{T}
 \end{align}
-where $Q$ is an $m$-by-$m$ orthogonal matrix. $R$ is an $m$-by-$n$ upper triangular matrix if $m \geq n$. Otherwise, $R$ is upper trapezoidal. 
+and
+\begin{itemize}
+	\item If $m - k - l \geq 0$:
+	
+	\[
+	\Sigma_{1} = \mbox{diag}(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{\ell}), \  \ \ \
+    \Sigma_{2} = \mbox{diag}(\beta_{1}, \beta_{2}, \cdots, \beta_{\ell})\]
 
-Let $X_{i}$ be the first $i$ columns of $X$, then for $i, j$ where $i < j \leq min(m, n)$, we have
-\begin{align}
-	\left|R(i, j)\right| \leq min\{\Vert x_{j} \Vert, \frac{\Vert E \Vert}{\sigma_{min}(X_{i})} \}.
-\end{align}
-\end{theorem}
+	where $1 \geq \alpha_{1} \geq \alpha_{2} \geq \cdots \geq \alpha_{\ell} \geq 0$ and $0 \leq \beta_{1} \leq \beta_{2} \leq \cdots \leq \beta_{\ell} \leq 1$.
+	
+	\item If $m - k - l < 0$:
+	
+	\[
+	\Sigma_{1} = \bordermatrix{ & m-k & \ell-m+k \cr
+    	\hfill m-k & \Pi_{1} & 0 }, \  \ \ \
+    \Sigma_{2} = \bordermatrix{ & m-k & \ell-m+k   \cr
+    	\hfill m-k & \Pi_{2} & 0\cr
+        \hfill \ell-m+k & 0 & I}
+\]
 
-\begin{proof}
-This theorem is proved by Van Loan in \textbf{Theorem 3.2} \cite[pp.~484--485]{vanloan85}.
-\end{proof}
-
-From this theorem along with the $\frac{1}{\sqrt{2}}$ threshold we justified above, it follows that, for $i = 1, 2, \cdots, r$, 
-\begin{align*}
-	\left|R(i, j)\right| \leq \frac{\epsilon}{\sigma_{min}(T_{i})} \leq \frac{\epsilon}{\sqrt{1-\beta_{r}^{2}}} \leq \sqrt{2}\epsilon.
-\end{align*}
-
-By that, we know that the upper-diagonal block matrices of the first $r$ rows of $R$ in both \eqref{eq-R-block-case1} and \eqref{eq-R-block-case2} are effectively zero matrices. 
-
-On the contrary, we have:
-\begin{align} 
-\left|R_{22}\right| \simeq \sqrt{1-\beta_{r+1}} < \frac{1}{\sqrt{2}} , \\
-\left|\onebytwo{R_{22}}{R_{23}}\right| \simeq \sqrt{1-\beta_{r+1}} < \frac{1}{\sqrt{2}}
-\end{align}
-for \eqref{eq-R-block-case1} and \eqref{eq-R-block-case2}, respectively, both of which suggest that these two submatrices are not well-conditioned and hence their upper-diagonal entries cannot be neglected. 
-}
-
-\end{remark} 
-
-%----------------------------------------
-
-\subsection{Remarks} 
+where $\Pi_{1} = \mbox{diag}(\alpha_{1}, \alpha_{2}, \cdots, \alpha_{m-k}), \Pi_{2} = \mbox{diag}(\beta_{1}, \beta_{2}, \cdots, \beta_{m-k})$, and $1 \geq \alpha_{1} \geq \alpha_{2} \geq \cdots \geq \alpha_{m-k} \geq \alpha_{m-k+1} = \cdots = \alpha_{\ell} = 0$ and $0 \leq \beta_{1} \leq \beta_{2} \leq \cdots \leq \beta_{m-k} \leq \beta_{m-k+1} = \cdots = \beta_{\ell} = 1$.
+	
+\end{itemize}
+        
+\paragraph{Step 4. Post-processing:} 
+\begin{itemize}
+\item $U := U \hat{U}$.
+\item $V := V \hat{V}$.
+\item Formulate $R$ by RQ decomposition: $\hat{Q}^{T}\hat{R} = RQ_{3}$ 
+\item $Q := Q Q_{3}^{T}$
+\end{itemize}
+Then we obtain the desired GSVD \eqref{eq:gsvdbylapack}, i.e., 
+\begin{equation} \label{eq-alg-4}
+A = UCRQ^{T}, \ \ \ \ 
+B = VSRQ^{T}
+\end{equation}
+where $C$ and $S$ have the following structures:
+    \begin{itemize}
+        \item If $m - k - \ell \geq 0$:
+            \begin{displaymath}
+                C = \bordermatrix{ & k & \ell  \cr
+                \hfill k & I & 0 \cr
+                \hfill \ell & 0 & \Sigma_1 \cr
+                m-k-\ell & 0 & 0}, \  \ \ \
+                S = \bordermatrix{ & k & \ell \cr
+                \hfill \ell & 0 & \Sigma_2 \cr
+                \hfill p-\ell & 0 & 0}
+            \end{displaymath}
+                
+        \item If $m - k - \ell < 0$:
+            \begin{displaymath}
+                C = \bordermatrix{ & k & m-k & k+\ell-m  \cr
+                \hfill k & I & 0 & 0\cr
+                \hfill m-k & 0 & \Sigma_1 & 0}, \  \ \ \
+                S = \bordermatrix{ & k & m-k & k+\ell-m \cr
+                \hfill m-k & 0 & \Sigma_2 & 0\cr
+                \hfill k+\ell-m & 0 & 0 & I\cr
+                \hfill p-\ell & 0 & 0 & 0}
+            \end{displaymath}
+    \end{itemize}
+    In either case, $\Sigma_1^2 + \Sigma_2^2 = I$.
+    
 \begin{remark}
 {\rm 
 Michael Stewart \cite{stewart2016rank} describes 
@@ -606,9 +558,9 @@ the partitioning of a GSVD and shows improved numerical reliability.
 } \end{remark} 
 
 \begin{remark}
-{\rm The algorithm presented here is ``similar to'' that introduced by 
+{\rm The algorithm presented here is ``similar to'' ...  
 Golub and Van Loan \cite[pp.~502--503]{golub2013matrix} 
-to compute GSVD using CS decomposition for tall, full-rank matrix pairs.
+introduced an algorithm to compute GSVD using CS decomposition for tall, full-rank matrix pairs.
 
 Assume that $A$ is $m$-by-$n$ and $B$ is $p$-by-$n$ with $m \geq n$ and $p \geq n$, computes an $m$-by-$m$ orthogonal matrix $U$, a $p$-by-$p$ orthogonal matrix $V$, an $n$-by-$n$ nonsingular matrix $X$ and $m$-by-$n$ diagonal matrice $C$, $p$-by-$n$ diagonal matrice $S$ such that $U^{T}AX = C$ and $V^{T}BX = S$.
 \begin{enumerate}[\textit{Step} 1]

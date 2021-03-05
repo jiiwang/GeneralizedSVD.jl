@@ -1,35 +1,36 @@
     \subsection{Accuracy (backward stability)}
     \paragraph{Metric.}
-    We define the following metrics in order to test backward stability:
+    We define the following metrics to test backward stability:
     \begin{align} 
         res_A &= \frac{\Vert U^TAQ - CR\Vert_1}{max(m,n)\Vert A \Vert_1 \epsilon}  \\[0.8em]  \label{backward_error_1}
-        res_b &= \frac{\Vert V^TBQ - SR\Vert_1}{max(p,n)\Vert B \Vert_1 \epsilon}  \\[0.8em]  
-        orth_U &= \frac{\Vert I - U^TU\Vert_1}{m \epsilon} \\[0.8em]  
-        orth_V &= \frac{\Vert I - V^TV\Vert_1}{p \epsilon} \\[0.8em]  
-        orth_Q &= \frac{\Vert I - Q^TQ\Vert_1}{n \epsilon} \label{backward_error_5}
+        res_b &= \frac{\Vert V^TBQ - SR\Vert_1}{max(p,n)\Vert B \Vert_1 \epsilon}  \\[0.8em] 
+        orth_{CS} &= \frac{\Vert C^TC + S^{T}S - I\Vert_1}{max(m,n,p) \epsilon} \\[0.8em] 
+        orth_U &= \frac{\Vert U^TU - I\Vert_1}{m \epsilon} \\[0.8em]  
+        orth_V &= \frac{\Vert V^TV - I\Vert_1}{p \epsilon} \\[0.8em]  
+        orth_Q &= \frac{\Vert Q^TQ - I\Vert_1}{n \epsilon} \label{backward_error_5}
     \end{align}
-    where $\epsilon$ is machine precision of input data type.
+    where $\epsilon$ is the machine precision of input data type.
     
     \subsubsection{Numerical examples of small matrices}
 
-    We also record the stability metrics computed by both versions in Julia in Table \ref{tab:sta_test_1}.
+    For the four examples we illustrated in \ref{def-eg}, we also compute the stability metrics by ``JuliaGSVD'' and Julia 1.3 in Table \ref{tab:sta_test_1}.
         \begin{table}[H]
         \centering
-        \begin{tabular}{||c | c || c | c | c | c | c||} 
+        \begin{tabular}{||c | c || c | c | c | c | c | c||} 
          \hline
-         & Version & $res_A$ & $res_B$ & $orth_U$ & $orth_V$ & $orth_Q$ \\ [0.5ex] 
+         & Version & $res_A$ & $res_B$ & $orth_{CS}$ & $orth_U$ & $orth_V$ & $orth_Q$ \\ [0.5ex] 
          \hline\hline
-         \multirow{2}{5em}{Example 1} & proposed & 0.2956 & 0.5646 & 0.5308 & 1.0417 & 1.1790 \\ 
-         & Julia 1.3 & 0.3599 & 0.4571 & 0.9117 & 1.7083 & 1.3250 \\
+         \multirow{2}{5em}{Example 1} & JuliaGSVD & 0.2956 & 0.5646 & & 0.5308 & 1.0417 & 1.1790 \\ 
+         & Julia 1.3 & 0.3599 & 0.4571 & & 0.9117 & 1.7083 & 1.3250 \\
         \hline\hline
-        \multirow{2}{5em}{Example 2} & proposed & 0.6173 & 0.4098 & 1.5000 & 0.5613 & 1.3998 \\ 
-         & Julia 1.3 & 0.5068 & 0.5689 & 1.4583 & 0.9245 & 1.2483 \\
+        \multirow{2}{5em}{Example 2} & JuliaGSVD & 0.6173 & 0.4098 & & 1.5000 & 0.5613 & 1.3998 \\ 
+         & Julia 1.3 & 0.5068 & 0.5689 & & 1.4583 & 0.9245 & 1.2483 \\
         \hline\hline
-        \multirow{2}{5em}{Example 3} & proposed & 0.4181 & 0.8941 & 0.7500 & 1.3940 & 1.3277 \\ 
-         & Julia 1.3 & 0.3536 & 0.5938 & 1.4791 & 1.9540 & 1.1062\\
+        \multirow{2}{5em}{Example 3} & JuliaGSVD & 0.4181 & 0.8941 & & 0.7500 & 1.3940 & 1.3277 \\ 
+         & Julia 1.3 & 0.3536 & 0.5938 & & 1.4791 & 1.9540 & 1.1062\\
         \hline\hline
-        \multirow{2}{5em}{Example 4} & proposed & 0.3600 & 0.5900 & 0.6558 & 0.5385 & 1.4362 \\ 
-         & Julia 1.3 & 0.4449 & 0.3056 & 1.3225 & 0.7205 & 1.1814 \\
+        \multirow{2}{5em}{Example 4} & JuliaGSVD & 0.3600 & 0.5900 & & 0.6558 & 0.5385 & 1.4362 \\ 
+         & Julia 1.3 & 0.4449 & 0.3056 & & 1.3225 & 0.7205 & 1.1814 \\
         \hline\hline
         \end{tabular}
         \caption{Stability profiling for small matrices}
@@ -45,29 +46,29 @@
     
     \begin{table}[!htbp]
         \centering
-        \begin{tabular}{||c | c | c | c | c || c | c | c | c | c||} 
+        \begin{tabular}{||c | c | c | c | c || c | c | c | c | c | c||} 
          \hline
-         & $m$ & $p$ & $n$ & $k+l$ & $res_A$ & $res_B$ & $orth_U$ & $orth_V$ & $orth_Q$ \\ [0.5ex] 
+         & $m$ & $p$ & $n$ & $k+l$ & $res_A$ & $res_B$ & $orth_{CS}$ & $orth_U$ & $orth_V$ & $orth_Q$ \\ [0.5ex] 
          \hline\hline
-         \multirow{4}{5em}{$m \geq n$ \\ $p \geq n$} & 60 & 50 & 40 & 40 & 0.1607 & 0.2710 & 0.7924 & 1.0079 & 0.4609 \\
-         & 300 & 250 & 200 & 200 & 0.0369 & 0.0484 & 0.5041 & 0.6408 & 0.3202 \\
-         & 900 & 750 & 600 & 600 & 0.0181 & 0.0193 & 0.3952 & 0.5157 & 0.2307 \\
-         & 1500 & 1250 & 1000 & 1000 & 0.0120 & 0.0142 & 0.3702 & 0.4129 & 0.1847 \\
+         \multirow{4}{5em}{$m \geq n$ \\ $p \geq n$} & 60 & 50 & 40 & 40 & 0.1607 & 0.2710 & & 0.7924 & 1.0079 & 0.4609 \\
+         & 300 & 250 & 200 & 200 & 0.0369 & 0.0484 & & 0.5041 & 0.6408 & 0.3202 \\
+         & 900 & 750 & 600 & 600 & 0.0181 & 0.0193 & & 0.3952 & 0.5157 & 0.2307 \\
+         & 1500 & 1250 & 1000 & 1000 & 0.0120 & 0.0142 & & 0.3702 & 0.4129 & 0.1847 \\
         \hline\hline
-         \multirow{4}{5em}{$m \geq n > p$} & 60 & 40 & 50 & 50 & 0.1529 & 0.2261 & 0.7653 & 1.1960 & 0.6074 \\
-         & 300 & 200 & 250 & 250 & 0.0412 & 0.0620 & 0.5559 & 0.7492 & 0.3150 \\
-         & 900 & 600 & 750 & 750 & 0.0169 & 0.0232 & 0.4174 & 0.5250 & 0.2411 \\
-         & 1500 & 1000 & 1250 & 1250 & 0.0122 & 0.0160 & 0.3726 & 0.4723 & 0.2080 \\
+         \multirow{4}{5em}{$m \geq n > p$} & 60 & 40 & 50 & 50 & 0.1529 & 0.2261 & & 0.7653 & 1.1960 & 0.6074 \\
+         & 300 & 200 & 250 & 250 & 0.0412 & 0.0620 & & 0.5559 & 0.7492 & 0.3150 \\
+         & 900 & 600 & 750 & 750 & 0.0169 & 0.0232 & & 0.4174 & 0.5250 & 0.2411 \\
+         & 1500 & 1000 & 1250 & 1250 & 0.0122 & 0.0160 & & 0.3726 & 0.4723 & 0.2080 \\
          \hline\hline 
-         \multirow{4}{5em}{$p \geq n > m$} & 40 & 60 & 50 & 50 & 0.1672 & 0.2028 & 1.1293 & 0.9373  & 0.4217\\
-         & 200 & 300 & 250 & 250 & 0.0595 & 0.0530 & 0.7064 & 0.5855 &  0.3065 \\
-         & 600 & 900 & 750 & 750 & 0.0231 & 0.0231 & 0.5178 & 0.4186 & 0.2112 \\
-         & 1000 & 1500 & 1250 & 1250 & 0.0164 & 0.0153 & 0.4543 & 0.3673 & 0.1778 \\
+         \multirow{4}{5em}{$p \geq n > m$} & 40 & 60 & 50 & 50 & 0.1672 & 0.2028 & & 1.1293 & 0.9373  & 0.4217\\
+         & 200 & 300 & 250 & 250 & 0.0595 & 0.0530 & & 0.7064 & 0.5855 &  0.3065 \\
+         & 600 & 900 & 750 & 750 & 0.0231 & 0.0231 & & 0.5178 & 0.4186 & 0.2112 \\
+         & 1000 & 1500 & 1250 & 1250 & 0.0164 & 0.0153 & & 0.4543 & 0.3673 & 0.1778 \\
          \hline \hline
-         \multirow{4}{5em}{$n > m$\\ $n > p$ } & 20 & 30 & 60 & 50 & 0.0483 & 0.0464 & 0.5472 & 0.5358 & 0.4547\\
-         & 200 & 300 & 600 & 500 & 0.0120 & 0.0105 & 0.3036 & 0.3030 & 0.2374 \\
-         & 400 & 600 & 1200 & 1000 & 0.0081 & 0.0072 & 0.2888 & 0.2813 & 0.2315\\
-         & 1000 & 1500 & 3000 & 2500 & 0.0053 & 0.0047 & 0.2700 & 0.2605 & 0.2410 \\
+         \multirow{4}{5em}{$n > m$\\ $n > p$ } & 20 & 30 & 60 & 50 & 0.0483 & 0.0464 & & 0.5472 & 0.5358 & 0.4547\\
+         & 200 & 300 & 600 & 500 & 0.0120 & 0.0105 & & 0.3036 & 0.3030 & 0.2374 \\
+         & 400 & 600 & 1200 & 1000 & 0.0081 & 0.0072 & & 0.2888 & 0.2813 & 0.2315\\
+         & 1000 & 1500 & 3000 & 2500 & 0.0053 & 0.0047 & & 0.2700 & 0.2605 & 0.2410 \\
          \hline
         \end{tabular}
         \caption{Stability profiling for random dense matrices}

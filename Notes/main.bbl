@@ -47,12 +47,6 @@ Zhaojun Bai and Hongyuan Zha.
   singular value decomposition.
 \newblock {\em SIAM Journal on Scientific Computing}, 14(4):1007--1012, 1993.
 
-\bibitem{stewart2016rank}
-Michael Stewart.
-\newblock Rank decisions in matrix quotient decompositions.
-\newblock {\em SIAM Journal on Matrix Analysis and Applications},
-  37(4):1729--1746, 2016.
-
 \bibitem{sutton2009computing}
 Brian~D Sutton.
 \newblock Computing the complete cs decomposition.
@@ -62,6 +56,12 @@ Brian~D Sutton.
 Charles Van~Loan.
 \newblock Computing the {CS} and the generalized singular value decompositions.
 \newblock {\em Numerische Mathematik}, 46(4):479--491, 1985.
+
+\bibitem{stewart2016rank}
+Michael Stewart.
+\newblock Rank decisions in matrix quotient decompositions.
+\newblock {\em SIAM Journal on Matrix Analysis and Applications},
+  37(4):1729--1746, 2016.
 
 \bibitem{alter2003generalized}
 Orly Alter, Patrick~O Brown, and David Botstein.
