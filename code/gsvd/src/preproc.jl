@@ -1,10 +1,19 @@
 using LinearAlgebra
 
+# function preproc(A::AbstractMatrix{T}, B::AbstractMatrix{T})
+#     AA = similar(A, _qreltype(T), size(A))
+#     copyto!(AA, A)
+#     BB = similar(B, _qreltype(T), size(B))
+#     copyto!(BB, B)
+#     preproc!(AA, BB)
+# end
+
 function preproc(A, B)
     m, n = size(A)
     p = size(B)[1]
     tola = max(m,n)*opnorm(A, 1)*eps(Float64)
     tolb = max(p,n)*opnorm(B, 1)*eps(Float64)
+    A_ = deepcopy(A)
 
     # Step 1: QR decomposition with
     # col pivoting of B
@@ -12,7 +21,6 @@ function preproc(A, B)
     # B * P = V * (B11  B12) l
     #             ( 0    0 ) p-l
     #
-    # println("------QR with col pivoting of B------")
     F1 = qr!(B, Val(true))
     if p > n
         V = F1.Q*Matrix(1.0I, p, p)
@@ -20,9 +28,12 @@ function preproc(A, B)
         V = Matrix(F1.Q)
     end
 
-    # Update A
+    # Step 2: Update A
+    # A = A*P
     A = A*F1.P
-    # Update Q
+
+    # Step 3: Set Q
+    # Q = I_n * P
     Q = F1.P
 
     # Determine the numerical rank of B
@@ -66,7 +77,6 @@ function preproc(A, B)
                 B[i, j] = 0.0
             end
         end
-
     end
 
     # Step 3: QR decomposition with
@@ -77,7 +87,7 @@ function preproc(A, B)
     #       A11 * P = U * (T11  T12)
     #                     ( 0    0 )
     # println("------QR with col pivoting of A11------")
-    @views F2 = qr!(A[:,1:n-l], Val(true))
+    F2 = @views qr!(A[:,1:n-l], Val(true))
 
     # Determine the numerical rank of A11
     k = 0
@@ -87,7 +97,6 @@ function preproc(A, B)
         end
     end
 
-    # println("k: ", k)
 
     if m > n-l
         U = F2.Q*Matrix(1.0I, m, m)
@@ -95,21 +104,21 @@ function preproc(A, B)
         U = Matrix(F2.Q)
     end
 
-    @views A[1:m, n-l+1:n] = U' * A[1:m, n-l+1:n]
+    A[1:m, n-l+1:n] = @views U' * A[1:m, n-l+1:n]
 
-    @views Q[:,1:n-l] = Q[:,1:n-l]*F2.P
+    Q[:,1:n-l] = @views Q[:,1:n-l]*F2.P
 
     # Clean up A to make it upper triangular
-    for j = 1:k - 1
-        for i = j + 1:k
-            A[i, j] = 0.0
+    for j = 1:k-1
+        for i = j+1:k
+            A[i,j] = 0.0
         end
     end
 
     if m > k
         for i = k+1:m
             for j = 1:n-l
-                A[i, j] = 0.0
+                A[i,j] = 0.0
             end
         end
     end
@@ -121,14 +130,18 @@ function preproc(A, B)
         A[1:k,1:n-l], tau2 = @views LAPACK.gerqf!(A[1:k,1:n-l])
         @views LAPACK.ormrq!('R', 'T', A[1:k,1:n-l], tau2, Q[1:n,1:n-l])
         # Clean up A
+        for i = 1:k
+            for j = 1:n-l-k
+                A[i,j] = 0.0
+            end
+        end
+
         for j = n-l-k+1:n-l
             for i = j-n+l+k+1:k
                 A[i, j] = 0.0
             end
         end
     end
-
-    # println("res_a = ", opnorm(U*A*Q' - A_, 1)/(max(m,n)*opnorm(A_, 1)*eps(Float64)))
 
     # Step 5: QR decomposition of A[k+1:m,n-l+1:n]
     if m > k

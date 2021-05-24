@@ -1,42 +1,35 @@
-\documentclass{article}
-\usepackage[english]{babel}
-\usepackage[utf8x]{inputenc}
-\usepackage{amsmath, fullpage}
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+
+%\usepackage[english]{babel}
+%\usepackage[utf8x]{inputenc}
+
+\usepackage{amsmath,fullpage}
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{xcolor}
 \usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{ulem}   % for using strikethrough ``\sout'' 
+
+
+%\usepackage{mathtools}
 %\usepackage{minted}
 %\usepackage{array}
-\usepackage{graphicx}
-\usepackage{indentfirst}
-\usepackage{multirow}
+%\usepackage{indentfirst}
 \usepackage{makecell}
-\usepackage{subfiles} 
+%\usepackage{subfiles} 
 %\usepackage{datetime2}
-\usepackage[autoload=false, theme=default]{jlcode}
+
+%\usepackage[autoload=false, theme=default]{jlcode}
+%\usepackage{jlcode}
+
 \usepackage{float}
 \usepackage{hyperref}
-%\usepackage{mathtools}
-
-%\definecolor{bg}{rgb}{0.95,0.95,0.95}
-
-%\renewcommand{\arraystretch}{1.45}
-%\renewcommand{\baselinestretch}{1.25}
-%\newcommand\firsteq{\mathrel{\overset{\makebox[0pt]{\mbox{\normalfont\tiny\sffamily RQ}}}{=}}}
-%\newcommand\seceq{\mathrel{\overset{\makebox[0pt]{\mbox{\normalfont\tiny\sffamily MUL}}}{=}}}
 
 \numberwithin{equation}{section}
-
-% \theoremstyle{remark}
-% \newtheorem*{remark}{Remark}
-
-\newcommand{\Red}{\textcolor{red}}
-\newcommand{\Blue}{\textcolor{blue}}
-\newcommand{\black}{\textcolor{magenta}}
-\newcommand{\Green}{\textcolor{cyan}}
-
 \newtheorem{definition}{Definition}[section]
 \newtheorem{assumption}{Assumption}[section]
 \newtheorem{notation}{Notation}[section]
@@ -68,6 +61,11 @@
 \DeclareMathOperator{\diag}{diag}
 %\DeclarePairedDelimiterX{\norm}[1]{\lVert}{\rVert}{#1}
 
+\newcommand{\Red}{\textcolor{red}}
+\newcommand{\Blue}{\textcolor{blue}}
+\newcommand{\black}{\textcolor{magenta}}
+\newcommand{\Green}{\textcolor{cyan}}
+
 %--------------------------------------------------------
 
 \title{GSVD in Julia}
@@ -75,6 +73,8 @@
 Prepared by Ji Wang ({\tt jiiwang@ucdavis.edu})
 }
 \date{\today}
+
+%-----------------------------
 
 \begin{document}
 \maketitle
@@ -84,30 +84,25 @@ Prepared by Ji Wang ({\tt jiiwang@ucdavis.edu})
 %\listoftables
 %\lstlistoflistings
 
-\newpage
-\section{Definitions}
-\subfile{sections/def}
-\newpage
+%--------------
 
-\section{Algorithms}
-\subfile{sections/alg}
 \newpage
+\input{sections/def}
 
-\section{Software}
-\subfile{sections/sw}    
 \newpage
+\input{sections/alg}
 
-\section{Testing and Performance}
-\subfile{sections/test}
 \newpage
+\input{sections/sw}    
 
-\section{Applications}
-\subfile{sections/app}
 \newpage
+\input{sections/test}
 
-%-------------
+\newpage
+\input{sections/app}
 
-\bibliographystyle{unsrt} 
+\newpage
+\bibliographystyle{plain} 
 \bibliography{ref}
 
 \end{document}

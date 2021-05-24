@@ -1,4 +1,5 @@
 ENV["MPLBACKEND"]="qt5agg";
+include("../src/gsvd.jl")
 using PyPlot
 pygui(true)
 using DelimitedFiles
@@ -10,6 +11,7 @@ function jmtest()
     dims = zeros(maxI)
     tjulia = zeros(maxI)
     tmatlab = zeros(maxI)
+    # pwd() to check current working directory
     # cd("/Users/hytonwons/Study/Julia-Workspace/GSVD_julia")
     timeimport = readdlm("gsvd/MATLAB_timing.csv", ',', Float64)
     for i=1:maxI

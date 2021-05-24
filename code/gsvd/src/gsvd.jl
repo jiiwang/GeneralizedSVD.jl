@@ -5,6 +5,7 @@ using LinearAlgebra
 
 import Base.show
 include("preproc.jl")
+include("../../safediag/src/safeDiag.jl")
 
 struct GSVD{T,S} <: Factorization{T}
     U::S
@@ -54,7 +55,9 @@ end
 This function computes the generalized singular value
 decomposition (GSVD) of an m-by-n matrix A and p-by-n
 
+```math
      A = U * D1 * R * Q',    B = V * D2 * R * Q'
+```
 
  where U, V and Q are orthogonal matrices. Let k+l be the effective numerical rank of the matrix (A',B')',
  then R is a (k+l)-by-n matrix of structure [0 R0] where R0 is (k+l)-by-(k+l) and is nonsingular upper triangular matrix,
@@ -120,7 +123,6 @@ function gsvd(A, B)
     # U, V, Q, k, l, A, B = dggsvp3!(A, B)
     # ans1 = @timed dggsvp3!(A, B)
     U, V, Q, k, l, A, B = preproc(A, B)
-    # orthog_preproc(U,V,Q)
 
     # Step 2:
     # QR decomposition of A23 and B13
@@ -137,24 +139,26 @@ function gsvd(A, B)
     # Quick exit when A23 doesn't exist
     if size(A23)[1] <= 0
         R = [A[1:k,:];B[1:l,:]]
-        if option == 0
-            alpha = fill(0.0, k+l)
-            for i = 1:m
-                alpha[i] = 1.0
-            end
-            beta = fill(0.0, k+l)
-            for i = m+1:k+l
-                beta[i] = 1.0
-            end
-            return U, V, Q, alpha, beta, R, k, l
-        else
-            CS = [Matrix{Float64}(I, k+l, k+l);zeros(Float64, m+p-k-l, k+l)]
-            C = @view CS[1:m, :]
-            S = @view CS[m+1:m+p, :]
-            # orthog_overall(U, V, Q)
-            return U, V, Q, C, S, R, k, l
-        end
+        # if option == 0
+        #     alpha = fill(0.0, k+l)
+        #     for i = 1:m
+        #         alpha[i] = 1.0
+        #     end
+        #     beta = fill(0.0, k+l)
+        #     for i = m+1:k+l
+        #         beta[i] = 1.0
+        #     end
+        #     return U, V, Q, alpha, beta, R, k, l
+        # else
+        CS = [Matrix{Float64}(I, k+l, k+l);zeros(Float64, m+p-k-l, k+l)]
+        C = CS[1:m, :]
+        S = CS[m+1:m+p, :]
+        # orthog_overall(U, V, Q)
+        return GSVD(U, V, Q, C, S, k, l, R)
+        # end
     end
+
+    # println(k, " ", l)
 
     # R1 = deepcopy(A23)
     # R2 = deepcopy(B13)
@@ -172,7 +176,7 @@ function gsvd(A, B)
 
     # Step 3:
     # CSD of Q1, Q2
-    U1, V1, Z1, C1, S1 = csd(Q1, Q2, 1)
+    U1, V1, Z1, C1, S1 = safeDiag(Q1, Q2)
     # if option == 0
     #     alpha = fill(0.0, k+l)
     #     for i = 1:k

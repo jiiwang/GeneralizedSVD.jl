@@ -65,7 +65,17 @@
 #     return P2
 # end
 #
+
 include("generatebyrank.jl")
+include("../src/preproc.jl")
+include("../src/preproc_wrapper.jl")
+
+function test(m, p, n)
+    A = randn(m, n)
+    B = randn(p, n)
+    A1 = deepcopy(A)
+    B1 = deepcopy(B)
+end
 
 function test1()
     A1 = [1.0 2 1 0;2 3 1 1;3 4 1 2;4 5 1 3;5 6 1 4]
@@ -108,13 +118,13 @@ function test2()
     return preproc(A,B)
 end
 
-function test3(m, n, p)
+function test3(m, p, n)
     A = randn(m, n)
     B = randn(p, n)
-    A1 = copy(A)
-    B1 = copy(B)
-    A2 = copy(A)
-    B2 = copy(B)
+    A1 = deepcopy(A)
+    B1 = deepcopy(B)
+    A2 = deepcopy(A)
+    B2 = deepcopy(B)
     U1, V1, Q1, k1, l1, A1, B1 = @time dggsvp3!(A1, B1)
     println("k: ", k1)
     println("l: ", l1)
@@ -135,6 +145,8 @@ function test3(m, n, p)
     println("orthog_u = ", opnorm(U2'*U2-I, 1)/(m*e))
     println("orthog_v = ", opnorm(V2'*V2-I, 1)/(p*e))
     println("orthog_q = ", opnorm(Q2'*Q2-I, 1)/(n*e))
+
+    return k2, l2
 end
 
 
@@ -184,19 +196,13 @@ function preproctest(m, p, n)
     show()
 end
 
-
-function test_profiling(m, n, p, k, l)
-
-
-end
-
 # test timing of preproc
 # m = 300
 # n = 300
 # p = 200
 # k = 80
 # l = 200
-function test_profiling1()
+function test_profiling()
     A11 = generator(300, 100, 80);
     A12 = randn(300, 200);
     A = [A11 A12];

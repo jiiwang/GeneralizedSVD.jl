@@ -1,3 +1,0 @@
-function comparativeAnalyser()
-
-end

@@ -1,5 +1,12 @@
 \begin{thebibliography}{10}
 
+\bibitem{alter2003generalized}
+Orly Alter, Patrick~O Brown, and David Botstein.
+\newblock Generalized singular value decomposition for comparative analysis of
+  genome-scale expression data sets of two different organisms.
+\newblock {\em Proceedings of the National Academy of Sciences},
+  100(6):3351--3356, 2003.
+
 \bibitem{anderson1999lapack}
 Edward Anderson, Zhaojun Bai, Christian Bischof, L~Susan Blackford, James
   Demmel, Jack Dongarra, Jeremy Du~Croz, Anne Greenbaum, Sven Hammarling, Alan
@@ -7,21 +14,123 @@ Edward Anderson, Zhaojun Bai, Christian Bischof, L~Susan Blackford, James
 \newblock {\em LAPACK Users' guide}.
 \newblock SIAM, 1999.
 
-\bibitem{edelman2019gsvd}
-Alan Edelman and Yuyang Wang.
-\newblock The {GSVD}: Where are the ellipses?, matrix trigonometry, and more.
-\newblock {\em arXiv preprint arXiv:1901.00485}, 2019.
-
-\bibitem{paige1986computing}
-CC~Paige.
-\newblock Computing the generalized singular value decomposition.
-\newblock {\em SIAM Journal on Scientific and Statistical Computing},
-  7(4):1126--1146, 1986.
+\bibitem{bai1992csd}
+Zhaojun Bai.
+\newblock {CSD, GSVD}, their applications and computations.
+\newblock {\em IMA Preprint Series {\#} 958}, 1992.
 
 \bibitem{bai1993computing}
 Zhaojun Bai and James~W Demmel.
 \newblock Computing the generalized singular value decomposition.
 \newblock {\em SIAM Journal on Scientific Computing}, 14(6):1464--1486, 1993.
+
+\bibitem{bai1993new}
+Zhaojun Bai and Hongyuan Zha.
+\newblock A new preprocessing algorithm for the computation of the generalized
+  singular value decomposition.
+\newblock {\em SIAM Journal on Scientific Computing}, 14(4):1007--1012, 1993.
+
+\bibitem{bezanson2018julia}
+Jeff Bezanson, Jiahao Chen, Benjamin Chung, Stefan Karpinski, Viral~B Shah, Jan
+  Vitek, and Lionel Zoubritzky.
+\newblock Julia: Dynamism and performance reconciled by design.
+\newblock {\em Proceedings of the ACM on Programming Languages},
+  2(OOPSLA):1--23, 2018.
+
+\bibitem{bezanson2017julia}
+Jeff Bezanson, Alan Edelman, Stefan Karpinski, and Viral~B Shah.
+\newblock Julia: A fresh approach to numerical computing.
+\newblock {\em SIAM review}, 59(1):65--98, 2017.
+
+\bibitem{bezanson2012julia}
+Jeff Bezanson, Stefan Karpinski, Viral~B Shah, and Alan Edelman.
+\newblock Julia: A fast dynamic language for technical computing.
+\newblock {\em arXiv preprint arXiv:1209.5145}, 2012.
+
+\bibitem{bhuyan2004application}
+K~Bhuyan, SB~Singh, and PK~Bhuyan.
+\newblock Application of generalized singular value decomposition to
+  ionospheric tomography.
+\newblock {\em Annales Geophysicae}, 22(10):3437–3444, 2004.
+
+\bibitem{bradley2019gsvd}
+Matthew~W Bradley, Katherine~A Aiello, Sri~Priya Ponnapalli, Heidi~A Hanson,
+  and Orly Alter.
+\newblock Gsvd-and tensor gsvd-uncovered patterns of dna copy-number
+  alterations predict adenocarcinomas survival in general and in response to
+  platinum.
+\newblock {\em APL bioengineering}, 3(3):036104, 2019.
+
+\bibitem{davis2015suitesparse}
+Timothy~A Davis et~al.
+\newblock Suitesparse: A suite of sparse matrix software, 2015.
+
+\bibitem{de1988mathematical}
+BL~De~Moor.
+\newblock Mathematical concepts and techniques for modelling of static and
+  dynamic systems.
+\newblock {\em Ph. D. dissertation, Dep. of Elect. Eng., Katholieke Univ.},
+  1988.
+
+\bibitem{dykes2014simplified}
+Laura Dykes and Lothar Reichel.
+\newblock Simplified {GSVD} computations for the solution of linear discrete
+  ill-posed problems.
+\newblock {\em Journal of Computational and Applied Mathematics}, 255:15--27,
+  2014.
+
+\bibitem{edelman2019julia}
+Alan Edelman.
+\newblock Julia: A fresh approach to technical computing and data processing.
+\newblock Technical report, MASSACHUSETTS INST OF TECH CAMBRIDGE CAMBRIDGE,
+  2019.
+
+\bibitem{edelman2019gsvd}
+Alan Edelman and Yuyang Wang.
+\newblock The {GSVD}: Where are the ellipses?, matrix trigonometry, and more.
+\newblock {\em arXiv preprint arXiv:1901.00485}, 2019.
+
+\bibitem{golub2013matrix}
+Gene~H. Golub and Charles~F. Van~Loan.
+\newblock {\em Matrix Computations 4th Edition The Johns Hopkins University
+  Press}.
+\newblock Johns Hopkins University Press, USA, 2013.
+
+\bibitem{hansen1989regularization}
+Per~Christian Hansen.
+\newblock Regularization, gsvd and truncatedgsvd.
+\newblock {\em BIT numerical mathematics}, 29(3):491--504, 1989.
+
+\bibitem{hastie1999imputing}
+Trevor Hastie, Robert Tibshirani, Gavin Sherlock, Michael Eisen, Patrick Brown,
+  and David Botstein.
+\newblock Imputing missing data for gene expression arrays.
+\newblock 1999.
+
+\bibitem{howland2003structure}
+Peg Howland, Moongu Jeon, and Haesun Park.
+\newblock Structure preserving dimension reduction for clustered text data
+  based on the generalized singular value decomposition.
+\newblock {\em SIAM Journal on Matrix Analysis and Applications},
+  25(1):165--179, 2003.
+
+\bibitem{ihaka1996r}
+Ross Ihaka and Robert Gentleman.
+\newblock R: a language for data analysis and graphics.
+\newblock {\em Journal of computational and graphical statistics},
+  5(3):299--314, 1996.
+
+\bibitem{kaagstrom1984generalized}
+Bo~K{\aa}gstr{\"o}m.
+\newblock The generalized singular value decomposition and the general
+  ({$\mathbf{A-\lambda B}$})-problem.
+\newblock {\em BIT Numerical Mathematics}, 24(4):568--583, 1984.
+
+\bibitem{kim2005dimension}
+Hyunsoo Kim, Peg Howland, and Haesun Park.
+\newblock Dimension reduction in text classification with support vector
+  machines.
+\newblock {\em Journal of machine learning research}, 6(Jan):37--53, 2005.
 
 \bibitem{MATLAB:2019}
 MATLAB.
@@ -30,45 +139,34 @@ MATLAB.
 \newblock Available at
   \url{https://www.mathworks.com/help/matlab/ref/gsvd.html}.
 
-\bibitem{golub2013matrix}
-Gene~H. Golub and Charles~F. Van~Loan.
-\newblock {\em Matrix Computations 4th Edition The Johns Hopkins University
-  Press}.
-\newblock Johns Hopkins University Press, USA, 2013.
+\bibitem{MATLAB}
+MATLAB.
+\newblock Matlab, 2019.
+\newblock Available at \url{https://www.mathworks.com/}.
 
-\bibitem{van1976generalizing}
-Charles~F Van~Loan.
-\newblock Generalizing the singular value decomposition.
-\newblock {\em SIAM Journal on Numerical Analysis}, 13(1):76--83, 1976.
+\bibitem{10.5555/541529}
+James~M. Ortega.
+\newblock {\em Introduction to FORTRAN 90 for Scientific Computing}.
+\newblock Oxford University Press, Inc., USA, 1st edition, 1994.
 
-\bibitem{bai1993new}
-Zhaojun Bai and Hongyuan Zha.
-\newblock A new preprocessing algorithm for the computation of the generalized
-  singular value decomposition.
-\newblock {\em SIAM Journal on Scientific Computing}, 14(4):1007--1012, 1993.
+\bibitem{paige1986computing}
+CC~Paige.
+\newblock Computing the generalized singular value decomposition.
+\newblock {\em SIAM Journal on Scientific and Statistical Computing},
+  7(4):1126--1146, 1986.
 
-\bibitem{sutton2009computing}
-Brian~D Sutton.
-\newblock Computing the complete cs decomposition.
-\newblock {\em Numerical Algorithms}, 50(1):33--65, 2009.
+\bibitem{perkel2019julia}
+Jeffrey~M Perkel.
+\newblock Julia: come for the syntax, stay for the speed.
+\newblock {\em Nature}, 572(7768):141--143, 2019.
 
-\bibitem{vanloan85}
-Charles Van~Loan.
-\newblock Computing the {CS} and the generalized singular value decompositions.
-\newblock {\em Numerische Mathematik}, 46(4):479--491, 1985.
-
-\bibitem{stewart2016rank}
-Michael Stewart.
-\newblock Rank decisions in matrix quotient decompositions.
-\newblock {\em SIAM Journal on Matrix Analysis and Applications},
-  37(4):1729--1746, 2016.
-
-\bibitem{alter2003generalized}
-Orly Alter, Patrick~O Brown, and David Botstein.
-\newblock Generalized singular value decomposition for comparative analysis of
-  genome-scale expression data sets of two different organisms.
-\newblock {\em Proceedings of the National Academy of Sciences},
-  100(6):3351--3356, 2003.
+\bibitem{ponnapalli2020retrospective}
+Sri~Priya Ponnapalli, Matthew~W Bradley, Karen Devine, Jay Bowen, Sara~E
+  Coppens, Kristen~M Leraas, Brett~A Milash, Fuqiang Li, Huijuan Luo, Shi Qiu,
+  et~al.
+\newblock Retrospective clinical trial experimentally validates glioblastoma
+  genome-wide pattern of dna copy-number alterations predictor of survival.
+\newblock {\em APL bioengineering}, 4(2):026106, 2020.
 
 \bibitem{sankaranarayanan2015tensor}
 Preethi Sankaranarayanan, Theodore~E Schomay, Katherine~A Aiello, and Orly
@@ -79,35 +177,44 @@ Preethi Sankaranarayanan, Theodore~E Schomay, Katherine~A Aiello, and Orly
   predicting ovarian cancer survival.
 \newblock {\em PloS one}, 10(4):e0121396, 2015.
 
-\bibitem{hansen1989regularization}
-Per~Christian Hansen.
-\newblock Regularization, gsvd and truncatedgsvd.
-\newblock {\em BIT numerical mathematics}, 29(3):491--504, 1989.
+\bibitem{schena1995quantitative}
+Mark Schena, Dari Shalon, Ronald~W Davis, and Patrick~O Brown.
+\newblock Quantitative monitoring of gene expression patterns with a
+  complementary dna microarray.
+\newblock {\em Science}, 270(5235):467--470, 1995.
 
-\bibitem{dykes2014simplified}
-Laura Dykes and Lothar Reichel.
-\newblock Simplified {GSVD} computations for the solution of linear discrete
-  ill-posed problems.
-\newblock {\em Journal of Computational and Applied Mathematics}, 255:15--27,
-  2014.
+\bibitem{Sengupta2019}
+Avik Sengupta.
+\newblock {\em Julia High Performance}.
+\newblock Packt, USA, 2nd edition, 2019.
 
-\bibitem{wei2016tikhonov}
-Yimin Wei, Pengpeng Xie, and Liping Zhang.
-\newblock Tikhonov regularization and randomized {GSVD}.
+\bibitem{stewart2016rank}
+Michael Stewart.
+\newblock Rank decisions in matrix quotient decompositions.
 \newblock {\em SIAM Journal on Matrix Analysis and Applications},
-  37(2):649--675, 2016.
+  37(4):1729--1746, 2016.
 
-\bibitem{bhuyan2004application}
-K~Bhuyan, SB~Singh, and PK~Bhuyan.
-\newblock Application of generalized singular value decomposition to
-  ionospheric tomography.
-\newblock {\em Annales Geophysicae}, 22(10):3437–3444, 2004.
+\bibitem{sutton2009computing}
+Brian~D Sutton.
+\newblock Computing the complete cs decomposition.
+\newblock {\em Numerical Algorithms}, 50(1):33--65, 2009.
 
-\bibitem{kaagstrom1984generalized}
-Bo~K{\aa}gstr{\"o}m.
-\newblock The generalized singular value decomposition and the general
-  ({$\mathbf{A-\lambda B}$})-problem.
-\newblock {\em BIT Numerical Mathematics}, 24(4):568--583, 1984.
+\bibitem{tavazoie1999systematic}
+Saeed Tavazoie, Jason~D Hughes, Michael~J Campbell, Raymond~J Cho, and George~M
+  Church.
+\newblock Systematic determination of genetic network architecture.
+\newblock {\em Nature genetics}, 22(3):281--285, 1999.
+
+\bibitem{troyanskaya2001missing}
+Olga Troyanskaya, Michael Cantor, Gavin Sherlock, Pat Brown, Trevor Hastie,
+  Robert Tibshirani, David Botstein, and Russ~B Altman.
+\newblock Missing value estimation methods for dna microarrays.
+\newblock {\em Bioinformatics}, 17(6):520--525, 2001.
+
+\bibitem{van2011numpy}
+Stefan Van Der~Walt, S~Chris Colbert, and Gael Varoquaux.
+\newblock The numpy array: a structure for efficient numerical computation.
+\newblock {\em Computing in science \& engineering}, 13(2):22--30, 2011.
 
 \bibitem{van1989analysis}
 Sabine Van~Huffel and Joos Vandewalle.
@@ -117,35 +224,30 @@ Sabine Van~Huffel and Joos Vandewalle.
 \newblock {\em SIAM Journal on Matrix Analysis and Applications}, 10(3):294,
   1989.
 
-\bibitem{bai1992csd}
-Zhaojun Bai.
-\newblock {CSD, GSVD}, their applications and computations.
-\newblock {\em IMA Preprint Series {\#} 958}, 1992.
+\bibitem{vanloan85}
+Charles Van~Loan.
+\newblock Computing the {CS} and the generalized singular value decompositions.
+\newblock {\em Numerische Mathematik}, 46(4):479--491, 1985.
 
-\bibitem{de1988mathematical}
-BL~De~Moor.
-\newblock Mathematical concepts and techniques for modelling of static and
-  dynamic systems.
-\newblock {\em Ph. D. dissertation, Dep. of Elect. Eng., Katholieke Univ.},
-  1988.
+\bibitem{van1976generalizing}
+Charles~F Van~Loan.
+\newblock Generalizing the singular value decomposition.
+\newblock {\em SIAM Journal on Numerical Analysis}, 13(1):76--83, 1976.
 
-\bibitem{howland2003structure}
-Peg Howland, Moongu Jeon, and Haesun Park.
-\newblock Structure preserving dimension reduction for clustered text data
-  based on the generalized singular value decomposition.
+\bibitem{wei2016tikhonov}
+Yimin Wei, Pengpeng Xie, and Liping Zhang.
+\newblock Tikhonov regularization and randomized {GSVD}.
 \newblock {\em SIAM Journal on Matrix Analysis and Applications},
-  25(1):165--179, 2003.
-
-\bibitem{kim2005dimension}
-Hyunsoo Kim, Peg Howland, and Haesun Park.
-\newblock Dimension reduction in text classification with support vector
-  machines.
-\newblock {\em Journal of machine learning research}, 6(Jan):37--53, 2005.
+  37(2):649--675, 2016.
 
 \bibitem{wikipedia_2020}
 Wikipedia.
 \newblock One-way analysis of variance, Jun 2020.
 \newblock Available at
   \url{https://en.wikipedia.org/wiki/One-way_analysis_of_variance}.
+
+\bibitem{math}
+{Wolfram Research, Inc.}
+\newblock Mathematica 8.0.
 
 \end{thebibliography}

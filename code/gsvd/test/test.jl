@@ -1,11 +1,15 @@
-using LinearAlgebra
 include("../src/gsvd.jl")
+
+using LinearAlgebra
+using DataFrames
+using CSV
+
 
 """
     test(m, p, n)
 
 This function tests the time performance
-and stability of Generalized Singular Value Decomposition (GSVD)
+and backward stability of Generalized Singular Value Decomposition (GSVD)
 
 First, we generate a m by n random matrix A and p by n random matrix B,
 Create a copy of A and B, respectively (original A and B will be overwritten)
@@ -32,37 +36,17 @@ Compute:
 
 no return
 """
-function test(m, p, n)
-    A = randn(m, n)
-    B = randn(p, n)
-    A_ = copy(A)
-    B_ = copy(B)
-
-    @time U, V, Q, C, S, R, k, l = gsvd(A, B, 1)
-    e = eps(Float64)
-    res_a = opnorm(U'*A_*Q - C*R, 1)/(max(m,n)*opnorm(A_, 1)*e)
-    res_b = opnorm(V'*B_*Q - S*R, 1)/(max(m,n)*opnorm(B_, 1)*e)
-    orthog_u = opnorm(I - U'*U, 1)/(m*e)
-    orthog_v = opnorm(I - V'*V, 1)/(p*e)
-    orthog_q = opnorm(I - Q'*Q, 1)/(n*e)
-    println("res_a: ", res_a)
-    println("res_b: ", res_b)
-    println("orthog_u: ", orthog_u)
-    println("orthog_v: ", orthog_v)
-    println("orthog_q: ", orthog_q)
-    return k, l
-end
-
 function computemetric(F::GSVD, A, B)
     e = eps(Float64)
     m, n = size(A)
     p = size(B)[1]
     res_a = opnorm(F.U'*A*F.Q - F.D1*F.R, 1)/(max(m,n)*opnorm(A, 1)*e)
-    res_b = opnorm(F.V'*B*F.Q - F.D2*F.R, 1)/(max(m,n)*opnorm(B, 1)*e)
+    res_b = opnorm(F.V'*B*F.Q - F.D2*F.R, 1)/(max(p,n)*opnorm(B, 1)*e)
+    orthog_cs = opnorm(I - F.D1'*F.D1 - F.D2'*F.D2, 1)/(max(m,p,n)*e)
     orthog_u = opnorm(I - F.U'*F.U, 1)/(m*e)
     orthog_v = opnorm(I - F.V'*F.V, 1)/(p*e)
     orthog_q = opnorm(I - F.Q'*F.Q, 1)/(n*e)
-    return res_a, res_b, orthog_u, orthog_v, orthog_q
+    return res_a, res_b, orthog_cs, orthog_u, orthog_v, orthog_q
 end
 
 function computemetric(F::GeneralizedSVD, A, B)
@@ -70,23 +54,154 @@ function computemetric(F::GeneralizedSVD, A, B)
     m, n = size(A)
     p = size(B)[1]
     res_a = opnorm(F.U'*A*F.Q - F.D1*F.R0, 1)/(max(m,n)*opnorm(A, 1)*e)
-    res_b = opnorm(F.V'*B*F.Q - F.D2*F.R0, 1)/(max(m,n)*opnorm(B, 1)*e)
+    res_b = opnorm(F.V'*B*F.Q - F.D2*F.R0, 1)/(max(p,n)*opnorm(B, 1)*e)
+    orthog_cs = opnorm(I - F.D1'*F.D1 - F.D2'*F.D2, 1)/(max(m,p,n)*e)
     orthog_u = opnorm(I - F.U'*F.U, 1)/(m*e)
     orthog_v = opnorm(I - F.V'*F.V, 1)/(p*e)
     orthog_q = opnorm(I - F.Q'*F.Q, 1)/(n*e)
-    return res_a, res_b, orthog_u, orthog_v, orthog_q
+    return res_a, res_b, orthog_cs, orthog_u, orthog_v, orthog_q
 end
+
+function test(m, p, n)
+    A = randn(m, n)
+    B = randn(p, n)
+    A_ = deepcopy(A)
+    B_ = deepcopy(B)
+
+    @time F = gsvd(A, B)
+    res_a, res_b, orthog_cs, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
+    return F.k + F.l, res_a, res_b, orthog_cs, orthog_u, orthog_v, orthog_q
+    # e = eps(Float64)
+    # res_a = opnorm(U'*A_*Q - C*R, 1)/(max(m,n)*opnorm(A_, 1)*e)
+    # res_b = opnorm(V'*B_*Q - S*R, 1)/(max(m,n)*opnorm(B_, 1)*e)
+    # orthog_cs = opnorm(I - C'*C - S'*S, 1)/(max(m,p,n)*e)
+    # orthog_u = opnorm(I - U'*U, 1)/(m*e)
+    # orthog_v = opnorm(I - V'*V, 1)/(p*e)
+    # orthog_q = opnorm(I - Q'*Q, 1)/(n*e)
+    # println("res_a: ", res_a)
+    # println("res_b: ", res_b)
+    # println("orthog_cs: ", orthog_cs)
+    # println("orthog_u: ", orthog_u)
+    # println("orthog_v: ", orthog_v)
+    # println("orthog_q: ", orthog_q)
+    # return k, l
+end
+
+
+
+function test()
+    df = DataFrame(m = Int64[], p = Int64[], n = Int64[], kl = Int64[], res_a = Float64[],
+    res_b = Float64[], orthog_cs = Float64[], orthog_u = Float64[],
+    orthog_v = Float64[], orthog_q = Float64[])
+
+    # case 1: m >= n & p >= n
+    println("=======================Case 1============================")
+    for i = 1:20
+        a, b, c, d, e, f, g = test(60, 50, 40)
+        push!(df, [60 50 40 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+    for i = 1:20
+        a, b, c, d, e, f, g = test(300, 250, 200)
+        push!(df, [300 250 200 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+    for i = 1:20
+        a, b, c, d, e, f, g = test(900, 750, 600)
+        push!(df, [900 750 600 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+    for i = 1:20
+        a, b, c, d, e, f, g = test(1500, 1250, 1000)
+        push!(df, [1500 1250 1000 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+
+    # case 2: m >= n > p
+    println("=======================Case 2================================")
+    for i = 1:20
+        a, b, c, d, e, f, g = test(60, 40, 50)
+        push!(df, [60 40 50 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+    for i = 1:20
+        a, b, c, d, e, f, g = test(300, 200, 250)
+        push!(df, [300 200 250 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+    for i = 1:20
+        a, b, c, d, e, f, g = test(900, 600, 750)
+        push!(df, [900 600 750 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+    for i = 1:20
+        a, b, c, d, e, f, g = test(1500, 1000, 1250)
+        push!(df, [1500 1000 1250 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+
+    # case 3: p >= n > m
+    println("=======================Case 3==============================")
+    for i = 1:20
+        a, b, c, d, e, f, g = test(40, 60, 50)
+        push!(df, [40 60 50 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+    for i = 1:20
+        a, b, c, d, e, f, g = test(200, 300, 250)
+        push!(df, [200 300 250 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+    for i = 1:20
+        a, b, c, d, e, f, g = test(600, 900, 750)
+        push!(df, [600 900 750 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+    for i = 1:20
+        a, b, c, d, e, f, g = test(1000, 1500, 1250)
+        push!(df, [1000 1500 1250 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+
+    # case 4: n > m & n > p
+    println("=====================Case 4============================")
+    for i = 1:20
+        a, b, c, d, e, f, g = test(20, 30, 60)
+        push!(df, [20 30 60 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+    for i = 1:20
+        a, b, c, d, e, f, g = test(200, 300, 600)
+        push!(df, [200 300 600 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+    for i = 1:20
+        a, b, c, d, e, f, g = test(400, 600, 1200)
+        push!(df, [400 600 1200 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+    for i = 1:20
+        a, b, c, d, e, f, g = test(1000, 1500, 3000)
+        push!(df, [1000 1500 3000 a b c d e f g])
+        println("---------------------------------------------------------------")
+    end
+
+    CSV.write("rand_matrix_test.csv", df, append=true)
+    return df
+end
+
 
 # Example 1 from Ch.4 of Jenny's Thesis
 function test1()
     A  = Float64[1 2 1 0; 2 3 1 1; 3 4 1 2;4 5 1 3;5 6 1 4]
-    A_ = copy(A)
+    A_ = deepcopy(A)
     B = Float64[6 7 1 5;7 1 -6 13;-4 8 9 -2]
-    B_ = copy(B)
+    B_ = deepcopy(B)
     @time F = gsvd(A, B)
-    res_a, res_b, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
+    res_a, res_b, orthog_cs, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
     println("res_a: ", res_a)
     println("res_b: ", res_b)
+    println("orthog_cs: ", orthog_cs)
     println("orthog_u: ", orthog_u)
     println("orthog_v: ", orthog_v)
     println("orthog_q: ", orthog_q)
@@ -100,39 +215,41 @@ end
 function test2()
     A = [1. 2 1 0;2 3 1 1;3 4 1 2]
     B = [4. 5 1 3;5 6 1 4;6 7 1 5;7 1 -6 13]
-    A_ = copy(A)
-    B_ = copy(B)
+    A_ = deepcopy(A)
+    B_ = deepcopy(B)
     F = gsvd(A, B)
-    res_a, res_b, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
+    res_a, res_b, orthog_cs, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
     println("res_a: ", res_a)
     println("res_b: ", res_b)
+    println("orthog_cs: ", orthog_cs)
     println("orthog_u: ", orthog_u)
     println("orthog_v: ", orthog_v)
     println("orthog_q: ", orthog_q)
-    return F
+    # return F
 end
 
 function test2_current()
     A = [1. 2 1 0;2 3 1 1;3 4 1 2];
     B = [4. 5 1 3;5 6 1 4;6 7 1 5;7 1 -6 13];
-    A_ = copy(A)
-    B_ = copy(B)
+    A_ = deepcopy(A)
+    B_ = deepcopy(B)
     F = svd(A, B)
-    res_a, res_b, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
+    res_a, res_b, orthog_cs, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
     println("res_a: ", res_a)
     println("res_b: ", res_b)
+    println("orthog_cs: ", orthog_cs)
     println("orthog_u: ", orthog_u)
     println("orthog_v: ", orthog_v)
     println("orthog_q: ", orthog_q)
-    return F
+    # return F
 end
 
 # Example 1 from MATLAB 2019b documentation
 function test3()
     A = [1.0 6 11;2 7 12;3 6 13;4 9 14;5 10 15]
-    A_ = copy(A)
+    A_ = deepcopy(A)
     B = [8.0 1 6;3 5 7;4 9 2]
-    B_ = copy(B)
+    B_ = deepcopy(B)
     m,n = size(A)
     p = size(B)[1]
     U, V, Q, C, S, R, k, l = gsvd(A, B, 1)
@@ -153,9 +270,9 @@ end
 # Example 2 from MATLAB 2019b documentation
 function test4()
     A = [1.0 4 7 10 13;2 5 8 11 14;3 6 9 12 15]
-    A_ = copy(A)
+    A_ = deepcopy(A)
     B = [17.0 24 1 8 15;23 5 7 14 16;4 6 13 20 22;10 12 19 21 3;11 19 25 2 9]
-    B_ = copy(B)
+    B_ = deepcopy(B)
     m,n = size(A)
     p = size(B)[1]
     U, V, Q, C, S, R, k, l = gsvd(A, B, 1)
@@ -176,9 +293,9 @@ end
 # Example from Ch. 93 LAPACK of Handbook of Linear Algebra, 2nd Edition
 function test5()
     A = [1.0 2 3 1 5;0 3 2 0 2;1 0 2 1 0;0 2 3 0 -1;1 0 2 1 1;0 2 1 0 1]
-    A_ = copy(A)
+    A_ = deepcopy(A)
     B = [1.0 -2 2 1 1;0 3 0 0 0;1 -2 2 1 1;0 2 0 0 0;2 -4 4 2 2;1 3 2 1 1]
-    B_ = copy(B)
+    B_ = deepcopy(B)
     m,n = size(A)
     p = size(B)[1]
     U, V, Q, C, S, R, k, l = gsvd(A, B, 1)
@@ -201,9 +318,9 @@ end
 # the generalized singular value decomposition"
 function test6()
     A = [1.0 2 3 1 5;0 3 2 0 2;1 0 2 1 0;0 2 3 0 -1;1 0 2 1 1;0 2 1 0 1]
-    A_ = copy(A)
+    A_ = deepcopy(A)
     B = [1.0 -2 2 1 1;0 3 0 0 0;1 -2 2 1 1;0 2 0 0 0;2 -4 4 2 2;1 3 2 1 1]
-    B_ = copy(B)
+    B_ = deepcopy(B)
     m,n = size(A)
     p = size(B)[1]
     U, V, Q, C, S, R, k, l = gsvd(A, B, 1)
@@ -225,93 +342,99 @@ end
 function test7()
     A = [1. 2 3 0; 5 4 2 1; 0 3 5 2; 2 1 3 3; 2 0 5 3];
     B = [1. 0 3 -1; -2 5 0 1; 4 2 -1 2];
-    A_ = copy(A)
-    B_ = copy(B)
+    A_ = deepcopy(A)
+    B_ = deepcopy(B)
     F = gsvd(A, B)
-    res_a, res_b, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
+    res_a, res_b, orthog_cs, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
     println("res_a: ", res_a)
     println("res_b: ", res_b)
+    println("orthog_cs: ", orthog_cs)
     println("orthog_u: ", orthog_u)
     println("orthog_v: ", orthog_v)
     println("orthog_q: ", orthog_q)
-    return F
+    # return F
 end
 
 function test7_current()
     A = [1. 2 3 0; 5 4 2 1; 0 3 5 2; 2 1 3 3; 2 0 5 3];
     B = [1. 0 3 -1; -2 5 0 1; 4 2 -1 2];
-    A_ = copy(A)
-    B_ = copy(B)
+    A_ = deepcopy(A)
+    B_ = deepcopy(B)
     F = svd(A, B)
-    res_a, res_b, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
+    res_a, res_b, orthog_cs, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
     println("res_a: ", res_a)
     println("res_b: ", res_b)
+    println("orthog_cs: ", orthog_cs)
     println("orthog_u: ", orthog_u)
     println("orthog_v: ", orthog_v)
     println("orthog_q: ", orthog_q)
-    return F
+    # return F
 end
 
 # Example 3 in working notes
 function test8()
     A = [1. 4 1 0;5 3 1 1;3 0 1 2];
     B = [4. 5 1 3;-2 0 1 4;3 2 1 -5;1 1 -6 3];
-    A_ = copy(A)
-    B_ = copy(B)
+    A_ = deepcopy(A)
+    B_ = deepcopy(B)
     F = gsvd(A, B)
-    res_a, res_b, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
+    res_a, res_b, orthog_cs, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
     println("res_a: ", res_a)
     println("res_b: ", res_b)
+    println("orthog_cs: ", orthog_cs)
     println("orthog_u: ", orthog_u)
     println("orthog_v: ", orthog_v)
     println("orthog_q: ", orthog_q)
-    return F
+    # return F
 end
 
 function test8_current()
     A = [1. 4 1 0;5 3 1 1;3 0 1 2];
     B = [4. 5 1 3;-2 0 1 4;3 2 1 -5;1 1 -6 3];
-    A_ = copy(A)
-    B_ = copy(B)
+    A_ = deepcopy(A)
+    B_ = deepcopy(B)
     F = svd(A, B)
-    res_a, res_b, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
+    res_a, res_b, orthog_cs, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
     println("res_a: ", res_a)
     println("res_b: ", res_b)
+    println("orthog_cs: ", orthog_cs)
     println("orthog_u: ", orthog_u)
     println("orthog_v: ", orthog_v)
     println("orthog_q: ", orthog_q)
-    return F
+    # return F
 end
 
 # Example 4 in working notes
 function test9()
     A = [1. 4 2 3 0;3 4 0 -2 1;4 7 5 6 3];
     B = [1. 4 2 3 0;2 5 3 4 1;3 6 4 5 2;0 1 -1 3 1];
-    A_ = copy(A)
-    B_ = copy(B)
+    A_ = deepcopy(A)
+    B_ = deepcopy(B)
     F = gsvd(A, B)
-    res_a, res_b, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
+    res_a, res_b, orthog_cs, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
     println("res_a: ", res_a)
     println("res_b: ", res_b)
+    println("orthog_cs: ", orthog_cs)
     println("orthog_u: ", orthog_u)
     println("orthog_v: ", orthog_v)
     println("orthog_q: ", orthog_q)
-    return F
+    # return F
 end
 
 function test9_current()
     A = [1. 4 2 3 0;3 4 0 -2 1;4 7 5 6 3];
     B = [1. 4 2 3 0;2 5 3 4 1;3 6 4 5 2;0 1 -1 3 1];
-    A_ = copy(A)
-    B_ = copy(B)
+    A_ = deepcopy(A)
+    B_ = deepcopy(B)
     F = svd(A, B)
-    res_a, res_b, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
+    res_a, res_b, orthog_cs, orthog_u, orthog_v, orthog_q = computemetric(F, A_, B_)
     println("res_a: ", res_a)
     println("res_b: ", res_b)
+    println("orthog_cs: ", orthog_cs)
     println("orthog_u: ", orthog_u)
     println("orthog_v: ", orthog_v)
     println("orthog_q: ", orthog_q)
-    return F
+    # return F
 end
 
 function test_full()

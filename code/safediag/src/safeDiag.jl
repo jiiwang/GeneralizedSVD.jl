@@ -69,7 +69,7 @@ function safeDiag(Q1, Q2)
     D1.V[:,1:l] = @views D1.V[:,l:-1:1]
 
 	# check residual of Q2
-	println("res_q2 after Step 2: ", opnorm(D1.U * S * (D1.V)' - Q2, 1)/(l*opnorm(Q2, 1)*eps(Float64)))
+	# println("res_q2 after Step 2: ", opnorm(D1.U * S * (D1.V)' - Q2, 1)/(l*opnorm(Q2, 1)*eps(Float64)))
 
     # Step 3: find r such that beta(r) <= 1/sqrt(2) < beta(r+1),
 	# binary search is used
@@ -89,7 +89,7 @@ function safeDiag(Q1, Q2)
 	U = U * Diagonal(dia1)
 
 	# Check residual of Q1
-	println("res_q1 after Step 5: ", opnorm(U * R * (D1.V)' - Q1, 1)/(l*opnorm(Q1, 1)*eps(Float64)))
+	# println("res_q1 after Step 5: ", opnorm(U * R * (D1.V)' - Q1, 1)/(l*opnorm(Q1, 1)*eps(Float64)))
 
 	# Special case: exit
 	if (m == l && l <= r) || (m < l && m <= r)
@@ -119,7 +119,7 @@ function safeDiag(Q1, Q2)
 	end
 
 	# Check residual of Q1
-	println("res_q1 after Step 6: ", opnorm(U * C * (D1.V)' - Q1, 1)/(l*opnorm(Q1, 1)*eps(Float64)))
+	# println("res_q1 after Step 6: ", opnorm(U * C * (D1.V)' - Q1, 1)/(l*opnorm(Q1, 1)*eps(Float64)))
 
 	# Step 7: refine V
     # Step 7a: set W
@@ -137,24 +137,24 @@ function safeDiag(Q1, Q2)
     @views D1.U[:,r+1:l] = D1.U[:,r+1:l] * Qw
 
 	# Check residual of Q1
-	println("res_q2 after Step 7: ", opnorm(D1.U * S * (D1.V)' - Q2, 1)/(l*opnorm(Q2, 1)*eps(Float64)))
+	# println("res_q2 after Step 7: ", opnorm(D1.U * S * (D1.V)' - Q2, 1)/(l*opnorm(Q2, 1)*eps(Float64)))
 
     return U, D1.U, D1.V, C, S
 end
 
 function binSearch(beta)
 	r = 1
-	low, high = 1, length(beta)-1
+	low, high = 1, length(beta)
 	thld = sqrt(0.5)
 	while low <= high
 		mid = floor(Integer, (high - low)/2) + low
-		if beta[mid] <= thld && thld < beta[mid+1]
-			r = mid
-			break
-		elseif beta[mid+1] <= thld
-			low = mid
+		r = mid
+		if beta[mid+1] <= thld
+			low = mid + 1
 		elseif beta[mid] > thld
-			high = mid
+			high = mid - 1
+		else
+			return mid
 		end
 	end
 	return r
