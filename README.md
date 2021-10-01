@@ -1,23 +1,11 @@
-## Generalized singular value decomposition (GSVD) in Julia
-
-This project implements GSVD in Julia 1.3
+## GSVD.jl: A Julia package for the Generalized Singular Value Decomposition (GSVD)
 
 Project structure:
 ```
 ── code
-    |── csd
-    │     |── src
-    │     └── test
-    |── gsvd
+    |── GSVD.jl
     |     |── src
     │     └── test
-    |── safediag
-    |     |── src
-    │     └── test
-    |── examples
-    |
     |── app
-── ref
-── fig stats
-── notes
+── plots_stats
 ```

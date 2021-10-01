@@ -1,13 +1,14 @@
-ENV["MPLBACKEND"]="qt5agg";
+# ENV["MPLBACKEND"]="qt5agg";
 include("../gsvd/src/gsvd.jl")
 include("../gsvd/test/test.jl")
-using PyPlot
-pygui(true)
-# using Plots
+# using PyPlot
+# pygui(true)
+using Plots
+using LaTeXStrings
 using DataFrames
 using DelimitedFiles
 using LinearAlgebra:svd
-using Statistics:mean
+using Statistics:median
 
 function comparativeAnalyser()
     yeast, human = checkNull()
@@ -27,14 +28,37 @@ function comparativeAnalyser()
     println("orthog_q: ", orthog_q)
 
     dist = atan.(sqrt.(diag(F.D1'*F.D1)./diag(F.D2'*F.D2))) .- pi/4
-    println(dist);
-    y = ["18","17","16","15","14","13","12","11","10","9","8","7","6","5","4","3","2","1"];
-    ax = gca();
-    PyPlot.xlim([-pi/4,pi/4]);
-    ax.set_xticks(range(-pi/4, pi/4, step=pi/8));
-    ax.set_xticklabels([L"-$\frac{\pi}{4}$", L"-$\frac{\pi}{8}$", L"$0$", L"$\frac{\pi}{8}$", L"$\frac{\pi}{4}$"]);
-    ax.xaxis.grid(true);
-    b = barh(y,dist[end:-1:1],color="#0f87bf",align="center",alpha=0.4);PyPlot.title("Angular Distance")
+    # println(dist);
+    # y = ["18","17","16","15","14","13","12","11","10","9","8","7","6","5","4","3","2","1"];
+    # ax = gca();
+    # PyPlot.xlim([-pi/4,pi/4]);
+    # ax.set_xticks(range(-pi/4, pi/4, step=pi/8));
+    # ax.set_xticklabels([L"-$\frac{\pi}{4}$", L"-$\frac{\pi}{8}$", L"$0$", L"$\frac{\pi}{8}$", L"$\frac{\pi}{4}$"]);
+    # ax.xaxis.grid(true);
+    # b = barh(y,dist[end:-1:1],color="#0f87bf",align="center",alpha=0.4);PyPlot.title("Angular Distance")
+    return dist
+end
+
+function plotbarh(dist)
+    gr();
+    pl = bar(
+    string.(18:-1:1),
+    dist[end:-1:1],
+    orientation = :horizontal,
+    aspect_ratio = 0.1,
+    xlabel = "distance",
+    yticks = :all,
+    xlims = (-π/4, π/4),
+    # xticks = ["-pi/4", "-pi/8", "0", "pi/8", "pi/4"],
+    # xticks = ( [-π/4:π/8:π/4;], parse.(Float16,string.(-π/4:π/8:π/4)[:]) ),
+    xticks = ([-π/4:π/8:π/4;], [L"$-\frac{\pi}{4}$", L"$-\frac{\pi}{8}$", L"0", L"$\frac{\pi}{8}$", L"$\frac{\pi}{4}$"]),
+    ylabel = "i-th genelet",
+    title = "Angular Distance between Yeast and Human",
+    fillcolor = :darkseagreen1,
+    # fillalpha=0.5,
+    legend = nothing)
+    savefig(pl, "angulardist.pdf")
+    savefig("angulardist.png")
 end
 
 # function matrixRetrieval()
@@ -97,14 +121,14 @@ end
 function SVDimputation(input)
     # yeast = readdlm("input_data/yeast_readable.txt")
 
-    inputraw = deepcopy(input)
+    # inputraw = deepcopy(input)
 
     output = zeros(size(input)[1], size(input)[2])
 
-    # calculate column mean and assign it to the missing entries
-    for j=1:size(input)[2]
-        m = mean(skipmissing(input[:,j]))
-        for i=1:size(input)[1]
+    # calculate row mean and assign it to the missing entries
+    for i=1:size(input)[1]
+        m = mean(skipmissing(input[i,:]))
+        for j=1:size(input)[2]
             if typeof(input[i,j]) == Missing
                 output[i,j] = m
             else
@@ -113,24 +137,27 @@ function SVDimputation(input)
         end
     end
 
-    maxItr = 10
-    tol = 1.0e-10
+    maxItr = 20
+    tol = 1.0e-6
 
     i = 1
     sig = 5
-    err = 1.0
+    err = Inf
     while i <= maxItr && err > tol
+        println("Itr # $i")
         F = svd(output, full = true)
         approx = F.U[:,1:sig]*Diagonal(F.S[1:sig])*F.Vt[1:sig,:]
         outputnew = deepcopy(output)
-        for j=1:size(inputraw)[2]
-            for i=1:size(inputraw)[1]
-                if typeof(inputraw[i,j]) == Missing
+        for j=1:size(input)[2]
+            for i=1:size(input)[1]
+                if typeof(input[i,j]) == Missing
                     outputnew[i,j] = approx[i,j]
                 end
             end
         end
-        err = opnorm(output - outputnew, 1)/opnorm(output, 1)
+        err = norm(output - outputnew, 2)/norm(output, 2)
+        err = sum(abs2, output - outputnew)/sum(abs2, output)
+        println("error is $err")
         output = deepcopy(outputnew)
         i = i+1
     end

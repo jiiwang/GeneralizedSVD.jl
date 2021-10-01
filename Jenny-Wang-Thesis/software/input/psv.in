@@ -1,9 +1,0 @@
-PSV: Data file for testing Product SVD routines
-12                                     Number of values of M, P, N
-30 15 30  15 71 57  10 44 40  13 20 38 Values of M (row dimension)
-16 23 16  7  38 26  98 70 62  38 40 22 Values of P (row dimension)
-8  7  16  9  40 57  11 57 60  77 60 47 Values of N (column dimension)
-2.0                                    Threshold value of test ratio
-T                                      Put T to test the error exits
-1                                      Code to interpret the seed
-PSV 8                   List types on next line if 0 < NTYPES < 8
