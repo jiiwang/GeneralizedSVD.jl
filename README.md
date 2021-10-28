@@ -50,7 +50,7 @@ true
 
 ## Documentation
 
-- [**STABLE**][docs-stable-url] &mdash; **documentation of the most recently tagged version.**
+- [docs-url] &mdash; **documentation of the most recently tagged version.**
 
 ## Project Status
 
@@ -59,3 +59,5 @@ The package is tested against, and being developed for, Julia `1.3` on macOS and
 ## Contact
 + Ji Wang: jiiwang@ucdavis.edu
 + Zhaojun Bai: zbai@ucdavis.edu
+
+[docs-url]:https://jiiwang.github.io/GeneralizedSVD.jl/
