@@ -50,7 +50,7 @@ true
 
 ## Documentation
 
-- [**STABLE**][docs-stable-url] &mdash; **documentation of the most recently tagged version.**
+- [**STABLE**][https://jiiwang.github.io/GeneralizedSVD.jl/] &mdash; **documentation of the most recently tagged version.**
 
 ## Project Status
 
