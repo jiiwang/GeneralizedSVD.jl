@@ -1,7 +1,7 @@
 name = "GeneralizedSVD"
 uuid = "230433e9-56bc-4951-b27a-551e36a437d8"
-authors = ["hytonwons "]
+authors = ["Ji Wang, Zhaojun Bai <jiiwang, zbai@ucdavis.edu>"]
 version = "0.1.0"
 
-[deps]
-LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+[compat]
+julia = "1.3"
