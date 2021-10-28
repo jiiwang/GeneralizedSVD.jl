@@ -58,5 +58,5 @@ true
 The package is tested against, and being developed for, Julia `1.3` on macOS in `Float` type.
 
 ## Contact
-Ji Wang, Zhaojun Bai
-E-mail: jiiwang, zbai@ucdavis.edu
++ Ji Wang: jiiwang@ucdavis.edu
++ Zhaojun Bai: zbai@ucdavis.edu
