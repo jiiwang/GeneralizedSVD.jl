@@ -1,23 +1,23 @@
-# GSVD
+# GeneralizedSVD
 
 *A Julia program to compute the generalized singular value decomposition (GSVD).*
 
 ## Installation
-To install `GSVD`,
+To install `GeneralizedSVD`,
 from the Julia REPL, type `]` to enter the Pkg REPL mode and run:
 ```
-pkg> add GSVD
+pkg> add GeneralizedSVD
 ```
 
 or using the `Pkg` API:
 
 ```julia
-julia> import Pkg; Pkg.add("GSVD")
+julia> import Pkg; Pkg.add("GeneralizedSVD")
 ```
 
 ## Example
 ```julia
-julia> using GSVD
+julia> using GeneralizedSVD
 
 julia> A = [1. 2 3 0; 5 4 2 1; 0 3 5 2; 2 1 3 3; 2 0 5 3];
 julia> B = [1. 0 3 -1; -2 5 0 1; 4 2 -1 2];
@@ -51,11 +51,10 @@ true
 ## Documentation
 
 - [**STABLE**][docs-stable-url] &mdash; **documentation of the most recently tagged version.**
-- [**DEVEL**][docs-dev-url] &mdash; *documentation of the in-development version.*
 
 ## Project Status
 
-The package is tested against, and being developed for, Julia `1.3` on macOS in `Float` type.
+The package is tested against, and being developed for, Julia `1.3` on macOS and support `Float` type.
 
 ## Contact
 + Ji Wang: jiiwang@ucdavis.edu

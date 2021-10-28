@@ -1,4 +1,4 @@
-module GSVD
+module GeneralizedSVD
 
 import Base: show,getproperty
 using LinearAlgebra

@@ -1,5 +1,5 @@
 using Test
-import GSVD
+import GeneralizedSVD:GenSVD, gsvd
 using LinearAlgebra
 using DataFrames
 using CSV
