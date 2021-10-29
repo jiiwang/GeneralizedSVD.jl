@@ -54,7 +54,7 @@ true
 
 ## Project Status
 
-The package is tested against, and being developed for, Julia `1.3` on macOS and support `Float` type.
+The package is tested against, and being developed for, Julia `1.3` on macOS and supports `Float` type.
 
 ## Contact
 + Ji Wang: jiiwang@ucdavis.edu
